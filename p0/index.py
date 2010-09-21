@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
         $Id$
 Description: Programa que crea un indice de palabras para un texto.
@@ -8,4 +9,4 @@ Description: Programa que crea un indice de palabras para un texto.
 
 print 'esto es una prueba'
 for a in range(10):
-   print 'compiladores'
+    print 'compiladores'
