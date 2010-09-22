@@ -3,7 +3,7 @@
 """
         $Id$
 Description: Programa que crea un indice de palabras para un texto.
-    $Author$ Lionel Aster Mena Garcia Alejandro Samarin
+    $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$
 """
