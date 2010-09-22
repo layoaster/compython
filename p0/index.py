@@ -8,8 +8,10 @@ Description: Programa que crea un indice de palabras para un texto.
   $Revision$
 """
 
-print 'esto es una prueba'
-for a in range(10):
-    print 'compiladores'
+import sys
 
-print 'lionel'
+if (len(sys.argv) > 2):
+    print "Abriendo " + sys.argv[1] + " y escribiendo en " + sys.argv[2]
+else:
+    print "No se indica el fichero de entrada y/o salida"
+
