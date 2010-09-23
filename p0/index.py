@@ -9,6 +9,21 @@ Description: Programa que crea un indice de palabras para un texto.
 """
 
 import sys
+import string
+
+"""Limpia la linea de signos de puntuacion y devuelve en una lista
+   las palabras que contiene la linea"""
+def lclean(line):
+    if sys.version_info < (2, 6):
+        table = ''.join(chr(i) for i in xrange(256))
+    else:
+        table = None
+
+    line = line.translate(table, string.punctuation)
+    print line
+    words = line.split()
+
+    return words
 
 if (len(sys.argv) != 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
@@ -19,10 +34,13 @@ else:
         print "Fichero abierto:" , sys.argv[1]
 
         eof = True
+        line_c = 1
         while eof:
             line = fin.readline()
             if line:
-                print line
+                print lclean(line)
+
+                line_c = line_c + 1;
             else:
                 eof = False
 
