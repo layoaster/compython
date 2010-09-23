@@ -1,6 +1,6 @@
 hola,  que, tal como estas.
 prueba1
     prueba 2
-  prueba3
+  		     prueba3
 
 prueba4

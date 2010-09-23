@@ -19,10 +19,8 @@ def lclean(line):
     else:
         table = None
 
-    line = line.translate(table, string.punctuation)
-    print line
+    line = line.translate( table, string.punctuation)
     words = line.split()
-
     return words
 
 if (len(sys.argv) != 3):
@@ -35,14 +33,11 @@ else:
 
         eof = True
         line_c = 1
-        while eof:
+        line = fin.readline()
+        while line:
+            print lclean(line)
+            line_c = line_c + 1
             line = fin.readline()
-            if line:
-                print lclean(line)
-
-                line_c = line_c + 1;
-            else:
-                eof = False
 
         fin.close()
     except IOError:
