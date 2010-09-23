@@ -10,18 +10,26 @@ Description: Programa que crea un indice de palabras para un texto.
 
 import sys
 import string
+import re
 
-"""Limpia la linea de signos de puntuacion y devuelve en una lista
-   las palabras que contiene la linea"""
-def lclean(line):
-    if sys.version_info < (2, 6):
-        table = ''.join(chr(i) for i in xrange(256))
-    else:
-        table = None
+"""Añade las palabras de una linea al diccionario"""
+def dictAdd(dict, words, act_line):
+    for wd in words:
+        if (wd in dict):
+            numl = dict[wd]
+            if act_line not in numl:
+                numl.append(act_line)
+        else:
+            dict[wd] = [act_line]
 
-    line = line.translate( table, string.punctuation)
-    words = line.split()
-    return words
+"""Listado del diccionario en orden alfabetico"""
+def dictWrite(dict, fout):
+    sorted = dict.keys()
+    sorted.sort()
+
+    for word in sorted:
+        print '{0:10}   {1:10}'.format(word, dict[word])
+        #print word, "\t\t\t\t",
 
 if (len(sys.argv) != 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
@@ -31,15 +39,19 @@ else:
         fin = open(sys.argv[1], "r")
         print "Fichero abierto:" , sys.argv[1]
 
-        eof = True
+        dict = {}
         line_c = 1
         line = fin.readline()
         while line:
-            print lclean(line)
+            if len(line) > 1:
+                words = re.split('\W+', line.strip(string.punctuation + string.whitespace))
+                dictAdd(dict, words, line_c)
+
             line_c = line_c + 1
             line = fin.readline()
-
         fin.close()
+
+        dictWrite(dict, sys.argv[2])
     except IOError:
         print "ERROR: No se pudo abrir el fichero."
         exit()
