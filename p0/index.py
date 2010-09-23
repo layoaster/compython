@@ -15,12 +15,13 @@ import re
 """Añade las palabras de una linea al diccionario"""
 def dictAdd(dict, words, act_line):
     for wd in words:
-        if (wd in dict):
-            numl = dict[wd]
-            if act_line not in numl:
-                numl.append(act_line)
-        else:
-            dict[wd] = [act_line]
+        if not wd.isdigit():
+            if (wd in dict):
+                numl = dict[wd]
+                if act_line not in numl:
+                    numl.append(act_line)
+            else:
+                dict[wd] = [act_line]
 
 """Listado del diccionario en orden alfabetico"""
 def dictWrite(dict, fout):
@@ -28,7 +29,7 @@ def dictWrite(dict, fout):
     sorted.sort()
 
     for word in sorted:
-        print '{0:10}   {1:10}'.format(word, dict[word])
+        print '{0:20}'.format(word), dict[word]
         #print word, "\t\t\t\t",
 
 if (len(sys.argv) != 3):
