@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
         $Id$
@@ -10,8 +10,24 @@ Description: Programa que crea un indice de palabras para un texto.
 
 import sys
 
-if (len(sys.argv) > 2):
-    print "Abriendo " + sys.argv[1] + " y escribiendo en " + sys.argv[2]
+if (len(sys.argv) != 3):
+    print "ERROR: No se indica el fichero de entrada y/o salida"
+    print "USO: index.py texto.in diccionario.out"
 else:
-    print "No se indica el fichero de entrada y/o salida"
+    try:
+        fin = open(sys.argv[1], "r")
+        print "Fichero abierto:" , sys.argv[1]
+
+        eof = True
+        while eof:
+            line = fin.readline()
+            if line:
+                print line
+            else:
+                eof = False
+
+        fin.close()
+    except IOError:
+        print "ERROR: No se pudo abrir el fichero."
+        exit()
 
