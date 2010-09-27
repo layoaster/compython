@@ -12,8 +12,9 @@ import sys
 import string
 import re
 
-"""Añade las palabras de una linea al diccionario"""
+
 def dictAdd(dict, words, act_line):
+"""Añade las palabras de una linea al diccionario"""
     for wd in words:
         if not wd.isdigit():
             if (wd in dict):
@@ -23,14 +24,15 @@ def dictAdd(dict, words, act_line):
             else:
                 dict[wd] = [act_line]
 
-"""Listado del diccionario en orden alfabetico"""
+
 def dictWrite(dict, fout):
+"""Listado del diccionario en orden alfabetico"""
     sorted = dict.keys()
     sorted.sort()
 
     for word in sorted:
-        print '{0:20}'.format(word), dict[word]
-        #print word, "\t\t\t\t",
+        #print '{0:20}'.format(word), dict[word]
+        print word, "\t\t\t\t",dict[word]
 
 if (len(sys.argv) != 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
@@ -45,7 +47,7 @@ else:
         line = fin.readline()
         while line:
             if len(line) > 1:
-                words = re.split('\W+', line.strip(string.punctuation + string.whitespace))
+                words = re.split('\W+', line.strip(string.punctuation + string.whitespace), re.UNICODE)
                 dictAdd(dict, words, line_c)
 
             line_c = line_c + 1
