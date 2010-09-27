@@ -28,7 +28,6 @@ def readFile(dict, file):
             line = fin.readline()
         fin.close()
 
-        dictPrint(dict)
     except IOError:
         print "ERROR: No se pudo abrir el fichero."
         exit(-1)
@@ -49,7 +48,6 @@ def dictPrint(dict):
     """Listado del diccionario por pantalla"""
     sorted = dict.keys()
     sorted.sort()
-
     for word in sorted:
         #print '{0:20}'.format(word), dict[word]
         print "%-25s" % word,
@@ -58,14 +56,23 @@ def dictPrint(dict):
             print str(num) + ",",
         print ""
 
-def dictWrite(dict, fout):
+def writeFile(dict, file):
     """Escritura del diccionario a un archivo"""
-    sorted = dict.keys()
-    sorted.sort()
+    try:
+        fout = open(file, "w")
+        print "Escribiendo fichero:" , file
 
-    for word in sorted:
-        #print '{0:20}'.format(word), dict[word]
-        print "%-25s" % word, dict[word]
+        sorted = dict.keys()
+        sorted.sort()
+        for word in sorted:
+            fout.write("%-25s" % word)
+            for num in dict[word]:
+                fout.write(str(num) + ",")
+            fout.write("\n")
+
+    except IOError:
+        print "ERROR: No se pudo abrir el fichero."
+        exit(-1)
 
 if (len(sys.argv) != 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
@@ -73,4 +80,5 @@ if (len(sys.argv) != 3):
 else:
     dict = {}
     readFile(dict, sys.argv[1])
+    writeFile(dict, sys.argv[2])
 
