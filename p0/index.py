@@ -52,7 +52,11 @@ def dictPrint(dict):
 
     for word in sorted:
         #print '{0:20}'.format(word), dict[word]
-        print "%-25s" % word, dict[word]
+        print "%-25s" % word,
+
+        for num in dict[word]:
+            print str(num) + ",",
+        print ""
 
 def dictWrite(dict, fout):
     """Escritura del diccionario a un archivo"""
