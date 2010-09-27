@@ -14,7 +14,7 @@ import re
 
 
 def dictAdd(dict, words, act_line):
-"""Añade las palabras de una linea al diccionario"""
+    """Añade las palabras de una linea al diccionario"""
     for wd in words:
         if not wd.isdigit():
             if (wd in dict):
@@ -26,7 +26,7 @@ def dictAdd(dict, words, act_line):
 
 
 def dictWrite(dict, fout):
-"""Listado del diccionario en orden alfabetico"""
+    """Listado del diccionario en orden alfabetico"""
     sorted = dict.keys()
     sorted.sort()
 
