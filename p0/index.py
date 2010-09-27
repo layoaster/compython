@@ -32,7 +32,7 @@ def dictWrite(dict, fout):
 
     for word in sorted:
         #print '{0:20}'.format(word), dict[word]
-        print word, "\t\t\t\t",dict[word]
+        print "%-25s" % word, dict[word]
 
 if (len(sys.argv) != 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
