@@ -12,6 +12,26 @@ import sys
 import string
 import re
 
+def readFile(dict, file):
+    try:
+        fin = open(file, "r")
+        print "Fichero abierto:" , file
+
+        line_c = 1
+        line = fin.readline()
+        while line:
+            if len(line) > 1:
+                words = re.split('\W+', line.strip(string.punctuation + string.whitespace), re.UNICODE)
+                dictAdd(dict, words, line_c)
+
+            line_c = line_c + 1
+            line = fin.readline()
+        fin.close()
+
+        dictPrint(dict)
+    except IOError:
+        print "ERROR: No se pudo abrir el fichero."
+        exit(-1)
 
 def dictAdd(dict, words, act_line):
     """Añade las palabras de una linea al diccionario"""
@@ -25,8 +45,17 @@ def dictAdd(dict, words, act_line):
                 dict[wd] = [act_line]
 
 
+def dictPrint(dict):
+    """Listado del diccionario por pantalla"""
+    sorted = dict.keys()
+    sorted.sort()
+
+    for word in sorted:
+        #print '{0:20}'.format(word), dict[word]
+        print "%-25s" % word, dict[word]
+
 def dictWrite(dict, fout):
-    """Listado del diccionario en orden alfabetico"""
+    """Escritura del diccionario a un archivo"""
     sorted = dict.keys()
     sorted.sort()
 
@@ -38,24 +67,6 @@ if (len(sys.argv) != 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
     print "USO: index.py texto.in diccionario.out"
 else:
-    try:
-        fin = open(sys.argv[1], "r")
-        print "Fichero abierto:" , sys.argv[1]
-
-        dict = {}
-        line_c = 1
-        line = fin.readline()
-        while line:
-            if len(line) > 1:
-                words = re.split('\W+', line.strip(string.punctuation + string.whitespace), re.UNICODE)
-                dictAdd(dict, words, line_c)
-
-            line_c = line_c + 1
-            line = fin.readline()
-        fin.close()
-
-        dictWrite(dict, sys.argv[2])
-    except IOError:
-        print "ERROR: No se pudo abrir el fichero."
-        exit()
+    dict = {}
+    readFile(dict, sys.argv[1])
 
