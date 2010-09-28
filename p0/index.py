@@ -16,7 +16,7 @@ import codecs
 
 def readFile(dict, file):
     try:
-        fin = open(file, "r")
+        fin = open(file, "rU")
         print "Fichero abierto:" , file
 
         line_c = 1
