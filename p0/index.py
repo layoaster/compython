@@ -87,13 +87,14 @@ def writeHTML(dict, file):
         print "ERROR: No se pudo abrir el fichero."
         exit(-1)
 
-if (len(sys.argv) != 3):
+if (len(sys.argv) < 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
     print "USO: index.py texto.in diccionario.out"
+    print "USO: index.py texto.in diccionario.out pagina.html"
 else:
     dict = {}
     readFile(dict, sys.argv[1])
     #dictPrint(dict)
     writeFile(dict, sys.argv[2])
-    writeHTML(dict, "prueba.html")
+    writeHTML(dict, sys.argv[3])
 
