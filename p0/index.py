@@ -81,7 +81,7 @@ def writeHTML(dict, file):
     try:
         fout = open(file, "w")
         print "Escribiendo fichero HTML:" , file
-        fout.write(html.head() + html.body(dict) + html.tail())
+        fout.write(html.head("Diccionario Online - " + fout.name) + html.body(dict) + html.tail())
 
     except IOError:
         print "ERROR: No se pudo abrir el fichero."
@@ -96,6 +96,6 @@ else:
     readFile(dict, sys.argv[1])
     #dictPrint(dict)
     writeFile(dict, sys.argv[2])
-    if (len(sys.argv) == 4)
+    if (len(sys.argv) == 4):
         writeHTML(dict, sys.argv[3])
 
