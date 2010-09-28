@@ -96,5 +96,6 @@ else:
     readFile(dict, sys.argv[1])
     #dictPrint(dict)
     writeFile(dict, sys.argv[2])
-    writeHTML(dict, sys.argv[3])
+    if (len(sys.argv) == 4)
+        writeHTML(dict, sys.argv[3])
 
