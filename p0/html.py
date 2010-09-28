@@ -14,10 +14,10 @@ def head(title = "Untitled"):
 <head>
     <title>''' + title + '''</title>
     <style type="text/css">
-        a:link {text-decoration:none; color: #99CC00;}
-        a:visited {text-decoration:none; color:#99CC66}
-        a:active {text-decoration:none; color:#99FF00; background:#EEEEEE}
-        a:hover {text-decoration:underline; color:#99FF00; background: #EEEEEE}
+        a:link {text-decoration:none; color: #079af0;}
+        a:visited {text-decoration:none; color:#0d4fbf}
+        a:active {text-decoration:none; color:#0d4fbf; background:#EEEEEE}
+        a:hover {text-decoration:underline; color:#82562e; background: #EEEEEE}
     </style>
 </head>
 
@@ -31,14 +31,20 @@ def body(dict):
     table = "<table border=0>\n"
     sorted = dict.keys()
     sorted.sort()
+    char = " "
     for word in sorted:
-        table = table + "<tr>\n<td>" + linkToGoogle(str(word))
-        table = table + "&nbsp;&nbsp;&nbsp;</td>\n" + "<td>"
+	if str(word[0]) != char:
+	    char = str(word[0])
+            table += "<tr><td>&nbsp;</td></tr>"
+	    table += "<tr><td><h3>" + str(word[0]).upper() + "</h3>"
+            table += "</td>\n</tr>\n"
+        table += "<tr>\n<td>" + linkToGoogle(str(word))
+        table += "&nbsp;&nbsp;&nbsp;</td>\n" + "<td>"
         for num in dict[word]:
-            table = table + str(num) + ", "
+            table += str(num) + ", "
         table = table[:-2]
-        table = table + "</td>\n</tr>\n"
-    return table + "</table>\n"
+        table += "</td>\n</tr>\n"
+    return "<h1>&Iacute;ndice alfab&eacute;tico</h1>\n" + table + "</table>\n"
 
 def tail():
     """Final de html"""
