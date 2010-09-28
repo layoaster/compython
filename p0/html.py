@@ -13,6 +13,12 @@ def head(title = "Untitled"):
 <html>
 <head>
     <title>''' + title + '''</title>
+    <style type="text/css">
+        a:link {text-decoration:none; color: #99CC00;}
+        a:visited {text-decoration:none; color:#99CC66}
+        a:active {text-decoration:none; color:#99FF00; background:#EEEEEE}
+        a:hover {text-decoration:underline; color:#99FF00; background: #EEEEEE}
+    </style>
 </head>
 
 <body>\n\n'''
