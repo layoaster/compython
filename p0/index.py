@@ -37,7 +37,7 @@ def readFile(dict, file):
 def dictAdd(dict, words, act_line):
     """Añade las palabras de una linea al diccionario"""
     for wd in words:
-        if not wd.isdigit():
+        if not wd.isdigit() and not wd == '':
             wd = wd.lower()
             if (wd in dict):
                 if act_line not in dict[wd]:
@@ -76,12 +76,24 @@ def writeFile(dict, file):
         print "ERROR: No se pudo abrir el fichero."
         exit(-1)
 
+def writeHTML(dict, file):
+    """Escritura del diccionario a un archivo"""
+    try:
+        fout = open(file, "w")
+        print "Escribiendo fichero HTML:" , file
+        fout.write(html.head() + html.body(dict) + html.tail())
+
+    except IOError:
+        print "ERROR: No se pudo abrir el fichero."
+        exit(-1)
+
 if (len(sys.argv) != 3):
     print "ERROR: No se indica el fichero de entrada y/o salida"
     print "USO: index.py texto.in diccionario.out"
 else:
     dict = {}
     readFile(dict, sys.argv[1])
-    dictPrint(dict)
+    #dictPrint(dict)
     writeFile(dict, sys.argv[2])
+    writeHTML(dict, "prueba.html")
 

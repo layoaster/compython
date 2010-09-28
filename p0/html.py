@@ -21,20 +21,20 @@ def linkToGoogle(text):
     """Enlaza el texto a Google"""
     return "<a href='http://www.google.es/search?q=" + text + "'>" + text + "</a>"
 
-def writeDictionary(d):
+def body(dict):
     table = "<table border=0>\n"
-    sorted = d.keys()
+    sorted = dict.keys()
     sorted.sort()
     for word in sorted:
         table = table + "<tr>\n<td>" + linkToGoogle(str(word))
         table = table + "&nbsp;&nbsp;&nbsp;</td>\n" + "<td>"
-        for num in d[word]:
+        for num in dict[word]:
             table = table + str(num) + ", "
         table = table[:-2]
         table = table + "</td>\n</tr>\n"
     return table + "</table>\n"
 
-def end():
+def tail():
     """Final de html"""
     return '''
 </body>
