@@ -36,7 +36,7 @@ def body(dict):
 	if str(word[0]) != char:
 	    char = str(word[0])
             table += "<tr><td>&nbsp;</td></tr>"
-	    table += "<tr><td><h3>" + str(word[0]).upper() + "</h3>"
+	    table += "<tr><td valign=middle colspan=2 style='background: #FFF url(naranja.gif) no-repeat left top'><h3><font color='#FFFFFF'>&nbsp;" + str(word[0]).upper() + "</font></h3>"
             table += "</td>\n</tr>\n"
         table += "<tr>\n<td>" + linkToGoogle(str(word))
         table += "&nbsp;&nbsp;&nbsp;</td>\n" + "<td>"
