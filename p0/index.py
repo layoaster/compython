@@ -57,7 +57,7 @@ def dictPrint(dict):
             print str(num) + ",",
         print ""
 
-def writeFile(dict, file):
+def writeFile(dict, file, coding="iso-8859-1"):
     """Escritura del diccionario a un archivo"""
     try:
         fout = open(file, mode='w')
@@ -66,7 +66,7 @@ def writeFile(dict, file):
         sorted = dict.keys()
         sorted.sort()
         for word in sorted:
-            fout.write(("%-25s" % word).encode("utf-8"))
+            fout.write(("%-25s" % word).encode(coding))
             for num in dict[word]:
                 fout.write(str(num) + ", ")
             fout.write("\n")
@@ -94,7 +94,7 @@ else:
     dict = {}
     readFile(dict, sys.argv[1], coding="utf-8")
     #dictPrint(dict)
-    writeFile(dict, sys.argv[2])
+    writeFile(dict, sys.argv[2], coding="utf-8")
     #if (len(sys.argv) == 4):
     #    writeHTML(dict, sys.argv[3])
 
