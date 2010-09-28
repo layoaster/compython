@@ -52,7 +52,6 @@ def dictPrint(dict):
     sorted = dict.keys()
     sorted.sort()
     for word in sorted:
-        #print '{0:20}'.format(word), dict[word]
         print "%-25s" % word,
 
         for num in dict[word]:
