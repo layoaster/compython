@@ -69,7 +69,7 @@ def writeFile(dict, file):
         for word in sorted:
             fout.write("%-25s" % word)
             for num in dict[word]:
-                fout.write(str(num) + ",")
+                fout.write(str(num) + ", ")
             fout.write("\n")
 
     except IOError:
