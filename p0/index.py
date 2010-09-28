@@ -15,7 +15,7 @@ import html
 import argparse
 
 
-def readFile(dict, file, coding="iso-8859-1"):
+def readFile(dict, file, coding = "utf-8"):
     try:
         fin = open(file, mode='rU')
         print "Fichero abierto:" , file
@@ -58,7 +58,7 @@ def dictPrint(dict):
             print str(num) + ",",
         print ""
 
-def writeFile(dict, file, coding="iso-8859-1"):
+def writeFile(dict, file, coding = "utf-8"):
     """Escritura del diccionario a un archivo"""
     try:
         fout = open(file, mode='w')
@@ -74,18 +74,16 @@ def writeFile(dict, file, coding="iso-8859-1"):
                     fout.write(", ")
             fout.write("\n")
         fout.close()
-
-        fout.close()
     except IOError:
         print "ERROR: No se pudo abrir el fichero."
         exit(-1)
 
-def writeHTML(dict, file):
+def writeHTML(dict, file, coding = "utf-8"):
     """Escritura del diccionario a un archivo"""
     try:
         fout = open(file, "w")
         print "Escribiendo fichero HTML:" , file
-        fout.write(html.head("Diccionario Online - " + fout.name) + html.body(dict) + html.tail())
+        fout.write(html.head("Diccionario Online - " + fout.name) + html.body(dict) + html.tail()).encode(coding)
 
         fout.close()
     except IOError:
@@ -96,13 +94,11 @@ parser = argparse.ArgumentParser(description='Procesa nombres de fichero.')
 parser.add_argument('fin',  metavar='fichero_texto.in', type=str, action='store', help='nombre del fichero a indexar')
 parser.add_argument('fout', metavar='fichero_diccionario.out', type=str, help='nombre del fichero que almacena el diccionario')
 parser.add_argument('-w', metavar='fichero_web.html', type=str, dest="fweb", help='nombre del fichero html a crear')
-parser.add_argument('-i', metavar='codificacion_entrada', type=str, default= "iso-8859-1", dest="codin", help='codificacion del fichero a indexar')
+parser.add_argument('-i', metavar='codificacion_entrada', type=str, default= "utf-8", dest="codin", help='codificacion del fichero a indexar')
 
-parser.add_argument('-o', metavar='codificacion_salida', type=str, default = "iso-8859-1", dest="codout", help='codificacion del fichero indice')
+parser.add_argument('-o', metavar='codificacion_salida', type=str, default = "utf-8", dest="codout", help='codificacion del fichero indice')
 
 args = parser.parse_args()
-print args
-
 
 if (len(sys.argv) < 3):
 
@@ -114,6 +110,6 @@ else:
     readFile(dict,  args.fin, args.codin)
     writeFile(dict, args.fout, args.codout)
     if (len(sys.argv) > 3):
-        writeHTML(dict, args.fweb)
+        writeHTML(dict, args.fweb, args.codout)
 
 
