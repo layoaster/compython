@@ -38,7 +38,7 @@ def body(dict):
             table += "<tr><td>&nbsp;</td></tr>"
 	    table += "<tr><td valign=middle colspan=2 style='background: #FFF url(naranja.gif) no-repeat left top'><h3><font color='#FFFFFF'>&nbsp;" + str(word[0]).upper() + "</font></h3>"
             table += "</td>\n</tr>\n"
-        table += "<tr>\n<td>" + linkToGoogle(str(word).decode("utf-8"))
+        table += "<tr>\n<td>" + linkToGoogle(word.encode("iso-8859-1"))
         table += "&nbsp;&nbsp;&nbsp;</td>\n" + "<td>"
         for num in dict[word]:
             table += str(num) + ", "

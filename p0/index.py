@@ -69,8 +69,11 @@ def writeFile(dict, file, coding="iso-8859-1"):
         for word in sorted:
             fout.write(("%-25s" % word).encode(coding))
             for num in dict[word]:
-                fout.write(str(num) + ", ")
+                fout.write(str(num))
+                if dict[word].index(num) != len(dict[word]) - 1:
+                    fout.write(", ")
             fout.write("\n")
+        fout.close()
 
         fout.close()
     except IOError:
