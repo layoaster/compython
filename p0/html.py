@@ -7,11 +7,12 @@ Description: Modulo de creacion de diccionario HTML.
   $Revision$
 """
 
-def head(title = "Untitled"):
+def head(title = "Untitled", coding = "utf-8"):
     """Cabeceras de html"""
     return '''
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text-html: charset=''' + coding + '''" />
     <title>''' + title + '''</title>
     <style type="text/css">
         a:link {text-decoration:none; color: #079af0;}

@@ -55,7 +55,9 @@ def dictPrint(dict):
         print "%-25s" % word,
 
         for num in dict[word]:
-            print str(num) + ",",
+            print str(num),
+            if dict[word].index(num) != len(dict[word]) - 1:
+                print ", ",
         print ""
 
 def writeFile(dict, file, coding = "utf-8"):
@@ -83,31 +85,30 @@ def writeHTML(dict, file, coding = "utf-8"):
     try:
         fout = open(file, "w")
         print "Escribiendo fichero HTML:" , file
-        fout.write(html.head("Diccionario Online - " + fout.name) + html.body(dict) + html.tail()).encode(coding)
+        fout.write(unicode(html.head("Diccionario Online - " + fout.name, coding) + html.body(dict) + html.tail()).encode(coding))
 
         fout.close()
     except IOError:
         print "ERROR: No se pudo abrir el fichero."
         exit(-1)
 
-parser = argparse.ArgumentParser(description='Procesa nombres de fichero.')
-parser.add_argument('fin',  metavar='fichero_texto.in', type=str, action='store', help='nombre del fichero a indexar')
-parser.add_argument('fout', metavar='fichero_diccionario.out', type=str, help='nombre del fichero que almacena el diccionario')
-parser.add_argument('-w', metavar='fichero_web.html', type=str, dest="fweb", help='nombre del fichero html a crear')
-parser.add_argument('-i', metavar='codificacion_entrada', type=str, default= "utf-8", dest="codin", help='codificacion del fichero a indexar')
+#Programa Principal
+parser = argparse.ArgumentParser(description='Indexa las palabras de un texto y genera un indice en texto plano y/o en html.')
+parser.add_argument('fin',  metavar='fich_texto.in', type=str, action='store', help='nombre del fichero a indexar')
+parser.add_argument('fout', metavar='fich_dicc.out', type=str, help='nombre del fichero que almacena el diccionario')
+parser.add_argument('-w', metavar='fich_web.html', type=str, dest="fweb", help='nombre del fichero html a crear')
+parser.add_argument('-i', metavar='cod_entrada', type=str, default= "utf-8", dest="codin", help='codificacion del fichero a indexar')
 
-parser.add_argument('-o', metavar='codificacion_salida', type=str, default = "utf-8", dest="codout", help='codificacion del fichero indice')
-
-args = parser.parse_args()
+parser.add_argument('-o', metavar='cod_salida', type=str, default = "utf-8", dest="codout", help='codificacion del fichero indice')
 
 if (len(sys.argv) < 3):
-
-    print "ERROR: No se indica el fichero de entrada y/o salida"
-    print "USO: index.py texto.in diccionario.out"
-    print "USO: index.py texto.in diccionario.out pagina.html"
+    parser.print_help()
 else:
+    args = parser.parse_args()
+
     dict = {}
     readFile(dict,  args.fin, args.codin)
+    #dictPrint(dict)
     writeFile(dict, args.fout, args.codout)
     if (len(sys.argv) > 3):
         writeHTML(dict, args.fweb, args.codout)
