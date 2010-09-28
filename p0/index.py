@@ -11,6 +11,8 @@ Description: Programa que crea un indice de palabras para un texto.
 import sys
 import string
 import re
+import html
+import codecs
 
 def readFile(dict, file):
     try:
