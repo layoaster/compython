@@ -12,22 +12,21 @@ import sys
 import string
 import re
 import html
-import codecs
 
-def readFile(dict, file):
+def readFile(dict, file, coding="iso-8859-1"):
     try:
-        fin = open(file, "rU")
+        fin = open(file, mode='rU')
         print "Fichero abierto:" , file
 
         line_c = 1
-        line = fin.readline()
+        line = fin.readline().decode(coding)
         while line:
             if len(line) > 1:
-                words = re.split('\W+', line.strip(string.punctuation + string.whitespace), re.UNICODE)
+                words = re.split('(?u)\W+', line.strip(string.punctuation + string.whitespace))
                 dictAdd(dict, words, line_c)
 
             line_c = line_c + 1
-            line = fin.readline()
+            line = fin.readline().decode(coding)
         fin.close()
 
     except IOError:
@@ -61,13 +60,13 @@ def dictPrint(dict):
 def writeFile(dict, file):
     """Escritura del diccionario a un archivo"""
     try:
-        fout = open(file, "w")
+        fout = open(file, mode='w')
         print "Escribiendo fichero:" , file
 
         sorted = dict.keys()
         sorted.sort()
         for word in sorted:
-            fout.write("%-25s" % word)
+            fout.write(("%-25s" % word).encode("utf-8"))
             for num in dict[word]:
                 fout.write(str(num) + ", ")
             fout.write("\n")
@@ -93,9 +92,9 @@ if (len(sys.argv) < 3):
     print "USO: index.py texto.in diccionario.out pagina.html"
 else:
     dict = {}
-    readFile(dict, sys.argv[1])
+    readFile(dict, sys.argv[1], coding="utf-8")
     #dictPrint(dict)
     writeFile(dict, sys.argv[2])
-    if (len(sys.argv) == 4):
-        writeHTML(dict, sys.argv[3])
+    #if (len(sys.argv) == 4):
+    #    writeHTML(dict, sys.argv[3])
 
