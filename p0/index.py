@@ -98,8 +98,8 @@ parser.add_argument('fin',  metavar='fich_texto.in', type=str, action='store', h
 parser.add_argument('fout', metavar='fich_dicc.out', type=str, help='nombre del fichero que almacena el diccionario')
 parser.add_argument('-w', metavar='fich_web.html', type=str, dest="fweb", help='nombre del fichero html a crear')
 parser.add_argument('-i', metavar='cod_entrada', type=str, default= "utf-8", dest="codin", help='codificacion del fichero a indexar')
-
 parser.add_argument('-o', metavar='cod_salida', type=str, default = "utf-8", dest="codout", help='codificacion del fichero indice')
+parser.add_argument('-p', action='store_true', dest="print_screen", help='imprimir por pantalla el indice generado')
 
 if (len(sys.argv) < 3):
     parser.print_help()
@@ -108,7 +108,8 @@ else:
 
     dict = {}
     readFile(dict,  args.fin, args.codin)
-    #dictPrint(dict)
+    if args.print_screen:
+        dictPrint(dict)
     writeFile(dict, args.fout, args.codout)
     if (len(sys.argv) > 3):
         writeHTML(dict, args.fweb, args.codout)
