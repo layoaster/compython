@@ -33,7 +33,7 @@ def body(dict):
     sorted.sort()
     char = " "
     for word in sorted:
-	    if str(word[0]) != char:
+        if str(word[0]) != char:
             char = str(word[0])
             table += "<tr><td>&nbsp;</td></tr>"
             table += "<tr><td valign=middle colspan=2 style='background: #FFF url(naranja.gif) no-repeat left top'><h3><font color='#FFFFFF'>&nbsp;" + str(word[0]).upper() + "</font></h3>"
