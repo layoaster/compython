@@ -38,10 +38,10 @@ def dictAdd(dict, words, act_line):
     """Añade las palabras de una linea al diccionario"""
     for wd in words:
         if not wd.isdigit():
+            wd = wd.lower()
             if (wd in dict):
-                numl = dict[wd]
-                if act_line not in numl:
-                    numl.append(act_line)
+                if act_line not in dict[wd]:
+                    dict[wd].append(act_line)
             else:
                 dict[wd] = [act_line]
 
@@ -82,5 +82,6 @@ if (len(sys.argv) != 3):
 else:
     dict = {}
     readFile(dict, sys.argv[1])
+    dictPrint(dict)
     writeFile(dict, sys.argv[2])
 
