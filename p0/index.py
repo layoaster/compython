@@ -35,31 +35,6 @@ def readFile(dict, file, coding = "utf-8"):
         print "ERROR: No se pudo abrir el fichero."
         exit(-1)
 
-def dictAdd(dict, words, act_line):
-    """Añade las palabras de una linea al diccionario"""
-    for wd in words:
-        if not wd.isdigit() and not wd == '':
-            wd = wd.lower()
-            if (wd in dict):
-                if act_line not in dict[wd]:
-                    dict[wd].append(act_line)
-            else:
-                dict[wd] = [act_line]
-
-
-def dictPrint(dict):
-    """Listado del diccionario por pantalla"""
-    sorted = dict.keys()
-    sorted.sort()
-    for word in sorted:
-        print "%-25s" % word,
-
-        for num in dict[word]:
-            print str(num),
-            if dict[word].index(num) != len(dict[word]) - 1:
-                print ",",
-        print ""
-
 def writeFile(dict, file, coding = "utf-8"):
     """Escritura del diccionario a un archivo"""
     try:
@@ -91,6 +66,32 @@ def writeHTML(dict, file, coding = "utf-8"):
     except IOError:
         print "ERROR: No se pudo abrir el fichero."
         exit(-1)
+
+def dictAdd(dict, words, act_line):
+    """Añade las palabras de una linea al diccionario"""
+    for wd in words:
+        if not wd.isdigit() and not wd == '':
+            wd = wd.lower()
+            if (wd in dict):
+                if act_line not in dict[wd]:
+                    dict[wd].append(act_line)
+            else:
+                dict[wd] = [act_line]
+
+
+def dictPrint(dict):
+    """Listado del diccionario por pantalla"""
+    sorted = dict.keys()
+    sorted.sort()
+    for word in sorted:
+        print "%-25s" % word,
+
+        for num in dict[word]:
+            if dict[word].index(num) != len(dict[word]) - 1:
+                print str(num) + ",",
+            else:
+                print str(num)
+
 
 #Programa Principal
 parser = argparse.ArgumentParser(description='Indexa las palabras de un texto y genera un indice en texto plano y/o en html.')

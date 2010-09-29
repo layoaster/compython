@@ -32,7 +32,7 @@ def body(dict):
     table = u"<table border=0>\n"
     sorted = dict.keys()
     sorted.sort()
-    char = " "
+    char = ""
     for word in sorted:
         if word[0] != char:
             char = word[0]
@@ -42,13 +42,13 @@ def body(dict):
         table += u"<tr>\n<td>" + linkToGoogle(word)
         table += u"&nbsp;&nbsp;&nbsp;</td>\n" + u"<td>"
         for num in dict[word]:
-            table += str(num) + ", "
+            table += str(num) + u", "
         table = table[:-2]
         table += u"</td>\n</tr>\n"
-    return u"<h1>&Iacute;ndice alfab&eacute;tico</h1>\n" + table + u"</table>\n"
+    return u"<h1>&Iacute;ndice alfab&eacute;tico</h1>\n" + unicode(table) + u"</table>\n"
 
 def tail():
     """Final de html"""
-    return '''
+    return u'''
 </body>
 </html>'''
