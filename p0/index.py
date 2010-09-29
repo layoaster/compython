@@ -16,6 +16,17 @@ import html
 import argparse
 
 
+def lineProcess(file, line, coding):
+    if re.search('-$', line):
+        curr_pos = file.tell()
+        next_line = file.readline().decode(coding)
+        broken_word = re.split('(?u)\W+', next_line.strip(string.whitespace))[0]
+        line = line[:-2] + broken_word
+        file.seek(curr_pos + len(broken_word))  # Resetear puntero del fichero
+
+    words = re.split('(?u)\W+', line.strip(string.punctuation + string.whitespace))
+    return words
+
 def readFile(dict, file, coding = "utf-8"):
     """ Descripcion:
             Lectura del fichero de entrada introducido por linea de comandos; lee linea a linea
@@ -38,7 +49,7 @@ def readFile(dict, file, coding = "utf-8"):
         while line:
             line = fin.readline().decode(coding)
             if len(line) > 1:
-                words = re.split('(?u)\W+', line.strip(string.punctuation + string.whitespace))
+                words = lineProcess(fin, line, coding)
                 dictAdd(dict, words, line_count)
 
             line_count += 1
