@@ -50,16 +50,15 @@ def readFile(dict, file, coding = "utf-8"):
 
 def writeFile(dict, file, coding = "utf-8"):
     """ Descripcion:
-            Lectura del fichero de entrada introducido por linea de comandos; lee linea a linea
-            y separa las palabras clave utilizando una expresion regular
+            Escritura en texto plano del indice generado a partir del fichero de entrada
         
         Parametros:
-            - dict: Diccionario donde se cargara el indice del fichero
-            - file: Ruta del fichero a leer
+            - dict: Diccionario donde se encuentra el indice del fichero
+            - file: Ruta del fichero a volcar el contenido del diccionario
             - coding: Codificacion de los caracteres de 'file'; por defecto se considera Unicode
     
         Valor de retorno:
-            Nada (sale del programa en caso de que haya ocurrido un error de lectura del fichero)
+            Nada (sale del programa en caso de que haya ocurrido un error de escritura del fichero)
     """
     try:
         fout = open(file, mode='w')
@@ -68,6 +67,7 @@ def writeFile(dict, file, coding = "utf-8"):
         sorted = dict.keys()
         sorted.sort()
         for word in sorted:
+            # Formato de salida del fichero y codificacion deseada
             fout.write(("%-25s" % word).encode(coding))
             for num in dict[word]:
                 fout.write(str(num))
@@ -80,7 +80,18 @@ def writeFile(dict, file, coding = "utf-8"):
         exit(-1)
 
 def writeHTML(dict, file, coding = "utf-8"):
-    """Escritura del diccionario a un archivo"""
+    """ Descripcion:
+            Escribe en un fichero HTML el indice generado a partir del fichero de entrada,
+            utilizando HTML estandar + hoja de estilos CSS
+        
+        Parametros:
+            - dict: Diccionario donde se encuentra el indice del fichero
+            - file: Ruta del fichero HTML a volcar el contenido del diccionario
+            - coding: Codificacion de los caracteres de 'file'; por defecto se considera Unicode
+    
+        Valor de retorno:
+            Nada (sale del programa en caso de que haya ocurrido un error de escritura del fichero)
+    """
     try:
         fout = open(file, "w")
         print "Escribiendo fichero HTML:" , file
@@ -92,9 +103,21 @@ def writeHTML(dict, file, coding = "utf-8"):
         exit(-1)
 
 def dictAdd(dict, words, act_line):
-    """Añade las palabras de una linea al diccionario"""
+    """ Descripcion:
+            Anyade las palabras de una linea al diccionario junto con su numero de linea correspondiente
+        
+        Parametros:
+            - dict: Diccionario donde se encuentra el indice del fichero
+            - words: Lista de palabras de una linea
+            - act_line: Numero de la linea a procesar
+        
+        Valor de retorno:
+            Nada 
+    """
     for wd in words:
+        # Comprobar que la palabra actual no sea un numero y que tampoco sea vacia (casos especiales que el parseado previo no detecto)
         if not wd.isdigit() and not wd == '':
+            # Eliminar sensibilidad a capitalizacion
             wd = wd.lower()
             if (wd in dict):
                 if act_line not in dict[wd]:
@@ -104,38 +127,52 @@ def dictAdd(dict, words, act_line):
 
 
 def dictPrint(dict):
-    """Listado del diccionario por pantalla"""
+    """ Descripcion:
+            Imprime el contenido del diccionario por pantalla
+        
+        Parametros:
+            - dict: Diccionario donde se encuentra el indice del fichero
+
+        Valor de retorno:
+            Nada 
+    """
     sorted = dict.keys()
     sorted.sort()
     for word in sorted:
+        # Formato de salida: columna de 25 caracteres para la palabra, alineacion a la izquierda
         print "%-25s" % word,
 
         for num in dict[word]:
+            # Evitar imprimir una coma despues del ultumo numero de linea
             if dict[word].index(num) != len(dict[word]) - 1:
                 print str(num) + ",",
             else:
                 print str(num)
 
 
-#Programa Principal
-parser = argparse.ArgumentParser(description='Indexa las palabras de un texto y genera un indice en texto plano y/o en html.')
-parser.add_argument('fin',  metavar='fich_texto.in', type=str, action='store', help='nombre del fichero a indexar')
-parser.add_argument('fout', metavar='fich_dicc.out', type=str, help='nombre del fichero que almacena el diccionario')
-parser.add_argument('-w', metavar='fich_web.html', type=str, dest="fweb", help='nombre del fichero html a crear')
-parser.add_argument('-i', metavar='cod_entrada', type=str, default= "utf-8", dest="codin", help='codificacion del fichero a indexar')
-parser.add_argument('-o', metavar='cod_salida', type=str, default = "utf-8", dest="codout", help='codificacion del fichero indice')
-parser.add_argument('-p', action='store_true', dest="print_screen", help='imprimir por pantalla el indice generado')
+# --- Programa Principal ---
 
-if (len(sys.argv) < 3):
-    parser.print_help()
-else:
-    args = parser.parse_args()
+if __name__ == '__main__':
+    # Especificacion del parseado de argumentos por linea de comandos
+    parser = argparse.ArgumentParser(description='Indexa las palabras de un texto y genera un indice en texto plano y/o en html.')
+    parser.add_argument('fin',  metavar='fich_texto.in', type=str, action='store', help='nombre del fichero a indexar')
+    parser.add_argument('fout', metavar='fich_dicc.out', type=str, help='nombre del fichero que almacena el diccionario')
+    parser.add_argument('-w', metavar='fich_web.html', type=str, dest="fweb", help='nombre del fichero html a crear')
+    parser.add_argument('-i', metavar='cod_entrada', type=str, default= "utf-8", dest="codin", help='codificacion del fichero a indexar')
+    parser.add_argument('-o', metavar='cod_salida', type=str, default = "utf-8", dest="codout", help='codificacion del fichero indice')
+    parser.add_argument('-p', action='store_true', dest="print_screen", help='imprimir por pantalla el indice generado')
 
-    dict = {}
-    readFile(dict,  args.fin, args.codin)
-    if args.print_screen:
-        dictPrint(dict)
-    writeFile(dict, args.fout, args.codout)
-    if args.fweb:
-        writeHTML(dict, args.fweb, args.codout)
+    # Parametros insuficientes -> mostrar por pantalla el modo de uso
+    if (len(sys.argv) < 3):
+        parser.print_help()
+    else:
+        args = parser.parse_args()
+
+        dict = {}   # Creacion del indice
+        readFile(dict, args.fin, args.codin)
+        if args.print_screen:   # Si se especifico el flag '-p'
+            dictPrint(dict)
+        writeFile(dict, args.fout, args.codout)
+        if args.fweb:           # Si se especifico el flag '-w'
+            writeHTML(dict, args.fweb, args.codout)
 
