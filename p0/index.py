@@ -167,6 +167,7 @@ if __name__ == '__main__':
         parser.print_help()
     else:
         args = parser.parse_args()
+    dictPrint(dict)
 
         dict = {}   # Creacion del indice
         readFile(dict, args.fin, args.codin)

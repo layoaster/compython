@@ -8,7 +8,16 @@ Description: Modulo de creacion de diccionario HTML.
 """
 
 def head(title = "Untitled", coding = "utf-8"):
-    """Cabeceras de html"""
+    """ Descripción:
+            Genera el inicio de una pagina web, permitiendo especificar titulo y juego de caracteres
+
+	Parametros:
+	    - title: Titulo de la pagina web; por defecto se considera 'Untitiled'
+            - coding: Codificacion de los caracteres de la pagina web; por defecto se considera Unicode
+
+	Valor de retorno:
+	    Una cadena con la cabecera del fichero HTML con una minima hoja de estilo
+    """
     return u'''
 <html>
 <head>
@@ -25,10 +34,29 @@ def head(title = "Untitled", coding = "utf-8"):
 <body>\n\n'''
 
 def linkToGoogle(text):
-    """Enlaza el texto a Google"""
+    """ Descripcion:
+            Genera la etiqueta necesaria para buscar un texto en Google,
+            utilizando el propio texto como enlace
+
+	Parametros:
+	    - text: Texto que se desea buscar
+
+        Valor de retorno:
+            Una cadena con la etiqueta correspondiente
+    """
     return u"<a href='http://www.google.es/search?q=" + text + u"'>" + text + u"</a>"
 
 def body(dict):
+    """ Descripcion:
+            Genera una tabla HTML que presenta el indice alfabetico,
+            separando cada palabra por su letra inicial.
+
+        Parametros:
+            - dict: Objeto de la clase Dictionary que sera mostrado en la pagina web
+
+        Valor de retorno:
+            Una cadena conteniendo el codigo necesario, ademas de un titulo fijo
+    """
     table = u"<table border=0>"
     sorted = dict.keys()
     sorted.sort()
@@ -58,7 +86,15 @@ def body(dict):
     return u"<h1>&Iacute;ndice alfab&eacute;tico</h1>\n\n" + unicode(table) + u"</table>\n"
 
 def tail():
-    """Final de html"""
+    """ Descripcion:
+            Genera el final de una pagina web
+
+        Parametros:
+            - Ninguno
+
+        Valor de retorno:
+            Una cadena con la cola del fichero HTML
+    """
     return u'''
 </body>
 </html>'''
