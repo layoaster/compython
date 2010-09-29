@@ -20,12 +20,12 @@ def readFile(dict, file, coding = "utf-8"):
     """ Descripcion:
             Lectura del fichero de entrada introducido por linea de comandos; lee linea a linea
             y separa las palabras clave utilizando una expresion regular
-        
+
         Parametros:
             - dict: Diccionario donde se cargara el indice del fichero
             - file: Ruta del fichero a leer
             - coding: Codificacion de los caracteres de 'file'; por defecto se considera Unicode
-    
+
         Valor de retorno:
             Nada (sale del programa en caso de que haya ocurrido un error de lectura del fichero)
     """
@@ -51,12 +51,12 @@ def readFile(dict, file, coding = "utf-8"):
 def writeFile(dict, file, coding = "utf-8"):
     """ Descripcion:
             Escritura en texto plano del indice generado a partir del fichero de entrada
-        
+
         Parametros:
             - dict: Diccionario donde se encuentra el indice del fichero
             - file: Ruta del fichero a volcar el contenido del diccionario
             - coding: Codificacion de los caracteres de 'file'; por defecto se considera Unicode
-    
+
         Valor de retorno:
             Nada (sale del programa en caso de que haya ocurrido un error de escritura del fichero)
     """
@@ -83,12 +83,12 @@ def writeHTML(dict, file, coding = "utf-8"):
     """ Descripcion:
             Escribe en un fichero HTML el indice generado a partir del fichero de entrada,
             utilizando HTML estandar + hoja de estilos CSS
-        
+
         Parametros:
             - dict: Diccionario donde se encuentra el indice del fichero
             - file: Ruta del fichero HTML a volcar el contenido del diccionario
             - coding: Codificacion de los caracteres de 'file'; por defecto se considera Unicode
-    
+
         Valor de retorno:
             Nada (sale del programa en caso de que haya ocurrido un error de escritura del fichero)
     """
@@ -105,14 +105,14 @@ def writeHTML(dict, file, coding = "utf-8"):
 def dictAdd(dict, words, act_line):
     """ Descripcion:
             Anyade las palabras de una linea al diccionario junto con su numero de linea correspondiente
-        
+
         Parametros:
             - dict: Diccionario donde se encuentra el indice del fichero
             - words: Lista de palabras de una linea
             - act_line: Numero de la linea a procesar
-        
+
         Valor de retorno:
-            Nada 
+            Nada
     """
     for wd in words:
         # Comprobar que la palabra actual no sea un numero y que tampoco sea vacia (casos especiales que el parseado previo no detecto)
@@ -129,12 +129,12 @@ def dictAdd(dict, words, act_line):
 def dictPrint(dict):
     """ Descripcion:
             Imprime el contenido del diccionario por pantalla
-        
+
         Parametros:
             - dict: Diccionario donde se encuentra el indice del fichero
 
         Valor de retorno:
-            Nada 
+            Nada
     """
     sorted = dict.keys()
     sorted.sort()
@@ -167,7 +167,6 @@ if __name__ == '__main__':
         parser.print_help()
     else:
         args = parser.parse_args()
-    dictPrint(dict)
 
         dict = {}   # Creacion del indice
         readFile(dict, args.fin, args.codin)
