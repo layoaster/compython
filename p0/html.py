@@ -9,11 +9,11 @@ Description: Modulo de creacion de diccionario HTML.
 
 def head(title = "Untitled", coding = "utf-8"):
     """Cabeceras de html"""
-    return '''
+    return u'''
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text-html: charset=''' + coding + '''" />
-    <title>''' + title + '''</title>
+    <meta http-equiv="Content-Type" content="text-html: charset=''' + coding + u'''" />
+    <title>''' + title + u'''</title>
     <style type="text/css">
         a:link {text-decoration:none; color: #079af0;}
         a:visited {text-decoration:none; color:#0d4fbf}
@@ -26,26 +26,26 @@ def head(title = "Untitled", coding = "utf-8"):
 
 def linkToGoogle(text):
     """Enlaza el texto a Google"""
-    return "<a href='http://www.google.es/search?q=" + text + "'>" + text + "</a>"
+    return u"<a href='http://www.google.es/search?q=" + text + u"'>" + text + u"</a>"
 
 def body(dict):
-    table = "<table border=0>\n"
+    table = u"<table border=0>\n"
     sorted = dict.keys()
     sorted.sort()
     char = " "
     for word in sorted:
         if word[0] != char:
             char = word[0]
-            table += "<tr><td>&nbsp;</td></tr>"
-            table += "<tr><td valign=middle colspan=2 style='background: #FFF url(naranja.gif) no-repeat left top'><h3><font color='#FFFFFF'>&nbsp;" + word[0].upper() + "</font></h3>"
-            table += "</td>\n</tr>\n"
-        table += "<tr>\n<td>" + linkToGoogle(word)
-        table += "&nbsp;&nbsp;&nbsp;</td>\n" + "<td>"
+            table += u"<tr><td>&nbsp;</td></tr>"
+            table += u"<tr><td valign=middle colspan=2 style='background: #FFF url(naranja.gif) no-repeat left top'><h3><font color='#FFFFFF'>&nbsp;" + word[0].upper() + u"</font></h3>"
+            table += u"</td>\n</tr>\n"
+        table += u"<tr>\n<td>" + linkToGoogle(word)
+        table += u"&nbsp;&nbsp;&nbsp;</td>\n" + u"<td>"
         for num in dict[word]:
             table += str(num) + ", "
         table = table[:-2]
-        table += "</td>\n</tr>\n"
-    return "<h1>&Iacute;ndice alfab&eacute;tico</h1>\n" + table + "</table>\n"
+        table += u"</td>\n</tr>\n"
+    return u"<h1>&Iacute;ndice alfab&eacute;tico</h1>\n" + table + u"</table>\n"
 
 def tail():
     """Final de html"""

@@ -57,7 +57,7 @@ def dictPrint(dict):
         for num in dict[word]:
             print str(num),
             if dict[word].index(num) != len(dict[word]) - 1:
-                print ", ",
+                print ",",
         print ""
 
 def writeFile(dict, file, coding = "utf-8"):
@@ -111,8 +111,7 @@ else:
     if args.print_screen:
         dictPrint(dict)
     writeFile(dict, args.fout, args.codout)
-    # Arreglar aqui el error que tira si no se especifica -w
-    if (len(sys.argv) > 3):
+    if args.fweb:
         writeHTML(dict, args.fweb, args.codout)
 
 
