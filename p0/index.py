@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 """
         $Id$
 Description: Programa que crea un indice de palabras para un texto.
@@ -16,19 +17,31 @@ import argparse
 
 
 def readFile(dict, file, coding = "utf-8"):
+    """ Descripcion:
+            Lectura del fichero de entrada introducido por linea de comandos; lee linea a linea
+            y separa las palabras clave utilizando una expresion regular
+        
+        Parametros:
+            - dict: Diccionario donde se cargara el indice del fichero
+            - file: Ruta del fichero a leer
+            - coding: Codificacion de los caracteres de 'file'; por defecto se considera Unicode
+    
+        Valor de retorno:
+            Nada (sale del programa en caso de que haya ocurrido un error de lectura del fichero)
+    """
     try:
         fin = open(file, mode='rU')
         print "Fichero abierto:" , file
 
-        line_c = 1
-        line = fin.readline().decode(coding)
+        line_count = 1
+        line = " "
         while line:
+            line = fin.readline().decode(coding)
             if len(line) > 1:
                 words = re.split('(?u)\W+', line.strip(string.punctuation + string.whitespace))
-                dictAdd(dict, words, line_c)
+                dictAdd(dict, words, line_count)
 
-            line_c = line_c + 1
-            line = fin.readline().decode(coding)
+            line_count += 1
 
         fin.close()
     except IOError:
@@ -36,7 +49,18 @@ def readFile(dict, file, coding = "utf-8"):
         exit(-1)
 
 def writeFile(dict, file, coding = "utf-8"):
-    """Escritura del diccionario a un archivo"""
+    """ Descripcion:
+            Lectura del fichero de entrada introducido por linea de comandos; lee linea a linea
+            y separa las palabras clave utilizando una expresion regular
+        
+        Parametros:
+            - dict: Diccionario donde se cargara el indice del fichero
+            - file: Ruta del fichero a leer
+            - coding: Codificacion de los caracteres de 'file'; por defecto se considera Unicode
+    
+        Valor de retorno:
+            Nada (sale del programa en caso de que haya ocurrido un error de lectura del fichero)
+    """
     try:
         fout = open(file, mode='w')
         print "Escribiendo fichero:" , file
@@ -114,5 +138,4 @@ else:
     writeFile(dict, args.fout, args.codout)
     if args.fweb:
         writeHTML(dict, args.fweb, args.codout)
-
 
