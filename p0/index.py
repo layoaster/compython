@@ -111,6 +111,7 @@ else:
     if args.print_screen:
         dictPrint(dict)
     writeFile(dict, args.fout, args.codout)
+    # Arreglar aqui el error que tira si no se especifica -w
     if (len(sys.argv) > 3):
         writeHTML(dict, args.fweb, args.codout)
 
