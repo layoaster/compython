@@ -29,23 +29,33 @@ def linkToGoogle(text):
     return u"<a href='http://www.google.es/search?q=" + text + u"'>" + text + u"</a>"
 
 def body(dict):
-    table = u"<table border=0>\n"
+    table = u"<table border=0>"
     sorted = dict.keys()
     sorted.sort()
     char = ""
     for word in sorted:
         if word[0] != char:
             char = word[0]
-            table += u"<tr><td>&nbsp;</td></tr>"
-            table += u"<tr><td valign=middle colspan=2 style='background: #FFF url(naranja.gif) no-repeat left top'><h3><font color='#FFFFFF'>&nbsp;" + word[0].upper() + u"</font></h3>"
-            table += u"</td>\n</tr>\n"
+            table += u'''  
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+  </tr>
+  <tr>
+    <td valign=middle colspan=2 style='background: #FFF url(naranja.gif) no-repeat left top'>
+      <h3><font color="#FFFFFF">&nbsp;''' + word[0].upper() + u'''</font></h3>
+    </td>
+  </tr>
+'''
         table += u"<tr>\n<td>" + linkToGoogle(word)
         table += u"&nbsp;&nbsp;&nbsp;</td>\n" + u"<td>"
         for num in dict[word]:
             table += str(num) + u", "
         table = table[:-2]
-        table += u"</td>\n</tr>\n"
-    return u"<h1>&Iacute;ndice alfab&eacute;tico</h1>\n" + unicode(table) + u"</table>\n"
+        table += u"</td>\n</tr>"
+
+    return u"<h1>&Iacute;ndice alfab&eacute;tico</h1>\n\n" + unicode(table) + u"</table>\n"
 
 def tail():
     """Final de html"""
