@@ -15,4 +15,10 @@ if (len(sys.argv) != 2):
     print "Usage: parser.py + source_code"
     exit()
 else:
-    scanner = LexAn(argv[1])
+    scanner = LexAn()
+    scanner.openFile(argv[1])
+    while True:
+        if scanner.nextToken()
+            pass
+        else:
+            break
