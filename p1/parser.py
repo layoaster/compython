@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-        $Id: lexan.py 74 2010-10-01 13:42:48Z lionelmena@gmail.com $
+        $Id$
 Description: Analizador Lexico para Pascal-.
-    $Author: lionelmena@gmail.com $ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
-      $Date: 2010-10-01 14:42:48 +0100 (vie, 01 oct 2010) $
-  $Revision: 74 $
+    $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
+      $Date$
+  $Revision$
 """
 
 import lexan
