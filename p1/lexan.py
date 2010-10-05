@@ -15,7 +15,7 @@ import re
 
 class LexAn:
 
-    __patterns = [
+    _patterns = [
         ("ASTERISK",        r"\*"),
         ("BECOMES",         r":="),
         ("COLON",           r":"),
@@ -39,41 +39,47 @@ class LexAn:
         ("RIGHTPARENTHESIS",r"\)"),
         ("SEMICOLON",       r";"),
     ]
-    __flags = re.UNICODE | re.MULTILINE | re.IGNORECASE
-
-    __fin = None
-    __nline = None
-    __ncol = None
-    __line = None
 
     def __init__(self):
         """ Constructor de la clase
         """
-        self.__nline = 1
-        self.__ncol = 1
-        self.__line = []
-        self.__fin = False
-        #Patrones para los tokens
+        self._nline = 1
+        self._ncol = 1
+        self._line = ""
+        self._fin = None
+        self._flags = re.UNICODE | re.IGNORECASE
         
+        parts = []
+        for name, rule in _patterns:
+            parts.append("(?P<%s>%s)" % (name, rule))
+
+        self._regex = re.compile("|".join(parts), self._flags)
+        self._wsregex = re.compile("\s*", re.MULTILINE)
+
     def openFile(self, fin):
         error = False
         try:
-            self.__fin = open(fin, "rU")
+            self._fin = open(fin, "rU")
         except IOError:
             error = True
         return error
 
     def yyLex(self):
-        if self.__fin:
-            for name, rule in __patterns:
-                parts.append("(?P<%s>%s)" % (name, rule))
-            
-            self.__line = self.__fin.readline().decode("utf-8")
-            
-            self.__line = self.__fin.readline().decode("utf-8")
-            self.__nline += 1
+        if self._fin:
+            if self._line == "":
+                self._line = self._fin.readline().decode("utf-8")
 
-            self.__fin.close()
+            # Ignorar espacios en blanco
+            wsmatch = self._wsregex.match(line)
+            if wsmatch:
+                line = line[wsmatch.end():]
+
+            match = self._regex(line)
+            
+            #self._line = self.__fin.readline().decode("utf-8")
+            self._nline += 1
+
+            self._fin.close()
         else:
             print "ERROR: no se ha abierto el fichero de codigo fuente."
             exit(-1)
