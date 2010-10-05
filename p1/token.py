@@ -59,9 +59,12 @@ class Token:
 
     def __init__(self):
         """ Constructor de la clase
+            _token = codificacion del token
+            _value = lexema o numero para los tokens ID y NUMERAL, prar ID este valor hacer de apuntador en la tabla de simbolos
         """
         self._token = None
         self._value = None
+
 
     def setToken(self, token):
         self._token = token
