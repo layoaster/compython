@@ -9,7 +9,7 @@ Description: Analizador Lexico para Pascal-.
   $Revision$
 """
 
-class ST:
+class SymbolTable:
     """Clase para la gestion de la tabla de simbolos"""
     def __init__(self):
         self._table = {}
@@ -43,12 +43,12 @@ class ST:
         self.insertST("read")
         self.insertST("write")
 
-    def insertST(self, lex, reserved = False):
+    def insert(self, lex, reserved = False):
         atributes = [reserved, self._index]
         self._table[lex] = atributes
         self._index += 1
 
-    def isST(self, lex):
+    def isIn(self, lex):
         return self._table.has_key(lex)
 
     def isReserved(self, lex):
@@ -65,7 +65,7 @@ class ST:
         except IndexError:
             return None
 
-    def printST(self):
+    def print(self):
         for i in self._table:
             print i + "\t\t",
             for j in self._table[i]:
