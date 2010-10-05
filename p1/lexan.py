@@ -13,7 +13,7 @@ import sys
 import string
 import re
 import st
-import token
+from token import WrapTk, Token
 
 class LexAn:
 
@@ -99,12 +99,4 @@ class LexAn:
         else:
             print "ERROR: no se ha abierto el fichero de codigo fuente."
             exit(-1)
-
-
-# --- Programa Principal ---
-if __name__ == '__main__':
-
-    analex = LexAn()
-    analex.openFile(sys.argv[1])
-    analex.yyLex()
 

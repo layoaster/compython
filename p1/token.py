@@ -64,24 +64,24 @@ class WrapTk:
         token = string[1:]
         return int(token)
 
-#class Token:
+class Token:
 
-    #def __init__(self, token, value=None):
-        #""" Constructor de la clase
-            #_token = token que representa
-            #_value = lexema o numero para los tokens ID y NUMERAL, para ID este valor hacer de apuntador en la tabla de simbolos
-        #"""
-        #self._token = token
-        #self._value = value
+    def __init__(self, token, value=None):
+        """ Constructor de la clase
+            _token = token que representa
+            _value = lexema o numero para los tokens ID y NUMERAL, para ID este valor hacer de apuntador en la tabla de simbolos
+        """
+        self._token = token
+        self._value = value
 
-    #def setToken(self, token):
-        #self._token = token
+    def setToken(self, token):
+        self._token = token
 
-    #def setValue(self, value):
-        #self._value = value
+    def setValue(self, value):
+        self._value = value
 
-    #def getToken():
-        #return self._token
+    def getToken():
+        return self._token
 
-    #def getValue():
-        #return self._value
+    def getValue():
+        return self._value
