@@ -20,7 +20,6 @@ else:
     scanner = LexAn()
     scanner.openFile(sys.argv[1])
     tok = scanner.yyLex()
-    print tok.getToken(),tok.getValue()
-    #while tok != WrapTk.ENDTEXT:
-        #print tok
-        #tok = scanner.yyLex()
+    while tok.getToken() != WrapTk.ENDTEXT:
+        print tok.getToken(), tok.getValue()
+        tok = scanner.yyLex()

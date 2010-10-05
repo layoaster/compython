@@ -68,34 +68,44 @@ class LexAn:
 
     def yyLex(self):
         if self._fin:
+            print "------"
             while self._buffer == "":
-                self._buffer = self._fin.readline().decode("utf-8")
+                print "eoeoeo"
+                self._buffer = self._fin.readline()#.decode("utf-8")
                 if self._buffer == "": # EOF
                     return Token(WrapTk.ENDTEXT)
                 self._nline += 1
+                self._buffer = self._buffer.rstrip()
 
-                # Ignorar espacios en blanco
-                wsmatch = self._wsregex.match(self._buffer)
-                if wsmatch:
-                    self._buffer = self._buffer[wsmatch.end():]
+            # Ignorar espacios en blanco
+            wsmatch = self._wsregex.match(self._buffer)
+            if wsmatch:
+                print "wsmatch"
+                self._buffer = self._buffer[wsmatch.end():]
 
+            print "BUFFER = ", self._buffer
             match = self._regex.match(self._buffer)
             if match is None:
                 print "Linea ", self._nline, "- TOKEN_ERROR; buffer: ", self._buffer
+                self._buffer = self._buffer[1:]
                 return Token(WrapTk.TOKEN_ERROR)
 
             self._ncol = match.start()
+            self._buffer = self._buffer[match.end():]
             token = WrapTk.toToken(match.lastgroup)
             value = match.group(match.lastgroup)
             if token == WrapTk.ID:
-                print value
-                if st.isReserved(value):
-                    return Token(token)
-                if not st.isIn(value):
-                    st.insert(value)
+                #print value
+                if st.isReserved(value.lower()):
+                    #print "reservedd"
+                    return Token(st.getIndex(value))
+                if not st.isIn(value.lower()):
+                    st.insert(value.lower())
                 return Token(WrapTk.ID, value)
             elif token == WrapTk.NUMERAL:
                 return Token(WrapTk.NUMERAL, int(value))
+            else:
+                return Token(token)
 
         else:
             print "ERROR: no se ha abierto el fichero de codigo fuente."

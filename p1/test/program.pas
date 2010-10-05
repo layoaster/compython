@@ -1,9 +1,15 @@
-program mi_programita;
+;;;;;;;
 
-var i:integer  ;
-{sadasd}
+
+
+
+
+
+program mi_programita;
+const i :            integer  ; 
 
 begin
-    i := 6;
-    write(i);
+
+    i :=                6;
+    write(           i        );
 end.
