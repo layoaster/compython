@@ -1,6 +1,7 @@
 program mi_programita;
 
-var i:integer  ; 
+var i:integer  ;
+{sadasd}
 
 begin
     i := 6;
