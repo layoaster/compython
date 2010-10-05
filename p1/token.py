@@ -68,3 +68,9 @@ class Token:
 
     def setValue(self, value):
         self._value = value
+
+    def getToken():
+        return self._token
+
+    def getValue():
+        return self._value
