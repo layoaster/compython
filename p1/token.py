@@ -9,7 +9,7 @@ Description: Contiene clase que envuelve la representacion interna de los tokens
   $Revision$
 """
 
-class WrapTk
+class WrapTk:
 
     AND = 1
     ARRAY = 2
@@ -54,6 +54,15 @@ class WrapTk
     TOKEN_ERROR = 41
     VAR = 42
     WHILE = 43
+
+    @classmethod
+    def toStr(self, token):
+        return "_" + str(token)
+
+    @classmethod
+    def toToken(self, string)
+        token = string[1:]
+        return int(token)
 
 class Token:
 
