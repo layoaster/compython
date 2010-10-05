@@ -13,6 +13,7 @@ import sys
 import string
 import re
 import st
+import token
 
 class LexAn:
 
@@ -44,9 +45,9 @@ class LexAn:
     def __init__(self):
         """ Constructor de la clase
         """
-        self._nline = 1
+        self._nline = 0
         self._ncol = 1
-        self._line = ""
+        self._buffer = ""
         self._fin = None
         self._flags = re.UNICODE | re.IGNORECASE
         
@@ -67,16 +68,23 @@ class LexAn:
 
     def yyLex(self):
         if self._fin:
-            if self._line == "":
-                self._line = self._fin.readline().decode("utf-8")
+            while self._buffer == "":
+                self._buffer = self._fin.readline().decode("utf-8")
+                if self._buffer == "": # EOF
+                    token = Token(WrapTk.ENDTEXT)
+                    return token                   
+                self._nline += 1
 
-            # Ignorar espacios en blanco
-            wsmatch = self._wsregex.match(line)
-            if wsmatch:
-                line = line[wsmatch.end():]
+                # Ignorar espacios en blanco
+                wsmatch = self._wsregex.match(self._buffer)
+                if wsmatch:
+                    self._buffer = self._buffer[wsmatch.end():]
 
-            match = self._regex(line)
-            
+            match = self._regex(self._buffer)
+            if match is None
+                print "Linea ", self._nline, ": NONEMATCH"
+                
+                
             #self._line = self.__fin.readline().decode("utf-8")
             self._nline += 1
 
