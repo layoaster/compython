@@ -18,28 +18,28 @@ import token
 class LexAn:
 
     _patterns = [
-        ("ASTERISK",        r"\*"),
-        ("BECOMES",         r":="),
-        ("COLON",           r":"),
-        ("COMMA",           r","),
-        ("DIV",             r"/"),
-        ("DOUBLEDOT",       r"\.\."),
-        ("EQUAL",           r"="),
-        ("GREATER",         r"\>"),
-        ("ID",              r"[a-zA-Z]+\w*"),
-        ("LEFTBRACKET",     r"\["),
-        ("LEFTPARENTHESIS", r"\("),
-        ("LESS",            r"\<"),
-        ("MINUS",           r"-"),
-        ("NOTEQUAL",        r"\<\>"),
-        ("NOTGREATER",      r"\<="),
-        ("NOTLESS",         r"\>="),
-        ("NUMERAL",         r"\d+"),
-        ("PERIOD",          r"\."),
-        ("PLUS",            r"\+"),
-        ("RIGHTBRACKET",    r"\]"),
-        ("RIGHTPARENTHESIS",r"\)"),
-        ("SEMICOLON",       r";"),
+        (WrapTk.ASTERISK,        r"\*"),
+        (WrapTk.BECOMES,         r":="),
+        (WrapTk.COLON,           r":"),
+        (WrapTk.COMMA,           r","),
+        (WrapTk.DIV,             r"/"),
+        (WrapTk.DOUBLEDOT,       r"\.\."),
+        (WrapTk.EQUAL,           r"="),
+        (WrapTk.GREATER,         r"\>"),
+        (WrapTk.ID,              r"[a-zA-Z]\w*"),
+        (WrapTk.LEFTBRACKET,     r"\["),
+        (WrapTk.LEFTPARENTHESIS, r"\("),
+        (WrapTk.LESS,            r"\<"),
+        (WrapTk.MINUS,           r"-"),
+        (WrapTk.NOTEQUAL,        r"\<\>"),
+        (WrapTk.NOTGREATER,      r"\<="),
+        (WrapTk.NOTLESS,         r"\>="),
+        (WrapTk.NUMERAL,         r"\d+"),
+        (WrapTk.PERIOD,          r"\."),
+        (WrapTk.PLUS,            r"\+"),
+        (WrapTk.RIGHTBRACKET,    r"\]"),
+        (WrapTk.RIGHTPARENTHESIS,r"\)"),
+        (WrapTk.SEMICOLON,       r";"),
     ]
 
     def __init__(self):
@@ -53,7 +53,7 @@ class LexAn:
         
         parts = []
         for name, rule in _patterns:
-            parts.append("(?P<%s>%s)" % (name, rule))
+            parts.append("(?P<%s>%s)" % (WrapTk.toStr(name), rule))
 
         self._regex = re.compile("|".join(parts), self._flags)
         self._wsregex = re.compile("\s*", re.MULTILINE)
@@ -66,13 +66,12 @@ class LexAn:
             error = True
         return error
 
-    def yyLex(self):
+    def yyLex(self, st):
         if self._fin:
             while self._buffer == "":
                 self._buffer = self._fin.readline().decode("utf-8")
                 if self._buffer == "": # EOF
-                    token = Token(WrapTk.ENDTEXT)
-                    return token                   
+                    return Token(WrapTk.ENDTEXT)
                 self._nline += 1
 
                 # Ignorar espacios en blanco
@@ -81,14 +80,22 @@ class LexAn:
                     self._buffer = self._buffer[wsmatch.end():]
 
             match = self._regex(self._buffer)
-            if match is None
-                print "Linea ", self._nline, ": NONEMATCH"
+            if match is None:
+                print "Linea ", self._nline, "- TOKEN_ERROR; buffer: ", self._buffer
+                return Token(WrapTk.TOKEN_ERROR)
                 
-                
-            #self._line = self.__fin.readline().decode("utf-8")
-            self._nline += 1
+            self._ncol = match.start()
+            token = WrapTk.toToken(match.lastgroup)
+            value = match.group(match.lastgroup)
+            if token == WrapTk.ID:
+                if st.isReserved(value):
+                    return Token(token)
+                if not st.isIn(value):
+                    st.insert(value)
+                return Token(WrapTk.ID, value)
+            elif token == WrapTk.NUMERAL:
+                return Token(WrapTk.NUMERAL, int(value))
 
-            self._fin.close()
         else:
             print "ERROR: no se ha abierto el fichero de codigo fuente."
             exit(-1)

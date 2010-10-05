@@ -71,3 +71,5 @@ class SymbolTable:
             for j in self._table[i]:
                 print j, "\t",
             print ""
+
+st = ST()
