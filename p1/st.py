@@ -9,32 +9,34 @@ Description: Analizador Lexico para Pascal-.
   $Revision$
 """
 
+from token import WrapTk
+
 class SymbolTable:
     """Clase para la gestion de la tabla de simbolos"""
     def __init__(self):
         self._table = {}
         self._index = 1
         # Insertamos las palabras reservadas
-        self._table["and"] = [True]
-        self._table["array"] = [True]
-        self._table["begin"] = [True]
-        self._table["const"] = [True]
-        self._table["div"] = [True]
-        self._table["do"] = [True]
-        self._table["else"] = [True]
-        self._table["end"] = [True]
-        self._table["if"] = [True]
-        self._table["mod"] = [True]
-        self._table["not"] = [True]
-        self._table["of"] = [True]
-        self._table["or"] = [True]
-        self._table["procedure"] = [True]
-        self._table["program"] = [True]
-        self._table["record"] = [True]
-        self._table["then"] = [True]
-        self._table["type"] = [True]
-        self._table["var"] = [True]
-        self._table["while"] = [True]
+        self._table["and"] = [True, WrapTk.AND]
+        self._table["array"] = [True, WrapTk.ARRAY]
+        self._table["begin"] = [True, WrapTk.BEGIN]
+        self._table["const"] = [True, WrapTk.CONST]
+        self._table["div"] = [True, WrapTk.DIV]
+        self._table["do"] = [True, WrapTk.DO]
+        self._table["else"] = [True, WrapTk.ELSE]
+        self._table["end"] = [True, WrapTk.END]
+        self._table["if"] = [True, WrapTk.IF]
+        self._table["mod"] = [True, WrapTk.MOD]
+        self._table["not"] = [True, WrapTk.NOT]
+        self._table["of"] = [True, WrapTk.OF]
+        self._table["or"] = [True, WrapTk.OR]
+        self._table["procedure"] = [True, WrapTk.PROCEDURE]
+        self._table["program"] = [True, WrapTk.PROGRAM]
+        self._table["record"] = [True, WrapTk.RECORD]
+        self._table["then"] = [True, WrapTk.THEN]
+        self._table["type"] = [True, WrapTk.TYPE]
+        self._table["var"] = [True, WrapTk.VAR]
+        self._table["while"] = [True, WrapTk.WHILE]
         # Insertamos los identificadores estandar
         self.insert("integer")
         self.insert("boolean")
