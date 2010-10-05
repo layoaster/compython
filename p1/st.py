@@ -57,15 +57,13 @@ class ST:
 
     def isReserved(self, lex):
         try:
-            r = self._table[lex][0]
-            return r
+            return self._table[lex][0]
         except KeyError:
             return None
 
     def getIndex(self, lex):
         try:
-            i = self._table[lex][1]
-            return i
+            return self._table[lex][1]
         except KeyError:
             return None
         except IndexError:
@@ -73,8 +71,7 @@ class ST:
 
     def getLine(self, lex):
         try:
-            l = self._table[lex][2]
-            return l
+            return self._table[lex][2]
         except KeyError:
             return None
         except IndexError:
@@ -82,8 +79,7 @@ class ST:
 
     def getPos(self, lex):
         try:
-            c = self._table[lex][3]
-            return c
+            return self._table[lex][3]
         except KeyError:
             return None
         except IndexError:
