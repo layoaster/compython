@@ -66,7 +66,7 @@ class LexAn:
             error = True
         return error
 
-    def yyLex(self, st):
+    def yyLex(self):
         if self._fin:
             while self._buffer == "":
                 self._buffer = self._fin.readline().decode("utf-8")
