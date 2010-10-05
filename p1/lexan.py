@@ -50,7 +50,7 @@ class LexAn:
         self._buffer = ""
         self._fin = None
         self._flags = re.UNICODE | re.IGNORECASE
-        
+
         parts = []
         for name, rule in _patterns:
             parts.append("(?P<%s>%s)" % (WrapTk.toStr(name), rule))
@@ -83,7 +83,7 @@ class LexAn:
             if match is None:
                 print "Linea ", self._nline, "- TOKEN_ERROR; buffer: ", self._buffer
                 return Token(WrapTk.TOKEN_ERROR)
-                
+
             self._ncol = match.start()
             token = WrapTk.toToken(match.lastgroup)
             value = match.group(match.lastgroup)

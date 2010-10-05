@@ -36,12 +36,12 @@ class SymbolTable:
         self._table["var"] = [True]
         self._table["while"] = [True]
         # Insertamos los identificadores estandar
-        self.insertST("integer")
-        self.insertST("boolean")
-        self.insertST("false")
-        self.insertST("true")
-        self.insertST("read")
-        self.insertST("write")
+        self.insert("integer")
+        self.insert("boolean")
+        self.insert("false")
+        self.insert("true")
+        self.insert("read")
+        self.insert("write")
 
     def insert(self, lex, reserved = False):
         atributes = [reserved, self._index]
@@ -65,11 +65,11 @@ class SymbolTable:
         except IndexError:
             return None
 
-    def print(self):
+    def printTable(self):
         for i in self._table:
             print i + "\t\t",
             for j in self._table[i]:
                 print j, "\t",
             print ""
 
-st = ST()
+st = SymbolTable()
