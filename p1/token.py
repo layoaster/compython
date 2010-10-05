@@ -57,13 +57,13 @@ class WrapTk
 
 class Token:
 
-    def __init__(self):
+    def __init__(self, token, value=None):
         """ Constructor de la clase
-            _token = codificacion del token
+            _token = token que representa
             _value = lexema o numero para los tokens ID y NUMERAL, prar ID este valor hacer de apuntador en la tabla de simbolos
         """
-        self._token = None
-        self._value = None
+        self._token = token
+        self._value = value
 
 
     def setToken(self, token):
