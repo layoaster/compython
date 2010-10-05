@@ -10,16 +10,14 @@ Description: Analizador Lexico para Pascal-.
 """
 
 import lexan
-import sys
 
 if (len(sys.argv) != 2):
     print "Usage: parser.py + source_code"
     exit()
 else:
     scanner = LexAn()
-    scanner.openFile(argv[1])
-#    while True:
-#        if scanner.nextToken()
-#            pass
-#        else:
-#            break
+    scanner.openFile(sys.argv[1])
+    tok = scanner.yyLex()
+    while tok != WrapTk.ENDTEXT:
+        print tok
+        tok = scanner.yyLex()
