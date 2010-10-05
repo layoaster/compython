@@ -9,7 +9,8 @@ Description: Analizador Lexico para Pascal-.
   $Revision$
 """
 
-import lexan
+from lexan import LexAn
+import sys
 
 if (len(sys.argv) != 2):
     print "Usage: parser.py + source_code"
