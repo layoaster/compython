@@ -80,8 +80,8 @@ class Token:
     def setValue(self, value):
         self._value = value
 
-    def getToken():
+    def getToken(self):
         return self._token
 
-    def getValue():
+    def getValue(self):
         return self._value

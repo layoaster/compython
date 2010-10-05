@@ -10,6 +10,7 @@ Description: Analizador Lexico para Pascal-.
 """
 
 from lexan import LexAn
+from token import WrapTk
 import sys
 
 if (len(sys.argv) != 2):
@@ -19,6 +20,7 @@ else:
     scanner = LexAn()
     scanner.openFile(sys.argv[1])
     tok = scanner.yyLex()
-    while tok != WrapTk.ENDTEXT:
-        print tok
-        tok = scanner.yyLex()
+    print tok.getToken(),tok.getValue()
+    #while tok != WrapTk.ENDTEXT:
+        #print tok
+        #tok = scanner.yyLex()

@@ -12,7 +12,7 @@ Description: Analizador Lexico para Pascal-.
 import sys
 import string
 import re
-import st
+from st import SymbolTable, st
 from token import WrapTk, Token
 
 class LexAn:
@@ -52,7 +52,7 @@ class LexAn:
         self._flags = re.UNICODE | re.IGNORECASE
 
         parts = []
-        for name, rule in _patterns:
+        for name, rule in self._patterns:
             parts.append("(?P<%s>%s)" % (WrapTk.toStr(name), rule))
 
         self._regex = re.compile("|".join(parts), self._flags)
@@ -79,7 +79,7 @@ class LexAn:
                 if wsmatch:
                     self._buffer = self._buffer[wsmatch.end():]
 
-            match = self._regex(self._buffer)
+            match = self._regex.match(self._buffer)
             if match is None:
                 print "Linea ", self._nline, "- TOKEN_ERROR; buffer: ", self._buffer
                 return Token(WrapTk.TOKEN_ERROR)
@@ -88,6 +88,7 @@ class LexAn:
             token = WrapTk.toToken(match.lastgroup)
             value = match.group(match.lastgroup)
             if token == WrapTk.ID:
+                print value
                 if st.isReserved(value):
                     return Token(token)
                 if not st.isIn(value):
