@@ -11,8 +11,6 @@ Description: Analizador Lexico para Pascal-.
 
 class ST:
     """Clase para la gestion de la tabla de simbolos"""
-    _table = None
-
     def __init__(self):
         self._table = {}
         self._index = 1
@@ -45,10 +43,8 @@ class ST:
         self.insertST("read")
         self.insertST("write")
 
-    def insertST(self, lex, reserved = False, line = None, pos = None):
+    def insertST(self, lex, reserved = False):
         atributes = [reserved, self._index]
-        if line:
-            atributes.append(line, pos)
         self._table[lex] = atributes
         self._index += 1
 
@@ -64,22 +60,6 @@ class ST:
     def getIndex(self, lex):
         try:
             return self._table[lex][1]
-        except KeyError:
-            return None
-        except IndexError:
-            return None
-
-    def getLine(self, lex):
-        try:
-            return self._table[lex][2]
-        except KeyError:
-            return None
-        except IndexError:
-            return None
-
-    def getPos(self, lex):
-        try:
-            return self._table[lex][3]
         except KeyError:
             return None
         except IndexError:
