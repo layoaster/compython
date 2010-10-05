@@ -12,6 +12,7 @@ Description: Analizador Lexico para Pascal-.
 import sys
 import string
 import re
+import st
 
 class LexAn:
 
