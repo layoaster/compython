@@ -56,6 +56,10 @@ class WrapTk:
     WHILE =            ("WHILE",            43)
     COMMENT =          ("COMMENT",          44)
 
+    TokStrings = ("AND", "ARRAY", "ASTERISK", "BECOMES", "BEGIN", "COLON",
+                  "COMMA", "CONST", "DIV", "DO", "DOUBLEDOT", "ELSE", "END",                      "ENDTEXT", "EQUAL", "GREATER", "ID", "IF", "LEFTBRACKET",
+                  "LEFTPARENTHESIS", "LESS", "MINUS", "MOD", "NOT", "NOTEQUAL",                   "NOTGREATER", "NOTLESS", "NUMERAL", "OF", "OR", "PERIOD",                       "PLUS", "PROCEDURE", "PROGRAM", "RECORD", "RIGHTBRACKET",                       "RIGHTPARENTHESIS", "SEMICOLON", "THEN", "TYPE",                                "TOKEN_ERROR", "VAR", "WHILE", "COMMENT")
+
     @classmethod
     def toStr(self, token):
         return "_" + str(token)

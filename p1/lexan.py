@@ -136,7 +136,7 @@ class LexAn:
                     a = LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
                     self._buffer = self._buffer[1:]
                     self._ncol += 1
-                    return Token(WrapTk.TOKEN_ERROR[0])
+                    return Token(WrapTk.TOKEN_ERROR[1])
 
                 token = WrapTk.toToken(match.lastgroup)
                 value = match.group(match.lastgroup)
@@ -148,7 +148,7 @@ class LexAn:
                         token = WrapTk.toToken(match.lastgroup)
                         value = match.group(match.lastgroup)
                     else:
-                        return Token(WrapTk.TOKEN_ERROR[0])
+                        return Token(WrapTk.TOKEN_ERROR[1])
 
                 self._ncol += match.end() - match.start()
                 self._buffer = self._buffer[match.end():]
@@ -160,14 +160,14 @@ class LexAn:
                         return Token(st.getIndex(value))
                     if not st.isIn(value.lower()):
                         st.insert(value.lower())
-                    return Token(WrapTk.ID[0], value)
+                    return Token(WrapTk.ID[1], value)
                 elif token == WrapTk.NUMERAL[1]:
-                    return Token(WrapTk.NUMERAL[0], int(value))
+                    return Token(WrapTk.NUMERAL[1], int(value))
                 else:
                     return Token(token)
             # Fin if
             else:
-                return Token(WrapTk.ENDTEXT[0])
+                return Token(WrapTk.ENDTEXT[1])
         else:
             print "ERROR: no se ha abierto el fichero de codigo fuente."
             exit(-1)

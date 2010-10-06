@@ -30,14 +30,18 @@ if __name__ == '__main__':
         scanner.openFile(args.fin)
         tok = scanner.yyLex()
         cline = 0
-        while tok.getToken() != WrapTk.ENDTEXT[0]:
+
+        while tok.getToken() != WrapTk.ENDTEXT[1]:
+            # Imprimimos linea y posicion
             if scanner.getPos()[0] == cline:
                 print "  ", scanner.getPos()[1],
             else:
                 cline = scanner.getPos()[0]
                 print cline, scanner.getPos()[1],
             
-            print "<" + str(tok.getToken()) + ",", str(tok.getValue()) + ">",
+            # Imprimimos el tokenID y su valor, si es el caso
+            print "<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
+            print str(tok.getValue()) + ">",
             
             # Si es un identificador, mostramos su indice de la ST
             if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL[0]):
@@ -45,4 +49,6 @@ if __name__ == '__main__':
             tok = scanner.yyLex()
             print ""
 
-        print "-- ENDTEXT --"
+        # Imprimimos el ultimo tokenID
+        print "<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
+        print str(tok.getValue()) + ">"
