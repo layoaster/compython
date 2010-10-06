@@ -30,7 +30,7 @@ if __name__ == '__main__':
         scanner.openFile(args.fin)
         tok = scanner.yyLex()
         cline = 0
-        while tok.getToken() != WrapTk.ENDTEXT[1]:
+        while tok.getToken() != WrapTk.ENDTEXT[0]:
             #print scanner.getPos(),
             if scanner.getPos()[0] == cline:
                 print "  ", scanner.getPos()[1],
