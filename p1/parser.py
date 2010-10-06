@@ -10,7 +10,8 @@ Description: Analizador Lexico para Pascal-.
 """
 
 from lexan import LexAn
-from token import WrapTk
+from token import *
+from error import *
 import st
 import sys
 import argparse
@@ -47,8 +48,11 @@ if __name__ == '__main__':
             # Si es un identificador, mostramos su indice de la ST
             if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL[1]):
                 print "\t\tST INDEX:", st.st.getIndex(tok.getValue()),
-
-            tok = scanner.yyLex()
+            try:
+                tok = scanner.yyLex()
+            except LexicalError as e:
+                e._printError()
+                tok = Token(WrapTk.TOKEN_ERROR[1])
             print ""
         
         print "--- ENDTEXT ---"

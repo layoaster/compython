@@ -136,12 +136,11 @@ class LexAn:
 
                 match = self._regex.match(self._buffer)
                 if match is None:
-                    #a = LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
                     self._buffer = self._buffer[1:]
                     self._ncol += 1
-                    print "\n[LEX ERROR] Invalid character",
-                    return Token(WrapTk.TOKEN_ERROR[1])
-
+                    raise LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
+                    #print "\n[LEX ERROR] Invalid character",
+                    #return Token(WrapTk.TOKEN_ERROR[1])
                 token = WrapTk.toToken(match.lastgroup)
                 value = match.group(match.lastgroup)
 
@@ -152,13 +151,15 @@ class LexAn:
                         if match is None:
                             self._buffer = self._buffer[1:]
                             self._ncol += 1
-                            print "\n[LEX ERROR] Invalid character",
-                            return Token(WrapTk.TOKEN_ERROR[1])
+                            raise LexicalError(WrapErr.UNCLOSED_COM, self._nline, self._ncol)
+                            #print "\n[LEX ERROR] Invalid character",
+                            #return Token(WrapTk.TOKEN_ERROR[1])
                         token = WrapTk.toToken(match.lastgroup)
                         value = match.group(match.lastgroup)
                     else:
-                        print "\n[LEX ERROR] Unclosed comment",
-                        return Token(WrapTk.TOKEN_ERROR[1])
+                        raise LexicalError(WrapErr.UNCLOSED_COM, self._nline, self._ncol)
+                        #print "\n[LEX ERROR] Unclosed comment",
+                        #return Token(WrapTk.TOKEN_ERROR[1])
 
                 self._ncol += match.end() - match.start()
                 self._buffer = self._buffer[match.end():]
@@ -173,8 +174,9 @@ class LexAn:
                     return Token(WrapTk.ID[1], value.lower())
                 elif token == WrapTk.NUMERAL[1]:
                     if int(value) > 32767:
-                        print "\n[LEX ERROR] Integer overflow",
-                        return Token(WrapTk.TOKEN_ERROR[1])
+                        raise LexicalError(WrapErr.INT_OVERFLOW, self._nline, self._ncol)
+                        #print "\n[LEX ERROR] Integer overflow",
+                        #return Token(WrapTk.TOKEN_ERROR[1])
                     else:
                         return Token(WrapTk.NUMERAL[1], int(value))
                 else:

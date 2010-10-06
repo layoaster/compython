@@ -9,9 +9,9 @@ class Error(Exception):
         pass
 
 class LexicalError(Error):
-    _errStrings = ("Caracter no reconocido",
-                  "Desbordamiento de entero",
-                  "Comentario sin cerrar")
+    _errStrings = ("Invalid character",
+                   "Integer overflow",
+                   "Unclosed comment")
 
     def __init__(self, err, nline, ncol):
         self.err = err
@@ -20,4 +20,4 @@ class LexicalError(Error):
         #self._printError()
 
     def _printError(self):
-        print self.nline, ":", self.ncol, "[LEX ERROR] ", self._errStrings[self.err]
+        print "\n[LEX ERROR] ", self._errStrings[self.err],
