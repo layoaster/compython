@@ -29,6 +29,8 @@ if __name__ == '__main__':
         scanner.openFile(args.fin)
         tok = scanner.yyLex()
         while tok.getToken() != WrapTk.ENDTEXT[1]:
+            print "--------"
+            print "L, C = ", scanner.getPos()
             print "Token = ", tok.getToken(), "; Value = ", tok.getValue()
             tok = scanner.yyLex()
         print "-- ENDTEXT --"

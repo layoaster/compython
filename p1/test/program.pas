@@ -9,7 +9,7 @@ pro$gram mi_programita;
 const i :            integer  ;
 //sdfsdfdfs
 {{ds(*{d*) hola}
-f}} (*}
+f}}
 begin
 
     i :=                6;

@@ -86,43 +86,48 @@ class LexAn:
     def _ignComment(self):
         comment = re.compile("(?P<leftbracket>\{)|(?P<leftparenthesis>\(\*)|(?P<rightbracket>\})|(?P<rightparenthesis>\*\))|(?P<doublebar>//)")
         match = comment.search(self._buffer)
-
         if match.lastgroup != "doublebar":
-            nbra = 0
-            npar = 0
-            while match:
-                if match.lastgroup == "leftbracket":
-                    nbra += 1
-                if match.lastgroup == "leftparenthesis":
-                    npar += 1
-                if match.lastgroup == "rightbracket":
-                    nbra -= 1
-                if match.lastgroup == "rightparenthesis":
-                    npar -= 1
+            nbra = 1
+            npar = 1
+            flag = True
+            while (nbra != 0 or npar != 0):
+                if flag:
+                    nbra = 0
+                    npar = 0
+                    flag = False
+                if match:
+                    if match.lastgroup == "leftbracket":
+                        nbra += 1
+                    if match.lastgroup == "leftparenthesis":
+                        npar += 1
+                    if match.lastgroup == "rightbracket":
+                        nbra -= 1
+                    if match.lastgroup == "rightparenthesis":
+                        npar -= 1
 
-                self._buffer = self._buffer[match.end():]
-                match = comment.search(self._buffer)
-                if ((nbra or npar) and not match):
+                    self._buffer = self._buffer[match.end():]
+                    print self._buffer
+                    match = comment.search(self._buffer)
+                else:
                     self._buffer = ""
                     if self._readLine():
                         match = comment.search(self._buffer)
-
-            if (nbra == 0 and npar == 0):
-                if len(self._buffer) == 0:
-                    self._readLine()
-                    return True
-            else:
-                return False
+                    else:
+                        return False
+            if len(self._buffer) == 0:
+                self._readLine()
+            return True
         else:
             self._buffer = ""
             self._readLine()
             return True
 
+    def getPos(self):
+        return (self._nline, self._ncol)
+
     def yyLex(self):
         if self._fin:
             if self._readLine():
-                print "--------"
-                print "Linea: ", self._nline, "; Columna: ", self._ncol
                 print "BUFFER = ", self._buffer
 
                 match = self._regex.match(self._buffer)
