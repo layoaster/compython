@@ -12,6 +12,7 @@ Description: Modulo del Analizador Lexico para Pascal-.
 import sys
 import string
 import re
+from error import Error, LexicalError, WrapErr
 from st import SymbolTable, st
 from token import WrapTk, Token
 
@@ -132,7 +133,7 @@ class LexAn:
 
                 match = self._regex.match(self._buffer)
                 if match is None:
-                    print "## TOKEN_ERROR ##"
+                    a = LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
                     self._buffer = self._buffer[1:]
                     self._ncol += 1
                     return Token(WrapTk.TOKEN_ERROR[1])
