@@ -44,7 +44,7 @@ if __name__ == '__main__':
             print str(tok.getValue()) + ">",
             
             # Si es un identificador, mostramos su indice de la ST
-            if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL[0]):
+            if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL[1]):
                 print "ST INDEX:", st.st.getIndex(tok.getValue()),
             tok = scanner.yyLex()
             print ""

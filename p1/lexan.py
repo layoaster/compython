@@ -24,7 +24,6 @@ class LexAn:
         (WrapTk.BECOMES[1],         r":="),
         (WrapTk.COLON[1],           r":"),
         (WrapTk.COMMA[1],           r","),
-        (WrapTk.DIV[1],             r"/"),
         (WrapTk.DOUBLEDOT[1],       r"\.\."),
         (WrapTk.EQUAL[1],           r"="),
         (WrapTk.GREATER[1],         r"\>"),
@@ -136,6 +135,7 @@ class LexAn:
                     a = LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
                     self._buffer = self._buffer[1:]
                     self._ncol += 1
+                    print "\n[LEX ERROR] Invalid character"
                     return Token(WrapTk.TOKEN_ERROR[1])
 
                 token = WrapTk.toToken(match.lastgroup)
@@ -148,6 +148,7 @@ class LexAn:
                         token = WrapTk.toToken(match.lastgroup)
                         value = match.group(match.lastgroup)
                     else:
+                        print "\n[LEX ERROR] Unclosed comment"
                         return Token(WrapTk.TOKEN_ERROR[1])
 
                 self._ncol += match.end() - match.start()
@@ -160,7 +161,7 @@ class LexAn:
                         return Token(st.getIndex(value.lower()))
                     if not st.isIn(value.lower()):
                         st.insert(value.lower())
-                    return Token(WrapTk.ID[1], value)
+                    return Token(WrapTk.ID[1], value.lower())
                 elif token == WrapTk.NUMERAL[1]:
                     return Token(WrapTk.NUMERAL[1], int(value))
                 else:
