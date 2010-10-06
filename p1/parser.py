@@ -21,5 +21,6 @@ else:
     scanner.openFile(sys.argv[1])
     tok = scanner.yyLex()
     while tok.getToken() != WrapTk.ENDTEXT:
-        print tok.getToken(), tok.getValue()
+        print "Token = ", tok.getToken(), "; Value = ", tok.getValue()
         tok = scanner.yyLex()
+    print "-- ENDTEXT --"

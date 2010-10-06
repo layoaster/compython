@@ -5,11 +5,11 @@
 
 
 
-program mi_programita;
+pro$gram mi_programita;
 const i :            integer  ; 
 
 begin
 
     i :=                6;
-    write(           i        );
+	write(           i        );
 end.
