@@ -39,7 +39,7 @@ if __name__ == '__main__':
                 print cline, scanner.getPos()[1],
             print "<" + str(tok.getToken()) + ",", str(tok.getValue()) + ">",
             # Si es un identificador, mostramos su indice de la ST
-            if (tok.getValue() != None and tok.getToken() != 28):
+            if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL[0]):
                 print "ST INDEX:", st.st.getIndex(tok.getValue()),
             tok = scanner.yyLex()
             print ""
