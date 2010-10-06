@@ -68,6 +68,8 @@ class LexAn:
         return error
 
     def _readLine(self):
+        """ Lee una linea del fichero y la inserta en el buffer, ignorando lineas en blanco
+        """
         while self._buffer == "":
             self._buffer = self._fin.readline()#.decode("utf-8")
             if self._buffer == "": # EOF
@@ -84,6 +86,8 @@ class LexAn:
         return True
 
     def _ignComment(self):
+        """ Procesado de comentarios, incluyendo comentarios anidados, multilinea y malformados (sin cerrar)
+        """
         comment = re.compile("(?P<leftbracket>\{)|(?P<leftparenthesis>\(\*)|(?P<rightbracket>\})|(?P<rightparenthesis>\*\))|(?P<doublebar>//)")
         match = comment.search(self._buffer)
         if match.lastgroup != "doublebar":
@@ -132,10 +136,10 @@ class LexAn:
 
                 match = self._regex.match(self._buffer)
                 if match is None:
-                    a = LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
+                    #a = LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
                     self._buffer = self._buffer[1:]
                     self._ncol += 1
-                    print "\n[LEX ERROR] Invalid character"
+                    print "\n[LEX ERROR] Invalid character",
                     return Token(WrapTk.TOKEN_ERROR[1])
 
                 token = WrapTk.toToken(match.lastgroup)
@@ -145,10 +149,15 @@ class LexAn:
                 while token == WrapTk.COMMENT[1]:
                     if self._ignComment():
                         match = self._regex.match(self._buffer)
+                        if match is None:
+                            self._buffer = self._buffer[1:]
+                            self._ncol += 1
+                            print "\n[LEX ERROR] Invalid character",
+                            return Token(WrapTk.TOKEN_ERROR[1])
                         token = WrapTk.toToken(match.lastgroup)
                         value = match.group(match.lastgroup)
                     else:
-                        print "\n[LEX ERROR] Unclosed comment"
+                        print "\n[LEX ERROR] Unclosed comment",
                         return Token(WrapTk.TOKEN_ERROR[1])
 
                 self._ncol += match.end() - match.start()
@@ -163,7 +172,11 @@ class LexAn:
                         st.insert(value.lower())
                     return Token(WrapTk.ID[1], value.lower())
                 elif token == WrapTk.NUMERAL[1]:
-                    return Token(WrapTk.NUMERAL[1], int(value))
+                    if int(value) > 32767:
+                        print "\n[LEX ERROR] Integer overflow",
+                        return Token(WrapTk.TOKEN_ERROR[1])
+                    else:
+                        return Token(WrapTk.NUMERAL[1], int(value))
                 else:
                     return Token(token)
             # Fin if

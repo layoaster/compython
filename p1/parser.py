@@ -30,30 +30,25 @@ if __name__ == '__main__':
         scanner.openFile(args.fin)
         tok = scanner.yyLex()
         cline = 0
-
+        print "ROW\tPOS\tTOKEN\t\t\tSYMBOL TABLE"
+        print "---\t---\t-----\t\t\t------------"
         while tok.getToken() != WrapTk.ENDTEXT[1]:
             # Imprimimos linea y posicion
             if scanner.getPos()[0] == cline:
-                print "  ", scanner.getPos()[1],
+                print "\t", scanner.getPos()[1],
             else:
                 cline = scanner.getPos()[0]
-                print cline, scanner.getPos()[1],
+                print cline, "\t", scanner.getPos()[1],
             
             # Imprimimos el tokenID y su valor, si es el caso
-            print "<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
+            print "\t<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
             print str(tok.getValue()) + ">",
             
             # Si es un identificador, mostramos su indice de la ST
             if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL[1]):
-                print "ST INDEX:", st.st.getIndex(tok.getValue()),
+                print "\t\tST INDEX:", st.st.getIndex(tok.getValue()),
+
             tok = scanner.yyLex()
             print ""
-
-        # Imprimimos el ultimo tokenID con su linea y posicion
-        if scanner.getPos()[0] == cline:
-            print "  ", scanner.getPos()[1],
-        else:
-            cline = scanner.getPos()[0]
-            print cline, scanner.getPos()[1],
-        print "<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
-        print str(tok.getValue()) + ">"
+        
+        print "--- ENDTEXT ---"
