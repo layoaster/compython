@@ -4,7 +4,7 @@ class WrapErr():
     INT_OVERFLOW = 1
     UNCLOSED_COM = 2
 
-class Error():
+class Error(Exception):
     def __init__(self):
         pass
 
@@ -17,7 +17,7 @@ class LexicalError(Error):
         self.err = err
         self.nline = nline
         self.ncol = ncol
-        self._printError()
+        #self._printError()
 
     def _printError(self):
         print self.nline, ":", self.ncol, "[LEX ERROR] ", self._errStrings[self.err]

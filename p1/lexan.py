@@ -157,7 +157,7 @@ class LexAn:
                     #print value
                     if st.isReserved(value.lower()):
                         #print "reservedd"
-                        return Token(st.getIndex(value))
+                        return Token(st.getIndex(value.lower()))
                     if not st.isIn(value.lower()):
                         st.insert(value.lower())
                     return Token(WrapTk.ID[1], value)
