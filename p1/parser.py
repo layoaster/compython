@@ -11,6 +11,7 @@ Description: Analizador Lexico para Pascal-.
 
 from lexan import LexAn
 from token import WrapTk
+import st
 import sys
 import argparse
 
@@ -28,9 +29,18 @@ if __name__ == '__main__':
         scanner = LexAn()
         scanner.openFile(args.fin)
         tok = scanner.yyLex()
+        cline = 0
         while tok.getToken() != WrapTk.ENDTEXT[1]:
-            print "--------"
-            print "L, C = ", scanner.getPos()
-            print "Token = ", tok.getToken(), "; Value = ", tok.getValue()
+            #print scanner.getPos(),
+            if scanner.getPos()[0] == cline:
+                print "  ", scanner.getPos()[1],
+            else:
+                cline = scanner.getPos()[0]
+                print cline, scanner.getPos()[1],
+            print "<" + str(tok.getToken()) + ",", str(tok.getValue()) + ">",
+            # Si es un identificador, mostramos su indice de la ST
+            if (tok.getValue() != None and tok.getToken() != 28):
+                print "ST INDEX:", st.st.getIndex(tok.getValue()),
             tok = scanner.yyLex()
+            print ""
         print "-- ENDTEXT --"
