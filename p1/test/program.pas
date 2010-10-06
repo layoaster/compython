@@ -7,7 +7,9 @@
 
 pro$gram mi_programita;
 const i :            integer  ;
-{fsdfsdf}
+//sdfsdfdfs
+{{ds(*{d*) hola}
+f}} (*}
 begin
 
     i :=                6;

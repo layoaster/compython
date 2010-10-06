@@ -18,6 +18,7 @@ from token import WrapTk, Token
 class LexAn:
 
     _patterns = [
+        (WrapTk.COMMENT[1],         r"\(\*|\{|//"),
         (WrapTk.ASTERISK[1],        r"\*"),
         (WrapTk.BECOMES[1],         r":="),
         (WrapTk.COLON[1],           r":"),
@@ -39,8 +40,7 @@ class LexAn:
         (WrapTk.PLUS[1],            r"\+"),
         (WrapTk.RIGHTBRACKET[1],    r"\]"),
         (WrapTk.RIGHTPARENTHESIS[1],r"\)"),
-        (WrapTk.SEMICOLON[1],       r";"),
-        (WrapTk.COMMENT[1],         r"\(\*|\{"),
+        (WrapTk.SEMICOLON[1],       r";")
     ]
 
     def __init__(self):
@@ -84,31 +84,39 @@ class LexAn:
         return True
 
     def _ignComment(self):
-        nbra = 0
-        npar = 0
-        comment = re.compile("(?P<leftbracket>\{)|(?P<leftparenthesis>\(\*)|(?P<rightbracket>\})|(?P<rightparenthesis>\*\))")
+        comment = re.compile("(?P<leftbracket>\{)|(?P<leftparenthesis>\(\*)|(?P<rightbracket>\})|(?P<rightparenthesis>\*\))|(?P<doublebar>//)")
         match = comment.search(self._buffer)
-        print "CHIVATO"
-        while match:
-            if match.lastgroup == "leftbracket":
-                nbra += 1
-            if match.lastgroup == "leftparenthesis":
-                npar += 1
-            if match.lastgroup == "rightbracket":
-                nbra -= 1
-            if match.lastgroup == "rightparenthesis":
-                npar -= 1
 
-            self._buffer = self._buffer[match.end():]
-            match = comment.search(self._buffer)
-            if ((nbra or npar) and not match):
-                if self._readLine():
-                    match = comment.search(self._buffer)
+        if match.lastgroup != "doublebar":
+            nbra = 0
+            npar = 0
+            while match:
+                if match.lastgroup == "leftbracket":
+                    nbra += 1
+                if match.lastgroup == "leftparenthesis":
+                    npar += 1
+                if match.lastgroup == "rightbracket":
+                    nbra -= 1
+                if match.lastgroup == "rightparenthesis":
+                    npar -= 1
 
-        if (not nbra and not npar):
-            return True
+                self._buffer = self._buffer[match.end():]
+                match = comment.search(self._buffer)
+                if ((nbra or npar) and not match):
+                    self._buffer = ""
+                    if self._readLine():
+                        match = comment.search(self._buffer)
+
+            if (nbra == 0 and npar == 0):
+                if len(self._buffer) == 0:
+                    self._readLine()
+                    return True
+            else:
+                return False
         else:
-            return False
+            self._buffer = ""
+            self._readLine()
+            return True
 
     def yyLex(self):
         if self._fin:
@@ -127,9 +135,17 @@ class LexAn:
                 token = WrapTk.toToken(match.lastgroup)
                 value = match.group(match.lastgroup)
 
-                if token != WrapTk.COMMENT[1]:
-                    self._ncol += match.end() - match.start()
-                    self._buffer = self._buffer[match.end():]
+
+                while token == WrapTk.COMMENT[1]:
+                    if self._ignComment():
+                        match = self._regex.match(self._buffer)
+                        token = WrapTk.toToken(match.lastgroup)
+                        value = match.group(match.lastgroup)
+                    else:
+                        return Token(WrapTk.TOKEN_ERROR[1])
+
+                self._ncol += match.end() - match.start()
+                self._buffer = self._buffer[match.end():]
 
                 if token == WrapTk.ID[1]:
                     #print value
@@ -141,9 +157,6 @@ class LexAn:
                     return Token(WrapTk.ID[1], value)
                 elif token == WrapTk.NUMERAL[1]:
                     return Token(WrapTk.NUMERAL[1], int(value))
-                elif token == WrapTk.COMMENT[1]:
-                    if not self._ignComment():
-                        return Token(WrapTk.TOKEN_ERROR[1])
                 else:
                     return Token(token)
             # Fin if
