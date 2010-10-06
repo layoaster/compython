@@ -49,6 +49,11 @@ if __name__ == '__main__':
             tok = scanner.yyLex()
             print ""
 
-        # Imprimimos el ultimo tokenID
+        # Imprimimos el ultimo tokenID con su linea y posicion
+        if scanner.getPos()[0] == cline:
+            print "  ", scanner.getPos()[1],
+        else:
+            cline = scanner.getPos()[0]
+            print cline, scanner.getPos()[1],
         print "<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
         print str(tok.getValue()) + ">"
