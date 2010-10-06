@@ -12,15 +12,23 @@ Description: Analizador Lexico para Pascal-.
 from lexan import LexAn
 from token import WrapTk
 import sys
+import argparse
 
-if (len(sys.argv) != 2):
-    print "Usage: parser.py + source_code"
-    exit()
-else:
-    scanner = LexAn()
-    scanner.openFile(sys.argv[1])
-    tok = scanner.yyLex()
-    while tok.getToken() != WrapTk.ENDTEXT[1]:
-        print "Token = ", tok.getToken(), "; Value = ", tok.getValue()
+if __name__ == '__main__':
+    # Especificacion del parseado de argumentos por linea de comandos
+    parser = argparse.ArgumentParser(description='Indexa las palabras de un texto y genera un indice en texto plano y/o en html.')
+    parser.add_argument('fin',  metavar='fich_texto.pas', type=str, action='store', help='fichero de codigo fuente')
+
+    # Parametros insuficientes -> mostrar por pantalla el modo de uso
+    if (len(sys.argv) != 2):
+        parser.print_help()
+    else:
+        args = parser.parse_args()
+
+        scanner = LexAn()
+        scanner.openFile(args.fin)
         tok = scanner.yyLex()
-    print "-- ENDTEXT --"
+        while tok.getToken() != WrapTk.ENDTEXT[1]:
+            print "Token = ", tok.getToken(), "; Value = ", tok.getValue()
+            tok = scanner.yyLex()
+        print "-- ENDTEXT --"
