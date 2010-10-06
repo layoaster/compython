@@ -84,9 +84,11 @@ class LexAn:
         return True
 
     def _ignComment(self):
+        nbra = 0
+        npar = 0
         comment = re.compile("(?P<leftbracket>\{)|(?P<leftparenthesis>\(\*)|(?P<rightbracket>\})|(?P<rightparenthesis>\*\))")
         match = comment.search(self._buffer)
-
+        print "CHIVATO"
         while match:
             if match.lastgroup == "leftbracket":
                 nbra += 1
@@ -100,7 +102,7 @@ class LexAn:
             self._buffer = self._buffer[match.end():]
             match = comment.search(self._buffer)
             if ((nbra or npar) and not match):
-                if self._readLine()
+                if self._readLine():
                     match = comment.search(self._buffer)
 
         if (not nbra and not npar):
@@ -125,6 +127,9 @@ class LexAn:
                 token = WrapTk.toToken(match.lastgroup)
                 value = match.group(match.lastgroup)
 
+                if token != WrapTk.COMMENT[1]:
+                    self._ncol += match.end() - match.start()
+                    self._buffer = self._buffer[match.end():]
 
                 if token == WrapTk.ID[1]:
                     #print value
@@ -137,13 +142,10 @@ class LexAn:
                 elif token == WrapTk.NUMERAL[1]:
                     return Token(WrapTk.NUMERAL[1], int(value))
                 elif token == WrapTk.COMMENT[1]:
-                    if  not self._ignComment()
+                    if not self._ignComment():
                         return Token(WrapTk.TOKEN_ERROR[1])
                 else:
                     return Token(token)
-
-                self._ncol += match.end() - match.start()
-                self._buffer = self._buffer[match.end():]
             # Fin if
             else:
                 return Token(WrapTk.ENDTEXT[1])
