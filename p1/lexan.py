@@ -107,7 +107,7 @@ class LexAn:
                         npar -= 1
 
                     self._buffer = self._buffer[match.end():]
-                    print self._buffer
+                    #print self._buffer
                     match = comment.search(self._buffer)
                 else:
                     self._buffer = ""
@@ -129,7 +129,7 @@ class LexAn:
     def yyLex(self):
         if self._fin:
             if self._readLine():
-                print "BUFFER = ", self._buffer
+            #    print "BUFFER = ", self._buffer
 
                 match = self._regex.match(self._buffer)
                 if match is None:
