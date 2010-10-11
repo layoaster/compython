@@ -24,7 +24,7 @@ class SymbolTable:
                 indica si la cadena es una palabra reservadas y 1 indice
                 para los identificadores que se utilizara en sucesivas etapas
                 del compilador. Las palabras reservadas no tienen indice,
-                pero utilizamos ese espacio para almacenar su token_ID.                
+                pero utilizamos ese espacio para almacenar su token_ID.
             Parametros:
                 Ninguno
 
@@ -34,26 +34,26 @@ class SymbolTable:
         self._table = {}
         self._index = 1
         # Insertamos las palabras reservadas
-        self._table["and"] = [True, WrapTk.AND[1]]
-        self._table["array"] = [True, WrapTk.ARRAY[1]]
-        self._table["begin"] = [True, WrapTk.BEGIN[1]]
-        self._table["const"] = [True, WrapTk.CONST[1]]
-        self._table["div"] = [True, WrapTk.DIV[1]]
-        self._table["do"] = [True, WrapTk.DO[1]]
-        self._table["else"] = [True, WrapTk.ELSE[1]]
-        self._table["end"] = [True, WrapTk.END[1]]
-        self._table["if"] = [True, WrapTk.IF[1]]
-        self._table["mod"] = [True, WrapTk.MOD[1]]
-        self._table["not"] = [True, WrapTk.NOT[1]]
-        self._table["of"] = [True, WrapTk.OF[1]]
-        self._table["or"] = [True, WrapTk.OR[1]]
-        self._table["procedure"] = [True, WrapTk.PROCEDURE[1]]
-        self._table["program"] = [True, WrapTk.PROGRAM[1]]
-        self._table["record"] = [True, WrapTk.RECORD[1]]
-        self._table["then"] = [True, WrapTk.THEN[1]]
-        self._table["type"] = [True, WrapTk.TYPE[1]]
-        self._table["var"] = [True, WrapTk.VAR[1]]
-        self._table["while"] = [True, WrapTk.WHILE[1]]
+        self._table["and"] = [True, WrapTk.AND]
+        self._table["array"] = [True, WrapTk.ARRAY]
+        self._table["begin"] = [True, WrapTk.BEGIN]
+        self._table["const"] = [True, WrapTk.CONST]
+        self._table["div"] = [True, WrapTk.DIV]
+        self._table["do"] = [True, WrapTk.DO]
+        self._table["else"] = [True, WrapTk.ELSE]
+        self._table["end"] = [True, WrapTk.END]
+        self._table["if"] = [True, WrapTk.IF]
+        self._table["mod"] = [True, WrapTk.MOD]
+        self._table["not"] = [True, WrapTk.NOT]
+        self._table["of"] = [True, WrapTk.OF]
+        self._table["or"] = [True, WrapTk.OR]
+        self._table["procedure"] = [True, WrapTk.PROCEDURE]
+        self._table["program"] = [True, WrapTk.PROGRAM]
+        self._table["record"] = [True, WrapTk.RECORD]
+        self._table["then"] = [True, WrapTk.THEN]
+        self._table["type"] = [True, WrapTk.TYPE]
+        self._table["var"] = [True, WrapTk.VAR]
+        self._table["while"] = [True, WrapTk.WHILE]
         # Insertamos los identificadores estandar
         self.insert("integer")
         self.insert("boolean")
@@ -69,7 +69,7 @@ class SymbolTable:
                 por defecto se toma False para el primer elemento del valor.
                 Como indice se utiliza el valor actual de self._index, el cual
                 se incrementa para dejarlo preparado para la siguiente entrada.
-            
+
             Parametros:
                 - lex: Cadena de caracteres que se inserta como identificador.
                 - reserved: Boolean que indica si el identificador es una

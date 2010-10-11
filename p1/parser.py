@@ -33,26 +33,26 @@ if __name__ == '__main__':
         cline = 0
         print "ROW\tPOS\tTOKEN\t\t\tSYMBOL TABLE"
         print "---\t---\t-----\t\t\t------------"
-        while tok.getToken() != WrapTk.ENDTEXT[1]:
+        while tok.getToken() != WrapTk.ENDTEXT:
             # Imprimimos linea y posicion
             if scanner.getPos()[0] == cline:
                 print "\t", scanner.getPos()[1],
             else:
                 cline = scanner.getPos()[0]
                 print cline, "\t", scanner.getPos()[1],
-            
+
             # Imprimimos el tokenID y su valor, si es el caso
             print "\t<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
             print str(tok.getValue()) + ">",
-            
+
             # Si es un identificador, mostramos su indice de la ST
-            if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL[1]):
+            if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL):
                 print "\t\tST INDEX:", st.st.getIndex(tok.getValue()),
             try:
                 tok = scanner.yyLex()
             except LexicalError as e:
                 e._printError()
-                tok = Token(WrapTk.TOKEN_ERROR[1])
+                tok = Token(WrapTk.TOKEN_ERROR)
             print ""
-        
+
         print "--- ENDTEXT ---"
