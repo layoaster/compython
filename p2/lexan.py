@@ -60,12 +60,10 @@ class LexAn:
         self._wsregex = re.compile("\s*", re.MULTILINE)
 
     def openFile(self, fin):
-        error = False
         try:
             self._fin = open(fin, "rU")
         except IOError:
-            error = True
-        return error
+            raise
 
     def _readLine(self):
         """ Lee una linea del fichero y la inserta en el buffer, ignorando lineas en blanco
