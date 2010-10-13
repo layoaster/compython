@@ -11,7 +11,7 @@ Description: Analizador Lexico para Pascal-.
 
 import sys
 import argparse
-from parser import *
+from parser import SynAn
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
@@ -25,4 +25,4 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         parser = SynAn()
-        parser.start()
+        parser.start(args.fin)
