@@ -92,3 +92,9 @@ class Token:
 
     def getValue(self):
         return self._value
+
+    def __eq__(self, token)
+        if self._token == token:
+            return True
+        else:
+            return False
