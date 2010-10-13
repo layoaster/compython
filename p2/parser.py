@@ -22,7 +22,10 @@ class SynAn:
 
     def start(self, fin):
         scanner = LexAn()
-        scanner.openFile(fin)
+        try:
+            scanner.openFile(fin)
+        except IOError:
+            raise
         tok = scanner.yyLex()
         
 	cline = 0

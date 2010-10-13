@@ -25,4 +25,8 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         parser = SynAn()
-        parser.start(args.fin)
+        try:
+            parser.start(args.fin)
+        except IOError:
+            print "I/O failure"
+            exit()
