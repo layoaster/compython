@@ -21,35 +21,29 @@ class SynAn:
         _lookahead = None
 
     def start(self, fin):
-        scanner = LexAn()
+        self._scanner = LexAn()
         try:
-            scanner.openFile(fin)
+            self._scanner.openFile(fin)
         except IOError:
             raise
-        tok = scanner.yyLex()
-        
-	cline = 0
-        print "ROW\tPOS\tTOKEN\t\t\tSYMBOL TABLE"
-        print "---\t---\t-----\t\t\t------------"
-        while tok.getToken() != WrapTk.ENDTEXT:
-            # Imprimimos linea y posicion
-            if scanner.getPos()[0] == cline:
-                print "\t", scanner.getPos()[1],
-            else:
-                cline = scanner.getPos()[0]
-                print cline, "\t", scanner.getPos()[1],
+        self._lookahead = self._scanner.yyLex()
+        self._program()
 
-            # Imprimimos el tokenID y su valor, si es el caso
-            print "\t<" + WrapTk.TokStrings[tok.getToken() - 1] + ",",
-            print str(tok.getValue()) + ">",
+    def _match(self, tok):
+        if self._lookahead == tok:
+            self._lookahead = self._scanner.yyLex()
+        else:
+            print "Syntax Error"
+            exit(1)
 
-            # Si es un identificador, mostramos su indice de la ST
-            if (tok.getValue() != None and tok.getToken() != WrapTk.NUMERAL):
-                print "\t\tST INDEX:", st.st.getIndex(tok.getValue()),
-            try:
-                tok = scanner.yyLex()
-            except LexicalError as e:
-                e._printError()
-                tok = Token(WrapTk.TOKEN_ERROR)
-            print ""
-        print "--- ENDTEXT ---"
+    def _program(self):
+        self._match(WrapTk.PROGRAM)
+        self._match(WrapTk.ID)
+        self._match(WrapTk.SEMICOLON)
+        self._blockBody()
+        self._match(WrapTk.PERIOD)
+        self._match(WrapTk.ENDTEXT)
+
+    def _blockBody(self):
+        self._match(WrapTk.BEGIN)
+        self._match(WrapTk.END)

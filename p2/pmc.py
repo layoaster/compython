@@ -30,3 +30,5 @@ if __name__ == '__main__':
         except IOError:
             print "I/O failure"
             exit()
+
+        print "All OK"
