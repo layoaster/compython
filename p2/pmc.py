@@ -3,7 +3,7 @@
 
 """
         $Id$
-Description: Analizador Lexico para Pascal-.
+Description: Main del Analizador Sintactico de Pascal-.
     $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$

@@ -3,7 +3,7 @@
 
 """
         $Id$
-Description: Analizador Lexico para Pascal-.
+Description: Analizador Sintáctico para Pascal-.
     $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$
@@ -12,7 +12,6 @@ Description: Analizador Lexico para Pascal-.
 from lexan import LexAn
 from token import *
 from error import *
-import st
 
 
 class SynAn:
