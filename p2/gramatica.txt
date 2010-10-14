@@ -62,7 +62,7 @@
 
 <StatementGroup> -> <AssignamentStatement> | <ProcedureStatement>
 
-<AssignamentStatement> -> <Selector>  := <Expression>
+<AssignamentStatement> -> <Selector2>  := <Expression>
 
 <ProcedureStatement> -> <ActualParameterList>
 
