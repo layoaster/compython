@@ -1,0 +1,121 @@
+<Program> -> program id ; <BlockBody> .
+
+<BlockBody> -> <ConstantDefinitionPart> <TypeDefinitionPart> <VariableDefinitionPart> <ProcedureDefinition> <CompoundStatement>
+
+<ConstantDefinitionPart> -> const <ConstantDefinition> | ε
+
+<ConstantDefinition> -> id = <Constant> ; <ConstantDefinition2>
+
+<ConstantDefinition2> -> <ConstantDefinition> | ε
+
+<TypeDefinitionPart> -> type <TypeDefinition> | ε
+
+<TypeDefinition> -> id = <NewType> ; <TypeDefinition2>
+
+<TypeDefinition2> -> <TypeDefinition> | ε
+
+<NewType> -> <NewArrayType> | <NewRecordType>
+
+<NewArrayType> -> array [ <IndexRange> ] of id
+
+<IndexRange> -> <Constant> .. <Constant>
+
+<NewRecordType> -> record <FieldList> end
+
+<FieldList> -> <RecordSection>
+
+<RecordSection> -> <FieldName> : id <RecordSection2>
+
+<RecordSection2> -> ; <RecordSection> | ε
+
+<FieldName> -> id <FieldName2>
+
+<FieldName2> -> , <FieldName> | ε
+
+<VariableDefinitionPart> -> var <VariableDefinition> | ε
+
+<VariableDefinition> -> <VariableGroup> ; <VariableDefinition2>
+
+<VariableDefinition2> -> <VariableDefinition> | ε
+
+<VariableGroup> -> <VariableName> : id
+
+<VariableName> -> id <VariableName2>
+
+<VariableName2> -> , <VariableName> | ε
+
+<ProcedureDefinition> -> <ProcedureDefinition2> | ε
+
+<ProcedureDefinition2> -> procedure id <ProcedureBlock> ; <ProcedureDefinition>
+
+<ProcedureBlock> -> <FormalParameterList> ; <BlockBody>
+
+<FormalParameterList> -> ( <ParameterDefinition> ) | ε
+
+<ParameterDefinition> -> <Variable> <VariableGroup> <ParameterDefinition2>
+
+<ParameterDefinition2> -> ; <ParameterDefinition> | ε
+
+<Variable> -> var | ε
+
+<Statement> -> id <StatementGroup> | <IfStatement> | <WhileStatement> | <CompoundStatement> | ε
+
+<StatementGroup> -> <AssignamentStatement> | <ProcedureStatement>
+
+<AssignamentStatement> -> <Selector>  := <Expression>
+
+<ProcedureStatement> -> <ActualParameterList>
+
+<ActualParameterList> -> ( <ActualParameterList2> ) | ε
+
+<ActualParameterList2> -> <Expression> <Expression2>
+
+<Expression2> -> , <ActualParameterList2> | ε
+
+<IfStatement> -> if <Expression> then <Statement> <IfStatement2>
+
+<IfStatement2> -> else <Statement> | ε
+
+<WhileStatement> -> while <Expression> do <Statement>
+
+<CompoundStatement> -> begin <Statement2> end
+
+<Statement2> -> <Statement> <Statement3>
+
+<Statement3> -> ; <Statement2> | ε
+
+<Expression> -> <SimpleExpression> <ExpressionGroup>
+
+<ExpressionGroup> -> <RelationalOperator> <SimpleExpression> | ε
+
+<RelationalOperator> -> < | = | > | <= | <> | >=
+
+<SimpleExpression> -> <Sign> <Term> <SimpleExpressionGroup>
+
+<Sign> -> <SignOperator> | ε
+
+<SimpleExpressionGroup> -> <AdditiveOperator> <Term> <SimpleExpressionGroup> | ε
+
+<SignOperator> -> + | -
+
+<AdditiveOperator> -> + | - | or
+
+<Term> -> <Factor> <Multiplying>
+
+<Multiplying> -> <MultiplyingOperator> <Factor> <Multiplying> | ε
+
+<MultiplyingOperator> -> * | div | mod | and
+
+<Factor> -> numeral | id <Factor2> | ( <Expression> ) | not <Factor>
+
+<Factor2> -> <Selector2> | ε
+
+<VariableAccess> -> id <Selector2>
+
+<Selector2> -> <Selector> <Selector2> | ε
+
+<Selector> -> <IndexSelector> | <FieldSelector>
+
+<IndexSelector> -> [ <Expression> ]
+
+<FieldSelector> -> . id
