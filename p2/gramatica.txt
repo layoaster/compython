@@ -119,3 +119,5 @@
 <IndexSelector> -> [ <Expression> ]
 
 <FieldSelector> -> . id
+
+<Constant> -> numeral | id
