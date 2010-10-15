@@ -78,11 +78,9 @@
 
 <WhileStatement> -> while <Expression> do <Statement>
 
-<CompoundStatement> -> begin <Statement2> end
+<CompoundStatement> -> begin <Statement> <Statement2> end
 
-<Statement2> -> <Statement> <Statement3>
-
-<Statement3> -> ; <Statement2> | ε
+<Statement2> -> ; <Statement> <Statement2> | ε
 
 <Expression> -> <SimpleExpression> <ExpressionGroup>
 
