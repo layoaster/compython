@@ -24,7 +24,7 @@
 
 <FieldList> -> <RecordSection> <FieldList2>
 
-<FieldList2> -> ; <RecordSection> <FieldList2> | e
+<FieldList2> -> ; <RecordSection> <FieldList2> | ε
 
 <RecordSection> -> id <RecordSection2> : id
 
@@ -36,23 +36,21 @@
 
 <VariableDefinition2> -> <VariableDefinition> | ε
 
-<VariableGroup> -> <VariableName> : id
+<VariableGroup> -> id <VariableGroup2> : id
 
-<VariableName> -> id <VariableName2>
-
-<VariableName2> -> , <VariableName> | ε
+<VariableGroup2> -> , id <VariableGroup2> | ε
 
 <ProcedureDefinition> -> <ProcedureDefinition2> | ε
 
 <ProcedureDefinition2> -> procedure id <ProcedureBlock> ; <ProcedureDefinition>
 
-<ProcedureBlock> -> <FormalParameterList> ; <BlockBody>
+<ProcedureBlock> -> ( <FormalParameterList> ) ; <BlockBody>
 
-<FormalParameterList> -> ( <ParameterDefinition> ) | ε
+<FormalParameterList> -> <ParameterDefinition> <ParameterDefinition2> | ε
 
-<ParameterDefinition> -> <Variable> <VariableGroup> <ParameterDefinition2>
+<ParameterDefinition> -> <Variable> <VariableGroup>
 
-<ParameterDefinition2> -> ; <ParameterDefinition> | ε
+<ParameterDefinition2> -> ; <ParameterDefinition> <ParameterDefinition2> | ε
 
 <Variable> -> var | ε
 
@@ -62,13 +60,11 @@
 
 <AssignamentStatement> -> <Selector2>  := <Expression>
 
-<ProcedureStatement> -> <ActualParameterList>
+<ProcedureStatement> -> ( <ActualParameterList> )  | ε
 
-<ActualParameterList> -> ( <ActualParameterList2> ) | ε
+<ActualParameterList> -> <Expression> <Expression2>
 
-<ActualParameterList2> -> <Expression> <Expression2>
-
-<Expression2> -> , <ActualParameterList2> | ε
+<Expression2> -> , <Expression> <Expression2> | ε
 
 <IfStatement> -> if <Expression> then <Statement> <IfStatement2>
 
@@ -105,8 +101,6 @@
 <Factor> -> numeral | id <Factor2> | ( <Expression> ) | not <Factor>
 
 <Factor2> -> <Selector2> | ε
-
-<VariableAccess> -> id <Selector2>
 
 <Selector2> -> <Selector> <Selector2> | ε
 
