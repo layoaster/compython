@@ -2,17 +2,17 @@
 
 <BlockBody> -> <ConstantDefinitionPart> <TypeDefinitionPart> <VariableDefinitionPart> <ProcedureDefinition> <CompoundStatement>
 
-<ConstantDefinitionPart> -> const <ConstantDefinition> | ε
+<ConstantDefinitionPart> -> const <ConstantDefinition> <ConstantDefinition2> | ε
 
-<ConstantDefinition> -> id = <Constant> ; <ConstantDefinition2>
+<ConstantDefinition> -> id = <Constant> ;
 
-<ConstantDefinition2> -> <ConstantDefinition> | ε
+<ConstantDefinition2> -> <ConstantDefinition> <ConstantDefinition2> | ε
 
-<TypeDefinitionPart> -> type <TypeDefinition> | ε
+<TypeDefinitionPart> -> type <TypeDefinition> <TypeDefinition2> | ε
 
-<TypeDefinition> -> id = <NewType> ; <TypeDefinition2>
+<TypeDefinition> -> id = <NewType> ;
 
-<TypeDefinition2> -> <TypeDefinition> | ε
+<TypeDefinition2> -> <TypeDefinition> <TypeDefinition2> | ε
 
 <NewType> -> <NewArrayType> | <NewRecordType>
 
@@ -22,15 +22,13 @@
 
 <NewRecordType> -> record <FieldList> end
 
-<FieldList> -> <RecordSection>
+<FieldList> -> <RecordSection> <FieldList2>
 
-<RecordSection> -> <FieldName> : id <RecordSection2>
+<FieldList2> -> ; <RecordSection> <FieldList2> | e
 
-<RecordSection2> -> ; <RecordSection> | ε
+<RecordSection> -> id <RecordSection2> : id
 
-<FieldName> -> id <FieldName2>
-
-<FieldName2> -> , <FieldName> | ε
+<RecordSection2> -> , id <RecordSection2> | ε
 
 <VariableDefinitionPart> -> var <VariableDefinition> | ε
 
