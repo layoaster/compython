@@ -28,12 +28,15 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program()
 
+    def _syntaxError(self):
+	print "Syntax Error"
+	exit(1)
+
     def _match(self, tok):
         if self._lookahead == tok:
             self._lookahead = self._scanner.yyLex()
         else:
-            print "Syntax Error"
-            exit(1)
+            self._syntaxError()
 
     def _program(self):
         self._match(WrapTk.PROGRAM)
@@ -44,20 +47,20 @@ class SynAn:
         self._match(WrapTk.ENDTEXT)
 
     def _blockBody(self):
-        if _lookahead == WrapTk.CONST:
+        if self._lookahead == WrapTk.CONST:
             self._constantDefinitionPart()
-        if _lookahead == WrapTk.TYPE:
+        if self._lookahead == WrapTk.TYPE:
             self._typeDefinitionPart()
-        if _lookahead == WrapTk.VAR:
-            self._varDefinitionPart()
-        while _lookahead == WrapTk.PROCEDURE:
+        if self._lookahead == WrapTk.VAR:
+            self._variableDefinitionPart()
+        while self._lookahead == WrapTk.PROCEDURE:
             self._procedureDefinition()
         self._compoundStatement()
 
     def _constantDefinitionPart(self):
-        self._match(WrapTk.CONST):
+        self._match(WrapTk.CONST)
         self._constantDefinition()
-        while _lookahead == WrapTk.ID:
+        while self._lookahead == WrapTk.ID:
             self._constantDefinition()
 
     def _constantDefinition(self):
@@ -69,7 +72,7 @@ class SynAn:
     def _typeDefinitionPart(self):
         self._match(WrapTk.TYPE)
         self._typeDefinition()
-        while _lookahead == WrapTk.ID:
+        while self._lookahead == WrapTk.ID:
             self._typeDefinition()
 
     def _typeDefinition(self):
@@ -79,11 +82,11 @@ class SynAn:
         self._match(WrapTk.SEMICOLON)
 
     def _newType(self):
-        if _lookahead == WrapTk.ARRAY:
+        if self._lookahead == WrapTk.ARRAY:
             self._newArrayType()
-        elif _lookahead == WrapTk.RECORD:
+        elif self._lookahead == WrapTk.RECORD:
             self._newRecordType()
-        else
+        else:
             self._syntaxError()
 
     def _newArrayType(self):
@@ -106,13 +109,13 @@ class SynAn:
 
     def _fieldList(self):
         self._recordSection()
-        while _lookahead == WrapTk.SEMICOLON:
+        while self._lookahead == WrapTk.SEMICOLON:
             self._match(WrapTk.SEMICOLON)
             self._recordSection()
 
     def _recordSection(self):
         self._match(WrapTk.ID)
-        while _lookahead == WrapTk.COMMA:
+        while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA)
             self._match(WrapTk.ID)
         self._match(WrapTk.COLON)
@@ -121,12 +124,52 @@ class SynAn:
     def _variableDefinitionPart(self):
         self._match(WrapTk.VAR)
         self._variableDefinition()
-        while _lookahead == WrapTk.ID:
+        while self._lookahead == WrapTk.ID:
             self._variableDefinition()
 
+    def _variableDefinition(self):
+        self._varGroup()
+        self._match(WrapTk.SEMICOLON)
 
+    def _varGroup(self):
+	self._match(WrapTk.ID)
+	while self._lookahead == WrapTk.COMMA:
+	    self._match(WrapTk.COMMA)
+	    self._match(WrapTk.ID)
+	self._match(WrapTk.COLON)
+	self._match(WrapTk.ID)
 
+    def _procedureDefinition(self):
+	self._match(WrapTk.PROCEDURE)
+        self._match(WrapTk.ID)
+	self._procedureBlock()
+
+    def _procedureBlock(self):
+	if self._lookahead == WrapTk.LEFTPARENTHESIS:
+	    self._match(WrapTk.LEFTPARENTHESIS)
+	    self._formalParameterList()
+	    self._match(WrapTk.RIGHTPARENTHESIS)
+	self._match(WrapTk.SEMICOLON)
+	self._blockBody()
+
+    def _formalParameterList(self):
+	self._parameterDefinition()
+	while self._lookahead == WrapTk.SEMICOLON:
+	    self._parameterDefinition()
+
+    def _parameterDefinition(self):
+	if self._lookahead == WrapTk.VAR:
+	    self._match(WrapTk.VAR)
+	self._varGroup()
 
     def _compoundStatement(self):
         self._match(WrapTk.BEGIN)
         self._match(WrapTk.END)
+
+    def _constant(self):
+	if self._lookahead == WrapTk.NUMERAL:
+	    self._match(WrapTk.NUMERAL)
+	elif self._lookahead == WrapTk.ID:
+	    self._match(WrapTk.ID)
+	else:
+	    self._syntaxError()
