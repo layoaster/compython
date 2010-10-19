@@ -100,8 +100,10 @@ class Token:
     def getLexeme(self):
         if self._token in (WrapTk.ID, WrapTk.NUMERAL):
             return str(self._value)
-        else:
+        elif self._token != WrapTk.ENDTEXT:
             return WrapTk.TokLexemes[self._token - 1]
+        else:
+            return ""
 
     def __eq__(self, token):
         if self._token == token:
