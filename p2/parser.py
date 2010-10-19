@@ -132,44 +132,44 @@ class SynAn:
         self._match(WrapTk.SEMICOLON)
 
     def _varGroup(self):
-	self._match(WrapTk.ID)
-	while self._lookahead == WrapTk.COMMA:
-	    self._match(WrapTk.COMMA)
-	    self._match(WrapTk.ID)
-	self._match(WrapTk.COLON)
-	self._match(WrapTk.ID)
+        self._match(WrapTk.ID)
+        while self._lookahead == WrapTk.COMMA:
+            self._match(WrapTk.COMMA)
+            self._match(WrapTk.ID)
+        self._match(WrapTk.COLON)
+        self._match(WrapTk.ID)
 
     def _procedureDefinition(self):
-	self._match(WrapTk.PROCEDURE)
+        self._match(WrapTk.PROCEDURE)
         self._match(WrapTk.ID)
-	self._procedureBlock()
+        self._procedureBlock()
 
     def _procedureBlock(self):
-	if self._lookahead == WrapTk.LEFTPARENTHESIS:
-	    self._match(WrapTk.LEFTPARENTHESIS)
-	    self._formalParameterList()
-	    self._match(WrapTk.RIGHTPARENTHESIS)
-	self._match(WrapTk.SEMICOLON)
-	self._blockBody()
+        if self._lookahead == WrapTk.LEFTPARENTHESIS:
+            self._match(WrapTk.LEFTPARENTHESIS)
+            self._formalParameterList()
+            self._match(WrapTk.RIGHTPARENTHESIS)
+        self._match(WrapTk.SEMICOLON)
+        self._blockBody()
 
     def _formalParameterList(self):
-	self._parameterDefinition()
-	while self._lookahead == WrapTk.SEMICOLON:
-	    self._parameterDefinition()
+        self._parameterDefinition()
+        while self._lookahead == WrapTk.SEMICOLON:
+            self._parameterDefinition()
 
     def _parameterDefinition(self):
-	if self._lookahead == WrapTk.VAR:
-	    self._match(WrapTk.VAR)
-	self._varGroup()
+        if self._lookahead == WrapTk.VAR:
+            self._match(WrapTk.VAR)
+        self._varGroup()
 
     def _compoundStatement(self):
         self._match(WrapTk.BEGIN)
         self._match(WrapTk.END)
 
     def _constant(self):
-	if self._lookahead == WrapTk.NUMERAL:
-	    self._match(WrapTk.NUMERAL)
-	elif self._lookahead == WrapTk.ID:
-	    self._match(WrapTk.ID)
-	else:
-	    self._syntaxError()
+        if self._lookahead == WrapTk.NUMERAL:
+            self._match(WrapTk.NUMERAL)
+        elif self._lookahead == WrapTk.ID:
+            self._match(WrapTk.ID)
+        else:
+            self._syntaxError()
