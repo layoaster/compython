@@ -162,9 +162,126 @@ class SynAn:
             self._match(WrapTk.VAR)
         self._varGroup()
 
+    def _statement(self):
+        if self._lookahead == WrapTk.ID:
+            self._match(WrapTk.ID)
+            self._statementGroup()
+        elif self._lookahead == WrapTk.IF:
+            self._ifStatement()
+        elif self._lookahead == WrapTk.WHILE:
+            self._whileStatement()
+        elif self._lookahead == WrapTk.BEGIN
+            self._compoundStatement()
+
+    def _statementGroup(self):
+        if self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD, WrapTk.BECOMES]:
+            while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
+                self._selector()
+            self._match(WrapTk.BECOMES)
+            self._expression()
+        elif self._lookahead == WrapTk.LEFTPARENTHESIS:
+            self._procedureStatement()
+
+    def _procedureStatement(self):
+        if self._lookahead == WrapTk.LEFTPARENTHESIS:
+            self._match(WrapTk.LEFTPARENTHESIS)
+            self._actualParameterList()
+            self._match(WrapTk.LEFTPARENTHESIS)
+
+    def _actualParameterList(self):
+        self._expression()
+        while self._lookahead == WrapTk.COMMA:
+            self._match(WrapTk.COMMA)
+            self._expression()
+
+    def _ifStatement(self):
+        self._match(WrapTk.IF)
+        self._expression()
+        self._match(WrapTk.THEN)
+        self._statement()
+        if self._lookahead == WrapTk.ELSE:
+            self._match(WrapTk.ELSE)
+            self._statement()
+
+    def _whileStatement(self):
+        self._match(WrapTk.WHILE)
+        self._expression()
+        self._match(WrapTk.DO)
+        self._statement()
+
     def _compoundStatement(self):
         self._match(WrapTk.BEGIN)
+        self._statement()
+        while self._lookahead == WrapTk.SEMICOLON:
+            self._match(WrapTk.SEMICOLON)
+            self._statement()
         self._match(WrapTk.END)
+
+    def _expression(self):
+        self._simpleExpression()
+        if self._lookahead in [WrapTk.LESS, WrapTk.EQUAL, WrapTk.GREATER, WrapTk.NOTGREATER, WrapTk.NOTEQUAL, WrapTk.NOTLESS]:
+            self._relationalOperator()
+            self._simpleExpression()
+
+    def _relationalOperator(self):
+        if self._lookahead == WrapTk.LESS:
+            self._match(WrapTk.LESS)
+        elif self._lookahead == WrapTk.EQUAL:
+            self._match(WrapTk.EQUAL)
+        elif self._lookahead == WrapTk.GREATER:
+            self._match(WrapTk.GREATER)
+        elif self._lookahead == WrapTk.NOTGREATER:
+            self._match(WrapTk.NOTGREATER)
+        elif self._lookahead == WrapTk.NOTEQUAL:
+            self._match(WrapTk.NOTEQUAL)
+        elif self._lookahead == WrapTk.NOTLESS:
+            self._match(WrapTk.NOTLESS)
+        else
+            self._syntaxError()
+
+    def _simpleExpression(self):
+        if self._lookahead in [WrapTk.PLUS, WrapTk.MINUS]:
+            self._signOperator()
+        self._term()
+        while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
+            self._additiveOperator()
+            self._term()
+
+    def _signOperator(self):
+        if self._lookahead == WrapTk.PLUS:
+            self._match(WrapTk.PLUS)
+        elif self._lookahead == WrapTk.MINUS:
+            self._match(WrapTk.MINUS)
+        else
+            self._syntaxError()
+
+    def _additiveOperator(self):
+        if self._lookahead == WrapTk.PLUS:
+            self._match(WrapTk.PLUS)
+        elif self._lookahead == WrapTk.MINUS:
+            self._match(WrapTk.MINUS)
+        elif self._lookahead == WrapTk.OR:
+            self._match(WrapTk.OR)
+        else
+            self._syntaxError()
+
+    def _term(self):
+        self._factor()
+        while self._lookahead in [WrapTk.ASTERISK, WrapTk.DIV, WrapTk.MOD, WrapTk.AND]:
+           self._multiplyingOperator()
+           self._factor()
+
+    def _multiplyingOperator(self):
+        if self._lookahead == WrapTk.ASTERISK:
+            self._match(WrapTk.ASTERISK)
+        elif self._lookahead == WrapTk.DIV:
+            self._match(WrapTk.DIV)
+        elif self._lookahead == WrapTk.MOD:
+            self._match(WrapTk.MOD)
+        elif self._lookahead == WrapTk.AND:
+            self._match(WrapTk.AND)
+        else
+            self._syntaxError()
 
     def _constant(self):
         if self._lookahead == WrapTk.NUMERAL:
