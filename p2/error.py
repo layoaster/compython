@@ -5,8 +5,13 @@
     UNCLOSED_COM = 2
 """
 class Error(Exception):
-    def __init__(self):
+    nline = 0
+    ncol = 0
+
+    def __init__(self, nline, ncol):
         pass
+
+    def printError(self, err)
 
 class LexicalError(Error):
     UNKNOWN_CHAR = 0
@@ -31,3 +36,5 @@ class SyntacticalError(Error):
     UNEXPECTED_SYM = 0
 
     _errStrings = ("Unexpected symbol")
+
+    def __init__
