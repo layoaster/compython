@@ -15,17 +15,18 @@ from error import *
 from parser import SynAn
 from html import generatePHPSyntaxTree
 
-def webTree():
-    fout = open("webtree.html", "w")
+def webTree(tree):
+    fout = open(tree, "w")
     fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()[:-8] + "]"))
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
-    parser = argparse.ArgumentParser(description='Indexa las palabras de un texto y genera un indice en texto plano y/o en html.')
-    parser.add_argument('fin',  metavar='fich_texto.pas', type=str, action='store', help='fichero de codigo fuente')
+    parser = argparse.ArgumentParser(description='Realiza el Analisis Sintactico de ficheros de codigo fuente en Pascal-')
+    parser.add_argument('fin', metavar='fich_texto.pas', type=str, action='store', help='fichero de codigo fuente')
+    parser.add_argument('-t', metavar='fich_tree.html', type=str, dest="tree", help='genera fichero html con el AAS del codigo fuente')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
-    if (len(sys.argv) != 2):
+    if (len(sys.argv) < 2):
         parser.print_help()
     else:
         args = parser.parse_args()
@@ -39,4 +40,7 @@ if __name__ == '__main__':
             exit()
 
         print "All Ok."
-        webTree()
+
+        if args.tree:
+            webTree(args.tree)
+            print "WebAST escrito en: ", args.tree
