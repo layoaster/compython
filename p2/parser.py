@@ -170,7 +170,7 @@ class SynAn:
             self._ifStatement()
         elif self._lookahead == WrapTk.WHILE:
             self._whileStatement()
-        elif self._lookahead == WrapTk.BEGIN
+        elif self._lookahead == WrapTk.BEGIN:
             self._compoundStatement()
 
     def _statementGroup(self):
@@ -186,7 +186,7 @@ class SynAn:
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS)
             self._actualParameterList()
-            self._match(WrapTk.LEFTPARENTHESIS)
+            self._match(WrapTk.RIGHTPARENTHESIS)
 
     def _actualParameterList(self):
         self._expression()
@@ -236,7 +236,7 @@ class SynAn:
             self._match(WrapTk.NOTEQUAL)
         elif self._lookahead == WrapTk.NOTLESS:
             self._match(WrapTk.NOTLESS)
-        else
+        else:
             self._syntaxError()
 
     def _simpleExpression(self):
@@ -252,7 +252,7 @@ class SynAn:
             self._match(WrapTk.PLUS)
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS)
-        else
+        else:
             self._syntaxError()
 
     def _additiveOperator(self):
@@ -262,7 +262,7 @@ class SynAn:
             self._match(WrapTk.MINUS)
         elif self._lookahead == WrapTk.OR:
             self._match(WrapTk.OR)
-        else
+        else:
             self._syntaxError()
 
     def _term(self):
@@ -280,8 +280,42 @@ class SynAn:
             self._match(WrapTk.MOD)
         elif self._lookahead == WrapTk.AND:
             self._match(WrapTk.AND)
-        else
+        else:
             self._syntaxError()
+
+    def _factor(self):
+        if self._lookahead == WrapTk.NUMERAL:
+            self._match(WrapTk.NUMERAL)
+        elif self._lookahead == WrapTk.ID:
+            self._match(WrapTk.ID)
+            while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
+                self._selector()
+        elif self._lookahead == WrapTk.LEFTPARENTHESIS:
+            self._match(WrapTk.LEFTPARENTHESIS)
+            self._expression()
+            self._match(WrapTk.RIGHTPARENTHESIS)
+        elif self._lookahead == WrapTk.NOT:
+            self._match(WrapTk.NOT)
+            self._factor()
+        else:
+            self._syntaxError()
+
+    def _selector(self):
+        if self._lookahead == WrapTk.LEFTBRACKET:
+            self._indexSelector()
+        elif self._lookahead == WrapTk.PERIOD:
+            self._fieldSelector()
+        else:
+            self._syntaxError()
+
+    def _indexSelector(self):
+        self._match(WrapTk.LEFTBRACKET)
+        self._expression()
+        self._match(WrapTk.RIGHTBRACKET)
+
+    def _fieldSelector(self):
+        self._match(WrapTk.PERIOD)
+        self._match(WrapTk.ID)
 
     def _constant(self):
         if self._lookahead == WrapTk.NUMERAL:
