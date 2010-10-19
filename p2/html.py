@@ -111,7 +111,7 @@ def generatePHPSyntaxTree(code, ast):
 <form name="tree"
 action="http://banot.etsii.ull.es/alu2756/tree/index.php"
 method=post>
-  <input type="hiiden" name="code" value="''' + code + u'''">
+  <input type="hidden" name="code" value="''' + code + u'''">
   <input type="hidden" name="data" value="''' + ast + u'''">
 </form>
 
