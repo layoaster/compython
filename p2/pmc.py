@@ -13,6 +13,11 @@ import sys
 import argparse
 from error import *
 from parser import SynAn
+from html import generatePHPSyntaxTree
+
+def webTree():
+    fout = open("webtree.html", "w")
+    fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()[:-8] + "]"))
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
@@ -33,4 +38,5 @@ if __name__ == '__main__':
             print "I/O failure"
             exit()
 
-        print "All OK"
+        print "All Ok."
+        webTree()
