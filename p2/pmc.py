@@ -43,4 +43,4 @@ if __name__ == '__main__':
 
         if args.tree:
             webTree(args.tree)
-            print "WebAST escrito en: ", args.tree
+            print "WebAST escrito en:", args.tree
