@@ -29,8 +29,8 @@ class SynAn:
         self._program()
 
     def _syntaxError(self):
-	print "Syntax Error"
-	exit(1)
+        print "Syntax Error: ", self._scanner.getPos()
+        exit(1)
 
     def _match(self, tok):
         if self._lookahead == tok:
@@ -128,10 +128,10 @@ class SynAn:
             self._variableDefinition()
 
     def _variableDefinition(self):
-        self._varGroup()
+        self._variableGroup()
         self._match(WrapTk.SEMICOLON)
 
-    def _varGroup(self):
+    def _variableGroup(self):
         self._match(WrapTk.ID)
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA)
@@ -143,6 +143,7 @@ class SynAn:
         self._match(WrapTk.PROCEDURE)
         self._match(WrapTk.ID)
         self._procedureBlock()
+        self._match(WrapTk.SEMICOLON)
 
     def _procedureBlock(self):
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
@@ -155,12 +156,13 @@ class SynAn:
     def _formalParameterList(self):
         self._parameterDefinition()
         while self._lookahead == WrapTk.SEMICOLON:
+            self._match(WrapTk.SEMICOLON)
             self._parameterDefinition()
 
     def _parameterDefinition(self):
         if self._lookahead == WrapTk.VAR:
             self._match(WrapTk.VAR)
-        self._varGroup()
+        self._variableGroup()
 
     def _statement(self):
         if self._lookahead == WrapTk.ID:

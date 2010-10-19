@@ -26,15 +26,15 @@ class LexAn:
         (WrapTk.COMMA,           r","),
         (WrapTk.DOUBLEDOT,       r"\.\."),
         (WrapTk.EQUAL,           r"="),
+        (WrapTk.NOTEQUAL,        r"\<\>"),
+        (WrapTk.NOTGREATER,      r"\<="),
+        (WrapTk.NOTLESS,         r"\>="),
         (WrapTk.GREATER,         r"\>"),
         (WrapTk.ID,              r"[a-zA-Z]\w*"),
         (WrapTk.LEFTBRACKET,     r"\["),
         (WrapTk.LEFTPARENTHESIS, r"\("),
         (WrapTk.LESS,            r"\<"),
         (WrapTk.MINUS,           r"-"),
-        (WrapTk.NOTEQUAL,        r"\<\>"),
-        (WrapTk.NOTGREATER,      r"\<="),
-        (WrapTk.NOTLESS,         r"\>="),
         (WrapTk.NUMERAL,         r"\d+"),
         (WrapTk.PERIOD,          r"\."),
         (WrapTk.PLUS,            r"\+"),
@@ -60,10 +60,12 @@ class LexAn:
         self._wsregex = re.compile("\s*", re.MULTILINE)
 
     def openFile(self, fin):
+        error = False
         try:
             self._fin = open(fin, "rU")
         except IOError:
-            raise
+            error = True
+        return error
 
     def _readLine(self):
         """ Lee una linea del fichero y la inserta en el buffer, ignorando lineas en blanco
