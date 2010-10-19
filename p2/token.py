@@ -62,6 +62,10 @@ class WrapTk:
                   "NUMERAL", "OF", "OR", "PERIOD", "PLUS", "PROCEDURE", "PROGRAM", "RECORD", "RIGHTBRACKET",
                   "RIGHTPARENTHESIS", "SEMICOLON", "THEN", "TYPE", "TOKEN_ERROR", "VAR", "WHILE", "COMMENT")
 
+    TokLexemes = ("and", "array", "*", ":=", "begin", ":", ",", "const", "div", "do", "..", "else", "end", "<EOF>",
+                  "=", ">", "identifier", "if", "[", "(", "<", "-", "mod", "not", "<>", "<=", ">=", "numeral", "of",
+                  "or", ".", "+", "procedure", "program", "record", "]", ")", ";", "then", "type", "", "var", "while", "")
+
     @classmethod
     def toStr(self, token):
         return "_" + str(token)
@@ -92,6 +96,9 @@ class Token:
 
     def getValue(self):
         return self._value
+
+    def getLexeme(self):
+        return WrapTk.TokLexemes[self._token - 1]
 
     def __eq__(self, token):
         if self._token == token:
