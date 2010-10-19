@@ -11,6 +11,7 @@ Description: Main del Analizador Sintactico de Pascal-.
 
 import sys
 import argparse
+from error import *
 from parser import SynAn
 
 if __name__ == '__main__':
@@ -27,7 +28,8 @@ if __name__ == '__main__':
         parser = SynAn()
         try:
             parser.start(args.fin)
-        except IOError:
+        except LexicalError as e:
+            e._printError();
             print "I/O failure"
             exit()
 

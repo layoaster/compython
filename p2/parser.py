@@ -33,10 +33,13 @@ class SynAn:
         exit(1)
 
     def _match(self, tok):
-        if self._lookahead == tok:
-            self._lookahead = self._scanner.yyLex()
-        else:
-            self._syntaxError()
+        try:
+            if self._lookahead == tok:
+                self._lookahead = self._scanner.yyLex()
+            else:
+                self._syntaxError()
+        except LexicalError:
+            raise
 
     def _program(self):
         self._match(WrapTk.PROGRAM)
