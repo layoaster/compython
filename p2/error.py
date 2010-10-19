@@ -1,9 +1,9 @@
-"""class WrapErr():
+class WrapErr():
     # Lex errors
     UNKNOWN_CHAR = 0
     INT_OVERFLOW = 1
     UNCLOSED_COM = 2
-"""
+
 class Error(Exception):
     nline = 0
     ncol = 0
@@ -11,7 +11,7 @@ class Error(Exception):
     def __init__(self, nline, ncol):
         pass
 
-    def printError(self, err)
+    #def printError(self, err)
 
 class LexicalError(Error):
     UNKNOWN_CHAR = 0
@@ -31,10 +31,10 @@ class LexicalError(Error):
     def _printError(self):
         print "\n[LEX ERROR] ", self._errStrings[self.err],
 
-
+"""
 class SyntacticalError(Error):
     UNEXPECTED_SYM = 0
 
     _errStrings = ("Unexpected symbol")
 
-    def __init__
+    def __init__"""
