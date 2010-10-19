@@ -17,8 +17,8 @@ from error import *
 class SynAn:
 
     def __init__(self):
-        _lookahead = None
-        _strTree = None
+        self._lookahead = None
+        self._strTree = ""
 
     def start(self, fin):
         self._scanner = LexAn()

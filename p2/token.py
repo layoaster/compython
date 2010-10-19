@@ -82,8 +82,8 @@ class Token:
             _token = token que representa
             _value = lexema o numero para los tokens ID y NUMERAL, para ID este valor hacer de apuntador en la tabla de simbolos
         """
-        _token = token
-        _value = value
+        self._token = token
+        self._value = value
 
     def setToken(self, token):
         self._token = token
@@ -99,7 +99,7 @@ class Token:
 
     def getLexeme(self):
         if self._token in (WrapTk.ID, WrapTk.NUMERAL):
-            return self._value
+            return str(self._value)
         else:
             return WrapTk.TokLexemes[self._token - 1]
 

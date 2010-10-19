@@ -12,7 +12,7 @@ Description: Modulo del Analizador Lexico para Pascal-.
 import sys
 import string
 import re
-from error import Error, LexicalError, WrapErr
+from error import *
 from st import SymbolTable, st
 from token import WrapTk, Token
 
