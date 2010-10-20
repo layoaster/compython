@@ -13,11 +13,11 @@ from lexan import LexAn
 from token import *
 from error import *
 
-
 class SynAn:
 
     def __init__(self):
         self._lookahead = None
+        #self._scanner = None
         self._strTree = ""
 
     def start(self, fin):
@@ -29,10 +29,14 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program()
 
-    def _syntaxError(self):
+    def _syntaxError(self, expected=None):
         self._strTree += "[TOKEN ERROR]"
-        print "Syntax Error: ", self._scanner.getPos()
-        exit(1)
+        if expected is not None:
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
+                  " - Found '" + self._lookahead.getLexeme() + "', expected '" + Token(expected).getLexeme() + "'")
+        else:
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
+                  " - Found '" + self._lookahead.getLexeme() + "'")
 
     def getAST(self):
         return self._strTree
@@ -43,8 +47,8 @@ class SynAn:
                 self._strTree += "[" + self._lookahead.getLexeme() + "]"
                 self._lookahead = self._scanner.yyLex()
             else:
-                self._syntaxError()
-        except LexicalError:
+                self._syntaxError(tok)
+        except LexError:
             raise
 
     def _program(self):

@@ -12,7 +12,7 @@ Description: Modulo del Analizador Lexico para Pascal-.
 import sys
 import string
 import re
-from error import *
+from error import LexError
 from st import SymbolTable, st
 from token import WrapTk, Token
 
@@ -60,18 +60,16 @@ class LexAn:
         self._wsregex = re.compile("\s*", re.MULTILINE)
 
     def openFile(self, fin):
-        error = False
         try:
             self._fin = open(fin, "rU")
         except IOError:
-            error = True
-        return error
+            raise
 
     def _readLine(self):
         """ Lee una linea del fichero y la inserta en el buffer, ignorando lineas en blanco
         """
         while self._buffer == "":
-            self._buffer = self._fin.readline()#.decode("utf-8")
+            self._buffer = self._fin.readline()
             if self._buffer == "": # EOF
                 return False
             self._nline += 1
@@ -130,52 +128,48 @@ class LexAn:
         return (self._nline, self._ncol)
 
     def yyLex(self):
-        if self._fin:
-            if self._readLine():
-                match = self._regex.match(self._buffer)
+        #if self._fin:
+        if self._readLine():
+            match = self._regex.match(self._buffer)
 
-                if match is None:
-                    self._buffer = self._buffer[1:]
-                    self._ncol += 1
-                    raise LexicalError(WrapErr.UNKNOWN_CHAR, self._nline, self._ncol)
+            if match is None:
+                self._buffer = self._buffer[1:]
+                self._ncol += 1
+                raise LexError(LexError.UNKNOWN_CHAR, self.getPos())
 
-                token = WrapTk.toToken(match.lastgroup)
-                value = match.group(match.lastgroup)
+            token = WrapTk.toToken(match.lastgroup)
+            value = match.group(match.lastgroup)
 
+            while token == WrapTk.COMMENT:
+                if self._ignComment():
+                    match = self._regex.match(self._buffer)
+                    if match is None:
+                        self._buffer = self._buffer[1:]
+                        self._ncol += 1
+                        raise LexError(LexError.UNCLOSED_COM, self.getPos())
 
-                while token == WrapTk.COMMENT:
-                    if self._ignComment():
-                        match = self._regex.match(self._buffer)
-                        if match is None:
-                            self._buffer = self._buffer[1:]
-                            self._ncol += 1
-                            raise LexicalError(WrapErr.UNCLOSED_COM, self._nline, self._ncol)
-
-                        token = WrapTk.toToken(match.lastgroup)
-                        value = match.group(match.lastgroup)
-                    else:
-                        raise LexicalError(WrapErr.UNCLOSED_COM, self._nline, self._ncol)
-
-
-                self._ncol += match.end() - match.start()
-                self._buffer = self._buffer[match.end():]
-
-                if token == WrapTk.ID:
-                    if st.isReserved(value.lower()):
-                        return Token(st.getIndex(value.lower()))
-                    if not st.isIn(value.lower()):
-                        st.insert(value.lower())
-                    return Token(WrapTk.ID, value.lower())
-                elif token == WrapTk.NUMERAL:
-                    if int(value) > 32767:
-                        raise LexicalError(WrapErr.INT_OVERFLOW, self._nline, self._ncol)
-                    else:
-                        return Token(WrapTk.NUMERAL, int(value))
+                    token = WrapTk.toToken(match.lastgroup)
+                    value = match.group(match.lastgroup)
                 else:
-                    return Token(token)
-            else:
-                return Token(WrapTk.ENDTEXT)
-        else:
-            print "ERROR: no se ha abierto el fichero de codigo fuente."
-            exit(-1)
+                    raise LexError(LexError.UNCLOSED_COM, self.getPos())
 
+            self._ncol += match.end() - match.start()
+            self._buffer = self._buffer[match.end():]
+
+            if token == WrapTk.ID:
+                if st.isReserved(value.lower()):
+                    return Token(st.getIndex(value.lower()))
+                if not st.isIn(value.lower()):
+                    st.insert(value.lower())
+                return Token(WrapTk.ID, value.lower())
+            elif token == WrapTk.NUMERAL:
+                if int(value) > 32767:
+                    raise LexError(LexError.INT_OVERFLOW, self.getPos())
+                else:
+                    return Token(WrapTk.NUMERAL, int(value))
+            else:   # Reconocido token valido
+                return Token(token)
+        else:   # Se ha llegado a fin del fichero
+            return Token(WrapTk.ENDTEXT)
+        #else:
+        #    raise IOError

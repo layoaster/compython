@@ -34,13 +34,15 @@ if __name__ == '__main__':
         parser = SynAn()
         try:
             parser.start(args.fin)
-        except LexicalError as e:
-            e._printError();
-            print "I/O failure"
-            exit()
+        except Error as e:
+            e.printError();
+            exit(1)
+        except IOError as e:
+            print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
+            exit(2)
 
-        print "All Ok."
+        print Colors.OKGREEN + "All OK" + Colors.ENDC
 
         if args.tree:
             webTree(args.tree)
-            print "WebAST escrito en:", args.tree
+            print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
