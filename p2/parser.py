@@ -14,13 +14,24 @@ from token import *
 from error import *
 
 class SynAn:
-
+    """ Clase Analizador Sintactico:
+        Comprueba que la secuencia de tokens de entrada sea acorde con las
+        especificaciones de la gramatica de Pascal-
+    """
     def __init__(self):
+        """ Constructor de la clase. Atributos:
+            _lookahead = token o simbolo de preanalisis
+            _scanner = instancia de la clase analizador lexico
+            _strTree = cadena que describe el arbol de analisis sintactico obtenido en notacion phpSyntaxTree
+        """
         self._lookahead = None
-        #self._scanner = None
+        self._scanner = None
         self._strTree = ""
 
     def start(self, fin):
+        """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
+            fichero y recoger el primer token de entrada para comenzar el analisis
+        """
         self._scanner = LexAn()
         try:
             self._scanner.openFile(fin)
@@ -30,7 +41,11 @@ class SynAn:
         self._program()
 
     def _syntaxError(self, expected=None):
+        """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
+            capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
+        """
         self._strTree += "[TOKEN ERROR]"
+        # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
         if expected is not None:
             raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
                   " - Found '" + self._lookahead.getLexeme() + "', expected '" + Token(expected).getLexeme() + "'")
@@ -39,9 +54,16 @@ class SynAn:
                   " - Found '" + self._lookahead.getLexeme() + "'")
 
     def getAST(self):
+        """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web """
         return self._strTree
 
     def _match(self, tok):
+        """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching
+            tuvo exito, se lee el siguiente token (a la vez que se adjunta la descripcion del terminal en strTree).
+            En caso contrario, se llama al metodo syntaxError que se encargara de la gestion del error. Ademas,
+            comprueba si el analizador lexico ha obtenido algun error durante la obtencion del token y, en tal caso,
+            eleva la excepcion que este ultimo genera hacia el modulo 'pmc'.
+        """
         try:
             if self._lookahead == tok:
                 self._strTree += "[" + self._lookahead.getLexeme() + "]"
