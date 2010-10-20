@@ -54,7 +54,7 @@ class SynAn:
         self._match(WrapTk.SEMICOLON)
         self._blockBody()
         self._match(WrapTk.PERIOD)
-        self._match(WrapTk.ENDTEXT)
+        #self._match(WrapTk.ENDTEXT)
         self._strTree += "]"
 
     def _blockBody(self):

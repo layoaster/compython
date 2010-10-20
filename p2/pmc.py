@@ -17,7 +17,7 @@ from html import generatePHPSyntaxTree
 
 def webTree(tree):
     fout = open(tree, "w")
-    fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()[:-8] + "]"))
+    fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()))
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
