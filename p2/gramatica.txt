@@ -32,7 +32,7 @@
 
 <VariableGroup> ::= id {, id} : id
 
-<ProcedureDefinition> ::= procedure id <ProcedureBlock> ; <ProcedureDefinition>
+<ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
 
 <ProcedureBlock> ::= [( <FormalParameterList> )]  ; <BlockBody>
 
@@ -126,9 +126,7 @@
 
 <VariableGroup2> ::= , id <VariableGroup2> | ε
 
-<ProcedureDefinition> ::= <ProcedureDefinition2> | ε
-
-<ProcedureDefinition2> ::= procedure id <ProcedureBlock> ; <ProcedureDefinition>
+<ProcedureDefinition> ::= procedure id <ProcedureBlock> ; <ProcedureDefinition> | ε
 
 <ProcedureBlock> ::= ( <FormalParameterList> ) ; <BlockBody>
 
