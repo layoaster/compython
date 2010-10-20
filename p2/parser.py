@@ -44,7 +44,7 @@ class SynAn:
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
-        self._strTree += "[TOKEN ERROR]"
+        self._strTree += "[TOKEN-ERROR]"
         # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
         if expected is not None:
             raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 

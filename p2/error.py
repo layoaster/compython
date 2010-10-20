@@ -16,15 +16,10 @@ class Colors:
         self.FAIL = ''
         self.ENDC = ''
 
-"""class WrapErr():
-    # Lex errors
-    UNKNOWN_CHAR = 0
-    INT_OVERFLOW = 1
-    UNCLOSED_COM = 2
-    # Syn errors
-    UNEXPECTED_SYM = 3"""
+#---------------------
 
 class Error(Exception, object):
+    """ Clase padre de errores """
     __metaclass__ = ABCMeta
 
     pos = ()
@@ -40,7 +35,11 @@ class Error(Exception, object):
     def printError(self, err):
         pass
 
+# --------------------
+
 class LexError(Error):
+    """ Clase hija de errores lexicos """
+
     # Constantes de errores lexicos
     UNKNOWN_CHAR = 0
     INT_OVERFLOW = 1
@@ -57,10 +56,13 @@ class LexError(Error):
         print Colors.WARNING + str(self.pos[0]) + "L" \
               + ", " + str(self.pos[1]) + "C " \
               + Colors.FAIL + "[LEX ERROR] " + Colors.ENDC\
-              + " " + self._errStrings[self.errno],
+              + " " + self._errStrings[self.errno]
 
+# --------------------
 
 class SynError(Error):
+    """ Clase hija de errores sintacticos """
+
     # Constantes de errores sintacticos
     UNEXPECTED_SYM = 0
 
@@ -74,5 +76,4 @@ class SynError(Error):
         print Colors.WARNING + str(self.pos[0]) + "L" \
               + ", " + str(self.pos[1]) + "C " \
               + Colors.FAIL + "[SYN ERROR] " + Colors.ENDC \
-              + " " + self._errStrings[self.errno] + self.info,
-                   
+              + " " + self._errStrings[self.errno] + self.info
