@@ -3,7 +3,7 @@
 
 """
         $Id$
-Description: Main del Analizador Sintactico de Pascal-.
+Description: Main del Analizador Sintáctico de Pascal-.
     $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$
@@ -16,8 +16,11 @@ from parser import SynAn
 from html import generatePHPSyntaxTree
 
 def webTree(tree):
+    """Crea el archivo html que genera el el Árbol de Análisis Sintático correspondiente al codigo fuente parseado
+    """
     fout = open(tree, "w")
     fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()))
+    fout.close()
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
@@ -34,6 +37,9 @@ if __name__ == '__main__':
         parser = SynAn()
         try:
             parser.start(args.fin)
+            if args.tree:
+                webTree(args.tree)
+                print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
         except Error as e:
             e.printError();
             exit(1)
@@ -43,6 +49,4 @@ if __name__ == '__main__':
 
         print Colors.OKGREEN + "All OK" + Colors.ENDC
 
-        if args.tree:
-            webTree(args.tree)
-            print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
+
