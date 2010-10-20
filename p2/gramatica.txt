@@ -20,9 +20,9 @@
 
 <IndexRange> ::= <Constant> .. <Constant>
 
-<NewRecordType> ::= record <RecordSection> <FieldList> end
+<NewRecordType> ::= record <FieldList> end
 
-<FieldList> ::= ; <RecordSection> <FieldList>
+<FieldList> ::= <RecordSection> {; <RecordSection>}
 
 <RecordSection> ::= id {, id} : id
 
