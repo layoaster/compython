@@ -113,7 +113,10 @@ class LexAn:
                 else:
                     self._buffer = ""
                     if self._readLine():
+                        print self._buffer
                         match = comment.search(self._buffer)
+                        if match:
+                            print match.lastgroup
                     else:
                         return False
             if len(self._buffer) == 0:
@@ -142,12 +145,11 @@ class LexAn:
 
             while token == WrapTk.COMMENT:
                 if self._ignComment():
+                    #Varios Comentarios bien hehcos separados por espacios
+                    self._readLine()
                     match = self._regex.match(self._buffer)
                     if match is None:
-                        self._buffer = self._buffer[1:]
-                        self._ncol += 1
-                        raise LexError(LexError.UNCLOSED_COM, self.getPos())
-
+                        return Token(WrapTk.ENDTEXT)
                     token = WrapTk.toToken(match.lastgroup)
                     value = match.group(match.lastgroup)
                 else:
