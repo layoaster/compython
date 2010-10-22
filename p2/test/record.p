@@ -2,7 +2,7 @@ program ta;
 type
   u = record
         i, j : integer;
-        b : boolean
+        b : boolean;
       end;
 begin
 end.

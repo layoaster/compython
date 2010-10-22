@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-$Id$
+        $Id$
 Description: Excepciones para manejar los distintos errores de las fases del Compilador para Pascal-.
-$Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
-$Date$
-$Revision$
+    $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
+      $Date$
+  $Revision$
 """
 
 from abc import ABCMeta, abstractmethod

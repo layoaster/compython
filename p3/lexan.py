@@ -108,12 +108,10 @@ class LexAn:
                         npar -= 1
 
                     self._buffer = self._buffer[match.end():]
-                    #print self._buffer
                     match = comment.search(self._buffer)
                 else:
                     self._buffer = ""
                     if self._readLine():
-                        print self._buffer
                         match = comment.search(self._buffer)
                         if match:
                             print match.lastgroup
