@@ -1,0 +1,35 @@
+RESPONDER A LAS SIGUIENTES PREGUNTAS
+
+1) Considérese el siguiente programa en Pascal-:
+
+                        1     program test;
+                        2     var
+                        3       i integer;
+                        4     begin
+                        5       a;
+                        6     .
+
+- Escribir/dibujar el árbol de análisis sintáctico que le asocia el analizador que se ha escrito.
+
+- Junto a cada símbolo gramatical (token o variable sintáctica) escribir el conjunto
+de tokens de sincronización que tiene asociado.
+
+- Indicar en cada caso cuál es el símbolo que se está analizando (lookahead).
+
+2) Considérese el siguiente programa en Pascal-:
+
+                        1     program test;
+                        2     begin
+                        3       if then
+                        4         a;
+                        5       else
+                        6         a;
+                        7     end.
+
+- Escribir el árbol de análisis sintáctico que le asocia el analizador que se
+	ha escrito.
+
+- Junto a cada símbolo gramatical (token o variable sintáctica) escribir el conjunto
+de tokens de sincronización que tiene asociado.
+
+- Indicar en cada caso cuál es el símbolo que se está analizando (lookahead)
