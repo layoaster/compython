@@ -47,7 +47,7 @@ class SynAn:
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
         print "error en la linea:", self._scanner.getPos()
-        while self._lookahead.getToken() not in stop:
+        while self._lookahead not in stop:
             self._lookahead = self._scanner.yyLex()
         #self._strTree += "[TOKEN-ERROR]"
         # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
@@ -59,7 +59,7 @@ class SynAn:
                   #" - Found '" + self._lookahead.getLexeme() + "'")
 
     def _syntaxCheck(self, stop):
-        if self._lookahead.getToken() not in stop:
+        if self._lookahead not in stop:
             self._syntaxError(stop)
 
     def getAST(self):
