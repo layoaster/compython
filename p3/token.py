@@ -108,3 +108,11 @@ class Token:
             return True
         else:
             return False
+
+    def __contains__(self, token):
+        """ Sobrecarga del operador de testeo de pertencia del objeto token en una objeto tipo set
+        """
+        if self._token is in token:
+            return True
+        else:
+            return False

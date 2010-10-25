@@ -40,24 +40,28 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program()
 
-    def _syntaxError(self, expected=None):
+    def _syntaxError(self, expected=None, stop):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
         self._strTree += "[TOKEN-ERROR]"
         # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
         if expected is not None:
-            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
                   " - Found '" + self._lookahead.getLexeme() + "', expected '" + Token(expected).getLexeme() + "'")
         else:
-            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
                   " - Found '" + self._lookahead.getLexeme() + "'")
+
+    def _syntaxCheck(self, stop):
+        if self._lookahead not in stop:
+            self._syntaxError(stop)
 
     def getAST(self):
         """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web """
         return self._strTree
 
-    def _match(self, tok):
+    def _match(self, tok, stop):
         """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching
             tuvo exito, se lee el siguiente token (a la vez que se adjunta la descripcion del terminal en strTree).
             En caso contrario, se llama al metodo syntaxError que se encargara de la gestion del error. Ademas,
@@ -68,6 +72,7 @@ class SynAn:
             if self._lookahead == tok:
                 self._strTree += "[" + self._lookahead.getLexeme() + "]"
                 self._lookahead = self._scanner.yyLex()
+                self._syntaxCheck(stop)
             else:
                 self._syntaxError(tok)
         except LexError:
