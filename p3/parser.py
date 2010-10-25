@@ -42,7 +42,7 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
 
-    def _syntaxError(self, expected=None, stop):
+    def _syntaxError(self, stop):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
@@ -349,9 +349,9 @@ class SynAn:
         self._strTree += "[<SimpleExpression>"
         if self._lookahead in [WrapTk.PLUS, WrapTk.MINUS]:
             self._signOperator(stop.union(self._ff.first("term"), self._ff.first("additiveOperator")))
-        self._term(stop.union(self._ff.first("additiveOperator")))
+        self._term(stop.union(self._ff.first("term"), self._ff.first("additiveOperator")))
         while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
-            self._additiveOperator(stop.union(self._ff.first("term")))
+            self._additiveOperator(stop.union(self._ff.first("additiveOperator"), self._ff.first("term")))
             self._term(stop)
         self._strTree += "]"
 
@@ -379,9 +379,9 @@ class SynAn:
 
     def _term(self, stop):
         self._strTree += "[<Term>"
-        self._factor(stop.union(self._ff.first("multiplyingOperator")))
+        self._factor(stop.union(self._ff.first("factor"), self._ff.first("multiplyingOperator")))
         while self._lookahead in [WrapTk.ASTERISK, WrapTk.DIV, WrapTk.MOD, WrapTk.AND]:
-           self._multiplyingOperator(stop.union(self._ff.first("factor")))
+           self._multiplyingOperator(stop.union(self._ff.first("multiplyingOperator"), self._ff.first("factor")))
            self._factor(stop)
         self._strTree += "]"
 
@@ -406,7 +406,7 @@ class SynAn:
         elif self._lookahead == WrapTk.ID:
             self._match(WrapTk.ID, stop.union(self._ff.first("selector")))
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
-                self._selector(stop)
+                self._selector(stop.union(self._ff.first("selector")))
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expression")))
             self._expression(stop.union([WrapTk.RIGHTPARENTHESIS]))
