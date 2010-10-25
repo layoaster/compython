@@ -48,6 +48,7 @@ class LexAn:
         """
         self._nline = 0
         self._ncol = 1
+        self._tokstart = 1
         self._buffer = ""
         self._fin = None
         self._flags = re.UNICODE | re.IGNORECASE
@@ -80,7 +81,8 @@ class LexAn:
         wsmatch = self._wsregex.match(self._buffer)
         if wsmatch:
             self._buffer = self._buffer[wsmatch.end():]
-            self._ncol += wsmatch.end() - wsmatch.start()
+            self._ncol += wsmatch.end()
+            self._tokstart = self._ncol
         return True
 
     def _ignComment(self):
@@ -114,7 +116,7 @@ class LexAn:
                     if self._readLine():
                         match = comment.search(self._buffer)
                         if match:
-                            print match.lastgroup
+                            pass #print match.lastgroup (que habia aqui Lio? creo recordar que este if no estaba simplemente pero no se)
                     else:
                         return False
             if len(self._buffer) == 0:
@@ -126,10 +128,9 @@ class LexAn:
             return True
 
     def getPos(self):
-        return (self._nline, self._ncol)
+        return (self._nline, self._tokstart)
 
     def yyLex(self):
-        #if self._fin:
         if self._readLine():
             match = self._regex.match(self._buffer)
 
@@ -143,7 +144,7 @@ class LexAn:
 
             while token == WrapTk.COMMENT:
                 if self._ignComment():
-                    #Varios Comentarios bien hehcos separados por espacios
+                    # Varios comentarios bien hechos separados por espacios
                     self._readLine()
                     match = self._regex.match(self._buffer)
                     if match is None:
@@ -153,7 +154,7 @@ class LexAn:
                 else:
                     raise LexError(LexError.UNCLOSED_COM, self.getPos())
 
-            self._ncol += match.end() - match.start()
+            self._ncol += match.end()
             self._buffer = self._buffer[match.end():]
 
             if token == WrapTk.ID:
@@ -171,5 +172,3 @@ class LexAn:
                 return Token(token)
         else:   # Se ha llegado a fin del fichero
             return Token(WrapTk.ENDTEXT)
-        #else:
-        #    raise IOError
