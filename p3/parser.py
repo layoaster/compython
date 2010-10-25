@@ -87,7 +87,7 @@ class SynAn:
         self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON, WrapTk.PERIOD), self._ff.first("blockBody")))
         self._match(WrapTk.ID, stop.union((WrapTk.SEMICOLON,WrapTk.PERIOD), self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union([WrapTk.PERIOD], self._ff.first("blockBody")))
-        self._blockBody(stop.union([WrapTk.PERIOD])
+        self._blockBody(stop.union([WrapTk.PERIOD]))
         self._match(WrapTk.PERIOD, stop)
         #self._match(WrapTk.ENDTEXT)
         self._strTree += "]"
@@ -297,7 +297,7 @@ class SynAn:
         self._match(WrapTk.THEN, stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._statement(stop.union([WrapTk.ELSE], self._ff.first("statement")))
         if self._lookahead == WrapTk.ELSE:
-            self._match(WrapTk.ELSE, self._ff.first("statement")))
+            self._match(WrapTk.ELSE, stop.union(self._ff.first("statement")))
             self._statement(stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._strTree += "]"
 
@@ -323,7 +323,7 @@ class SynAn:
         self._strTree += "[<Expression>"
         self._simpleExpression(stop.union(self._ff.first("simpleExpression"), self._ff.first("relationalOperator")))
         if self._lookahead in [WrapTk.LESS, WrapTk.EQUAL, WrapTk.GREATER, WrapTk.NOTGREATER, WrapTk.NOTEQUAL, WrapTk.NOTLESS]:
-            self._relationalOperator(stop.union(self._ff.first("simpleExpression"))
+            self._relationalOperator(stop.union(self._ff.first("simpleExpression")))
             self._simpleExpression(stop)
         self._strTree += "]"
 
@@ -348,7 +348,7 @@ class SynAn:
     def _simpleExpression(self, stop):
         self._strTree += "[<SimpleExpression>"
         if self._lookahead in [WrapTk.PLUS, WrapTk.MINUS]:
-            self._signOperator(stop.union(self._ff.first("term", self._ff.first("additiveOperator")))
+            self._signOperator(stop.union(self._ff.first("term"), self._ff.first("additiveOperator")))
         self._term(stop.union(self._ff.first("additiveOperator")))
         while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
             self._additiveOperator(stop.union(self._ff.first("term")))
