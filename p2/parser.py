@@ -47,10 +47,10 @@ class SynAn:
         self._strTree += "[TOKEN-ERROR]"
         # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
         if expected is not None:
-            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
                   " - Found '" + self._lookahead.getLexeme() + "', expected '" + Token(expected).getLexeme() + "'")
         else:
-            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
                   " - Found '" + self._lookahead.getLexeme() + "'")
 
     def getAST(self):
@@ -259,6 +259,8 @@ class SynAn:
             self._expression()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement()
+        else:
+            self._syntaxError()
         self._strTree += "]"
 
     def _procedureStatement(self):
