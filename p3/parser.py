@@ -46,7 +46,8 @@ class SynAn:
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
-        while self._lookahead not in stop:
+        print "error en la linea:", self._scanner.getPos()
+        while self._lookahead.getToken() not in stop:
             self._lookahead = self._scanner.yyLex()
         #self._strTree += "[TOKEN-ERROR]"
         # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
@@ -58,7 +59,7 @@ class SynAn:
                   #" - Found '" + self._lookahead.getLexeme() + "'")
 
     def _syntaxCheck(self, stop):
-        if self._lookahead not in stop:
+        if self._lookahead.getToken() not in stop:
             self._syntaxError(stop)
 
     def getAST(self):
@@ -78,7 +79,7 @@ class SynAn:
                 self._lookahead = self._scanner.yyLex()
                 self._syntaxCheck(stop)
             else:
-                self._syntaxError(tok)
+                self._syntaxError(stop)
         except LexError:
             raise
 
@@ -316,7 +317,7 @@ class SynAn:
         while self._lookahead == WrapTk.SEMICOLON:
             self._match(WrapTk.SEMICOLON, stop.union((WrapTk.SEMICOLON, WrapTk.END), self._ff.first("statement")))
             self._statement(stop.union((WrapTk.SEMICOLON, WrapTk.END), self._ff.first("statement")))
-        self._match(WrapTk.END, STOP)
+        self._match(WrapTk.END, stop)
         self._strTree += "]"
 
     def _expression(self, stop):

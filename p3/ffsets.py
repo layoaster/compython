@@ -142,15 +142,3 @@ class FFSets:
         """
         self._tkset = frozenset(self._ffs[noterm][1])
         return self._tkset
-
-p = FFSets()
-
-stop = p.first("program")
-
-stop2 = stop.union((1, 2))
-
-print stop2
-
-stop2 = stop2.union(stop2, (30, 40), stop)
-
-print stop2
