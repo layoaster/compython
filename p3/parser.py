@@ -321,132 +321,132 @@ class SynAn:
 
     def _expression(self, stop):
         self._strTree += "[<Expression>"
-        self._simpleExpression()
+        self._simpleExpression(stop.union(self._ff.first("simpleExpression"), self._ff.first("relationalOperator")))
         if self._lookahead in [WrapTk.LESS, WrapTk.EQUAL, WrapTk.GREATER, WrapTk.NOTGREATER, WrapTk.NOTEQUAL, WrapTk.NOTLESS]:
-            self._relationalOperator()
-            self._simpleExpression()
+            self._relationalOperator(stop.union(self._ff.first("simpleExpression"))
+            self._simpleExpression(stop)
         self._strTree += "]"
 
     def _relationalOperator(self, stop):
         self._strTree += "[<RelationalOperator>"
         if self._lookahead == WrapTk.LESS:
-            self._match(WrapTk.LESS)
+            self._match(WrapTk.LESS, stop)
         elif self._lookahead == WrapTk.EQUAL:
-            self._match(WrapTk.EQUAL)
+            self._match(WrapTk.EQUAL, stop)
         elif self._lookahead == WrapTk.GREATER:
-            self._match(WrapTk.GREATER)
+            self._match(WrapTk.GREATER, stop)
         elif self._lookahead == WrapTk.NOTGREATER:
-            self._match(WrapTk.NOTGREATER)
+            self._match(WrapTk.NOTGREATER, stop)
         elif self._lookahead == WrapTk.NOTEQUAL:
-            self._match(WrapTk.NOTEQUAL)
+            self._match(WrapTk.NOTEQUAL, stop)
         elif self._lookahead == WrapTk.NOTLESS:
-            self._match(WrapTk.NOTLESS)
+            self._match(WrapTk.NOTLESS, stop)
         else:
-            self._syntaxError()
+            self._syntaxError(stop)
         self._strTree += "]"
 
     def _simpleExpression(self, stop):
         self._strTree += "[<SimpleExpression>"
         if self._lookahead in [WrapTk.PLUS, WrapTk.MINUS]:
-            self._signOperator()
-        self._term()
+            self._signOperator(stop.union(self._ff.first("term", self._ff.first("additiveOperator")))
+        self._term(stop.union(self._ff.first("additiveOperator")))
         while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
-            self._additiveOperator()
-            self._term()
+            self._additiveOperator(stop.union(self._ff.first("term")))
+            self._term(stop)
         self._strTree += "]"
 
     def _signOperator(self, stop):
         self._strTree += "[<SignOperator>"
         if self._lookahead == WrapTk.PLUS:
-            self._match(WrapTk.PLUS)
+            self._match(WrapTk.PLUS, stop)
         elif self._lookahead == WrapTk.MINUS:
-            self._match(WrapTk.MINUS)
+            self._match(WrapTk.MINUS, stop)
         else:
-            self._syntaxError()
+            self._syntaxError(stop)
         self._strTree += "]"
 
     def _additiveOperator(self, stop):
         self._strTree += "[<AdditiveOperator>"
         if self._lookahead == WrapTk.PLUS:
-            self._match(WrapTk.PLUS)
+            self._match(WrapTk.PLUS, stop)
         elif self._lookahead == WrapTk.MINUS:
-            self._match(WrapTk.MINUS)
+            self._match(WrapTk.MINUS, stop)
         elif self._lookahead == WrapTk.OR:
-            self._match(WrapTk.OR)
+            self._match(WrapTk.OR, stop)
         else:
-            self._syntaxError()
+            self._syntaxError(stop)
         self._strTree += "]"
 
     def _term(self, stop):
         self._strTree += "[<Term>"
-        self._factor()
+        self._factor(stop.union(self._ff.first("multiplyingOperator")))
         while self._lookahead in [WrapTk.ASTERISK, WrapTk.DIV, WrapTk.MOD, WrapTk.AND]:
-           self._multiplyingOperator()
-           self._factor()
+           self._multiplyingOperator(stop.union(self._ff.first("factor")))
+           self._factor(stop)
         self._strTree += "]"
 
     def _multiplyingOperator(self, stop):
         self._strTree += "[<MultiplyingOperator>"
         if self._lookahead == WrapTk.ASTERISK:
-            self._match(WrapTk.ASTERISK)
+            self._match(WrapTk.ASTERISK, stop)
         elif self._lookahead == WrapTk.DIV:
-            self._match(WrapTk.DIV)
+            self._match(WrapTk.DIV, stop)
         elif self._lookahead == WrapTk.MOD:
-            self._match(WrapTk.MOD)
+            self._match(WrapTk.MOD, stop)
         elif self._lookahead == WrapTk.AND:
-            self._match(WrapTk.AND)
+            self._match(WrapTk.AND, stop)
         else:
-            self._syntaxError()
+            self._syntaxError(stop)
         self._strTree += "]"
 
     def _factor(self, stop):
         self._strTree += "[<Factor>"
         if self._lookahead == WrapTk.NUMERAL:
-            self._match(WrapTk.NUMERAL)
+            self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
-            self._match(WrapTk.ID)
+            self._match(WrapTk.ID, stop.union(self._ff.first("selector")))
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
-                self._selector()
+                self._selector(stop)
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
-            self._match(WrapTk.LEFTPARENTHESIS)
-            self._expression()
-            self._match(WrapTk.RIGHTPARENTHESIS)
+            self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expression")))
+            self._expression(stop.union([WrapTk.RIGHTPARENTHESIS]))
+            self._match(WrapTk.RIGHTPARENTHESIS, stop)
         elif self._lookahead == WrapTk.NOT:
-            self._match(WrapTk.NOT)
-            self._factor()
+            self._match(WrapTk.NOT, stop.union(self._ff.first("factor")))
+            self._factor(stop)
         else:
-            self._syntaxError()
+            self._syntaxError(stop)
         self._strTree += "]"
 
     def _selector(self, stop):
         self._strTree += "[<Selector>"
         if self._lookahead == WrapTk.LEFTBRACKET:
-            self._indexSelector()
+            self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
-            self._fieldSelector()
+            self._fieldSelector(stop)
         else:
-            self._syntaxError()
+            self._syntaxError(stop)
         self._strTree += "]"
 
     def _indexSelector(self, stop):
         self._strTree += "[<IndexSelector>"
-        self._match(WrapTk.LEFTBRACKET)
-        self._expression()
-        self._match(WrapTk.RIGHTBRACKET)
+        self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
+        self._expression(stop.union([WrapTk.RIGHTBRACKET]))
+        self._match(WrapTk.RIGHTBRACKET, stop)
         self._strTree += "]"
 
     def _fieldSelector(self, stop):
         self._strTree += "[<FieldSelector>"
-        self._match(WrapTk.PERIOD)
-        self._match(WrapTk.ID)
+        self._match(WrapTk.PERIOD, stop.union([WrapTk.ID]))
+        self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
     def _constant(self, stop):
         self._strTree += "[<Constant>"
         if self._lookahead == WrapTk.NUMERAL:
-            self._match(WrapTk.NUMERAL)
+            self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
-            self._match(WrapTk.ID)
+            self._match(WrapTk.ID, stop)
         else:
-            self._syntaxError()
+            self._syntaxError(stop)
         self._strTree += "]"
