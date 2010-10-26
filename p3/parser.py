@@ -52,7 +52,6 @@ class SynAn:
             print "error en la linea:", self._scanner.getPos()
             self._linerror = self._scanner.getPos()[0]
         while self._lookahead not in stop:
-            print self._lookahead.getLexeme(),
             self._lookahead = self._scanner.yyLex()
             self._strTree += self._lookahead.getLexeme() + " "
         self._strTree += "]]"
@@ -296,7 +295,7 @@ class SynAn:
         self._strTree += "[<StatementGroup>"
         if self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD, WrapTk.BECOMES]:
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
-                self._selector(stop.union([WrapTk.BECOMES], self._ff.first("expression")))
+                self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
             self._match(WrapTk.BECOMES, stop.union(self._ff.first("expression")))
             self._expression(stop)
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
