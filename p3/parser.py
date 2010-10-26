@@ -51,7 +51,9 @@ class SynAn:
         if self._scanner.getPos()[0] != self._linerror:
             print "error en la linea:", self._scanner.getPos()
             self._linerror = self._scanner.getPos()[0]
+        print "----ignorando---"
         while self._lookahead not in stop:
+            print self._lookahead.getLexeme(),
             self._lookahead = self._scanner.yyLex()
             self._strTree += self._lookahead.getLexeme() + " "
         self._strTree += "]]"
