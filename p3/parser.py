@@ -28,6 +28,7 @@ class SynAn:
         self._lookahead = None
         self._scanner = None
         self._ff = FFSets()
+        self._linerror = 0
         self._strTree = ""
 
     def start(self, fin):
@@ -46,7 +47,9 @@ class SynAn:
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
-        print "error en la linea:", self._scanner.getPos()
+        if self._scanner.getPos()[0] != self._linerror:
+            print "error en la linea:", self._scanner.getPos()
+            self._linerror = self._scanner.getPos()[0]
         while self._lookahead not in stop:
             self._lookahead = self._scanner.yyLex()
         #self._strTree += "[TOKEN-ERROR]"
