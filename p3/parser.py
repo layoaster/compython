@@ -9,6 +9,8 @@ Description: Analizador Sintáctico para Pascal-.
   $Revision$
 """
 
+import traceback
+import sys
 from lexan import LexAn
 from token import *
 from error import *
@@ -49,7 +51,7 @@ class SynAn:
         """
         self._strTree += " [[IGNORED-TOKENS " + self._lookahead.getLexeme()
         if self._scanner.getPos()[0] != self._linerror:
-            print "error en la linea:", self._scanner.getPos()
+            print "error en la linea:", self._scanner.getPos(), self._lookahead.getLexeme()
             self._linerror = self._scanner.getPos()[0]
         while self._lookahead not in stop:
             self._lookahead = self._scanner.yyLex()
@@ -329,9 +331,10 @@ class SynAn:
         self._expression(stop.union((WrapTk.THEN, WrapTk.ELSE), self._ff.first("statement")))
         self._match(WrapTk.THEN, stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._statement(stop.union([WrapTk.ELSE], self._ff.first("statement")))
+        self._syntaxCheck(stop.union([WrapTk.ELSE]))
         if self._lookahead == WrapTk.ELSE:
             self._match(WrapTk.ELSE, stop.union(self._ff.first("statement")))
-            self._statement(stop.union([WrapTk.ELSE], self._ff.first("statement")))
+            self._statement(stop)
         self._strTree += "]"
 
     # <WhileStatement> ::= while <Expression> do <Statement>
@@ -357,7 +360,7 @@ class SynAn:
     # <Expression> ::= <SimpleExpression> [<RelationalOperator> <SimpleExpression>]
     def _expression(self, stop):
         self._strTree += "[<Expression>"
-        self._simpleExpression(stop.union(self._ff.first("simpleExpression"), self._ff.first("relationalOperator")))
+        self._simpleExpression(stop.union(self._ff.first("relationalOperator")))
         if self._lookahead in [WrapTk.LESS, WrapTk.EQUAL, WrapTk.GREATER, WrapTk.NOTGREATER, WrapTk.NOTEQUAL, WrapTk.NOTLESS]:
             self._relationalOperator(stop.union(self._ff.first("simpleExpression")))
             self._simpleExpression(stop)
