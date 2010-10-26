@@ -1,7 +1,5 @@
-program titi;
+program toto;
+var i : integer;
 begin
-  if then
-    a;
-  else
-    a;
+  i ::= 1;
 end.

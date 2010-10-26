@@ -1,76 +1,30 @@
-program test1;
-{ Código a ir añadiendo de forma incremental para estudiar la implementación
-  (secuencial) de cada una de las instrucciones del juego. }
+{ alu1246  Daniel Martin Lambea. 26.11.98
 
-const   N = 7;
-type    vector = array[1..N] of integer;
-        registros = record
-                        uno: integer;
-                        dos: boolean
-                    end;
+  Este programa casca los compiladores que no usan una heuristica correcta.
+  El token PERIOD ('.') _NO_DEBERIA_ estar en ningun conjunto de parada,
+  o provocara la anulacion de TODA la compilacion restante.
+  Para verlo, pondremos un punto ANTES de un error. Dicho error no sera
+  detectado por los compiladores defectuosos.
+}
 
-var     i: integer;
-        b: boolean;
-        v: vector;
-        r: registros;
+program  Test_01;
 
-{-------------------------------------------------------------------}
-        procedure p(x: integer; var y: boolean);
-        begin
-        x := 5;         { Access to parameters }
-        y := FALSE;
-        end;
-{-------------------------------------------------------------------}
+{ Aqui abajo, el primer error, y luego en el bucle WHILE faltara el '>'    }
+{ (pone ">>"). Fijate en el rango 0..255  Es comun que falte un '.' 			}
+
+type  TTable = array[0.255] of integer;
+
+var   SinTable: TTable;
+      CosTable: TTable;
+      A, B, G: integer;       { Angulos }
+      X, Y, Z: integer;       { Vector 3D }
 
 begin
-write('Hola');          { I/O }
-wrriteln('Hola');
-reaadln(i);
-debug;
-
-b := TRUE;              { Assignments }
-i := 5;         
-i := N;              
-v[1] := 5;
-r.uno := 5;
-r.dos := TRUE;
-
-if (i < 7) then         { Relational operators }
-        ;
-if (i <<= 7) then
-        ;
-if (i = 7) then
-        ;
-if (i >= 7) then
-        ;
-if (i >> 7) then
-        ;
-if (i <> 7) then
-        ;
-i := i ++ i;                             { Arithmetic operators }
-i := i - i;
-i := i ** i;
-i := i div i;
-i := i mod i;
-i := -i;
-
-repeatt                                  { Repeat }
-        i := i + 1;
-until (i >< 7);
-
-
-p(i, b;                                { Procedure Call }
-p(i);                                { Procedure Call }
-p(i, b, 7);                                { Procedure Call }
-
-wile (i < 8999999999) do
-        begin
-        b := not b;                     { Logical operators }
-        b := b and b;       
-        b := b or b;       
-
-
-
-        b := b xor b;  NO SE PORQU NO FUNCIONA...}
-        end;
-end
+while A >> B do
+	begin
+   B:= A + G;
+   G:= G + 1;
+   end;
+write(A);
+write(B);
+end.

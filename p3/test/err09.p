@@ -1,6 +1,7 @@
-program toto;
-var
-  i integer;
+program titi;
 begin
-  a;
-.
+  if then
+    a;
+  else
+    a;
+end.
