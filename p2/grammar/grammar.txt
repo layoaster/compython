@@ -52,7 +52,7 @@ Description: Gramatica en EBNF y BNF correspondiente al Analizador Sintáctico p
 
 <StatementGroup> ::=  {<Selector>} := <Expression> | <ProcedureStatement>
 
-<ProcedureStatement> ::= ( <ActualParameterList> )
+<ProcedureStatement> ::= [( <ActualParameterList> )]
 
 <ActualParameterList> ::= <Expression> {, <Expression>}
 

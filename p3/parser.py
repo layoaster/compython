@@ -226,7 +226,7 @@ class SynAn:
         self._match(WrapTk.SEMICOLON, stop)
         self._strTree += "]"
 
-    
+
     # <VariableGroup> ::= id {, id} : id
     def _variableGroup(self, stop):
         self._strTree += "[<VariableGroup>"
@@ -302,7 +302,7 @@ class SynAn:
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxCheck(stop)
         self._strTree += "]"
 
     # <ProcedureStatement> ::= ( <ActualParameterList> )

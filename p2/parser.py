@@ -259,8 +259,6 @@ class SynAn:
             self._expression()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement()
-        else:
-            self._syntaxError()
         self._strTree += "]"
 
     def _procedureStatement(self):
