@@ -49,16 +49,17 @@ class SynAn:
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
-        self._strTree += " [[IGNORED-TOKENS " + self._lookahead.getLexeme()
+        self._strTree += " [[SYNTAX-ERROR[IGNORED-TOKENS"
         if self._scanner.getPos()[0] != self._linerror:
             # print "error en la linea:", self._scanner.getPos(), self._lookahead.getLexeme()
             SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
             self._linerror = self._scanner.getPos()[0]
             #if expected is not None: usar las clases aqui
-
+        if self._lookahead in stop:
+            self._strTree += "[None]"
         while self._lookahead not in stop:
+            self._strTree += " " + self._lookahead.getLexeme()
             self._lookahead = self._scanner.yyLex()
-            self._strTree += self._lookahead.getLexeme() + " "
         self._strTree += "]]"
         #self._strTree += "[TOKEN-ERROR]"
         # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
@@ -97,12 +98,12 @@ class SynAn:
     # <Program> ::= program id ; <BlockBody> .
     def _program(self, stop):
         self._strTree += "[<Program>"
-        self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON, WrapTk.PERIOD), self._ff.first("blockBody")))
-        self._match(WrapTk.ID, stop.union((WrapTk.SEMICOLON,WrapTk.PERIOD), self._ff.first("blockBody")))
-        self._match(WrapTk.SEMICOLON, stop.union([WrapTk.PERIOD], self._ff.first("blockBody")))
-        self._blockBody(stop.union([WrapTk.PERIOD]))
+        self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("blockBody")))
+        self._match(WrapTk.ID, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
+        self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
+        self._blockBody(stop)
         self._match(WrapTk.PERIOD, stop)
-        #self._match(WrapTk.ENDTEXT)
+        #self._match(WrapTk.ENDTEXT, stop)
         self._strTree += "]"
 
     # <BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>}
@@ -309,7 +310,7 @@ class SynAn:
             self._syntaxCheck(stop)
         self._strTree += "]"
 
-    # <ProcedureStatement> ::= ( <ActualParameterList> )
+    # <ProcedureStatement> ::= [( <ActualParameterList> )]
     def _procedureStatement(self, stop):
         self._strTree += "[<ProcedureStatement>"
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
@@ -357,7 +358,7 @@ class SynAn:
         while self._lookahead == WrapTk.SEMICOLON:
             self._match(WrapTk.SEMICOLON, stop.union((WrapTk.SEMICOLON, WrapTk.END), self._ff.first("statement")))
             self._statement(stop.union((WrapTk.SEMICOLON, WrapTk.END)))
-        self._match(WrapTk.END, stop)
+        self._match(WrapTk.END, stop.union([WrapTk.PERIOD]))
         self._strTree += "]"
 
     # <Expression> ::= <SimpleExpression> [<RelationalOperator> <SimpleExpression>]
