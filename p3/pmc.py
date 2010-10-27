@@ -11,6 +11,7 @@ Description: Main del Analizador Sintáctico de Pascal-.
 
 import sys
 import argparse
+#import traceback
 from error import *
 from parser import SynAn
 from html import generatePHPSyntaxTree
@@ -39,8 +40,8 @@ if __name__ == '__main__':
             parser.start(args.fin)
             print Colors.OKGREEN + "All OK" + Colors.ENDC
         except Error as e:
-            e.printError();
-            exit(1)
+            e.printError()
+            # print traceback.print_tb(sys.exc_info()[2]) #exit(1)
         except IOError as e:
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
@@ -48,5 +49,4 @@ if __name__ == '__main__':
             if args.tree:
                 webTree(args.tree)
                 print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
-
-
+            

@@ -9,6 +9,7 @@ $Date$
 $Revision$
 """
 
+from token import Token
 from abc import ABCMeta, abstractmethod
 
 class Colors:
@@ -29,21 +30,25 @@ class Colors:
 
 #---------------------
 
-class Error(Exception, object):
+class Error(object):
     """ Clase padre de errores """
     __metaclass__ = ABCMeta
 
     pos = ()
     errno = -1
-    info = ""
+    found = None
+    expected = None
 
-    def __init__(self, errno, pos, info=""):
+    def __init__(self, errno, pos, found, expected=None):
         self.errno = errno
         self.pos = pos
-        self.info = info
+        self.found = found
+        self.expected = expected
+            #print "errno = ", self.errno, "; pos = ", self.pos, "; found = ", self.found, "; expected = ", self.expected
+        #self.printError()
 
     @abstractmethod
-    def printError(self, err):
+    def printError(self):
         pass
 
 # --------------------
@@ -63,6 +68,7 @@ class LexError(Error):
     def __init__(self, errno, pos):
         super(LexError, self).__init__(errno, pos)
 
+    #@classmethod
     def printError(self):
         print Colors.WARNING + str(self.pos[0]) + "L" \
               + ", " + str(self.pos[1]) + "C " \
@@ -79,12 +85,29 @@ class SynError(Error):
 
     _errStrings = ("Unexpected symbol", )
 
-    def __init__(self, errno, pos, info=""):
-        #super.__init__(errno, pos, info)
-        super(SynError, self).__init__(errno, pos, info)
-
+    def __init__(self, errno, pos, found, expected=None):
+        super(SynError, self).__init__(errno, pos, found, expected)
+        #print "errno = ", self.errno, "; pos = ", self.pos, "; found = ", self.found, "; expected = ", self.expected
+        self.printError()
+    
     def printError(self):
-        print Colors.WARNING + str(self.pos[0]) + "L" \
-              + ", " + str(self.pos[1]) + "C " \
-              + Colors.FAIL + "[SYN ERROR] " + Colors.ENDC \
-              + " " + self._errStrings[self.errno] + self.info
+        print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
+        print str(str(self.pos[1]) + "C").rjust(3),
+        
+        print Colors.FAIL + "[SYN ERROR]" + Colors.ENDC \
+              , " " + self._errStrings[self.errno] \
+              + " - Found '" + self.found.getLexeme() + "'",
+
+        if self.expected is not None:
+            print "\b, expected",
+            try:
+                [a for a in self.expected]
+                # Si no lanza una excepcion, es un conjunto de tokens
+                for tok in self.expected:
+                    print "'" + Token(tok).getLexeme() + "',",
+                print "\b\b",
+            except TypeError:
+                # Se trata de un unico token (syntaxError invocado por match, por ejemplo)
+                print "'" + Token(self.expected).getLexeme() + "'",
+        # Si expected es none, el error vino por syntaxCheck (no mostramos expected en principio)
+        print "\n",

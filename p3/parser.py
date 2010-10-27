@@ -45,14 +45,17 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
 
-    def _syntaxError(self, stop):
+    def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
         self._strTree += " [[IGNORED-TOKENS " + self._lookahead.getLexeme()
         if self._scanner.getPos()[0] != self._linerror:
-            print "error en la linea:", self._scanner.getPos(), self._lookahead.getLexeme()
+            # print "error en la linea:", self._scanner.getPos(), self._lookahead.getLexeme()
+            SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
             self._linerror = self._scanner.getPos()[0]
+            #if expected is not None: usar las clases aqui
+
         while self._lookahead not in stop:
             self._lookahead = self._scanner.yyLex()
             self._strTree += self._lookahead.getLexeme() + " "
@@ -87,7 +90,7 @@ class SynAn:
                 self._lookahead = self._scanner.yyLex()
                 self._syntaxCheck(stop)
             else:
-                self._syntaxError(stop)
+                self._syntaxError(stop, )
         except LexError:
             raise
 
@@ -161,7 +164,7 @@ class SynAn:
         elif self._lookahead == WrapTk.RECORD:
             self._newRecordType(stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("newType"))
         self._strTree += "]"
 
     # <NewArrayType> ::= array [ <IndexRange> ] of id
@@ -382,7 +385,7 @@ class SynAn:
         elif self._lookahead == WrapTk.NOTLESS:
             self._match(WrapTk.NOTLESS, stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("relationalOperator"))
         self._strTree += "]"
 
     # <SimpleExpression> ::= [<SignOperator>] <Term> {<AdditiveOperator> <Term>}
@@ -404,7 +407,7 @@ class SynAn:
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("signOperator"))
         self._strTree += "]"
 
     # <AdditiveOperator> ::= + | - | or
@@ -417,7 +420,7 @@ class SynAn:
         elif self._lookahead == WrapTk.OR:
             self._match(WrapTk.OR, stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("additiveOperator"))
         self._strTree += "]"
 
     # <Term> ::= <Factor> {<MultiplyingOperator> <Factor>}
@@ -441,7 +444,7 @@ class SynAn:
         elif self._lookahead == WrapTk.AND:
             self._match(WrapTk.AND, stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("multiplyingOperator"))
         self._strTree += "]"
 
     # <Factor> ::= numeral | id {<Selector>} | ( <Expression> ) | not <Factor>
@@ -461,7 +464,7 @@ class SynAn:
             self._match(WrapTk.NOT, stop.union(self._ff.first("factor")))
             self._factor(stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("factor"))
         self._strTree += "]"
 
     # <Selector> ::= <IndexSelector> | <FieldSelector>
@@ -472,7 +475,7 @@ class SynAn:
         elif self._lookahead == WrapTk.PERIOD:
             self._fieldSelector(stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("selector"))
         self._strTree += "]"
 
     # <IndexSelector> ::= [ <Expression> ]
@@ -498,5 +501,5 @@ class SynAn:
         elif self._lookahead == WrapTk.ID:
             self._match(WrapTk.ID, stop)
         else:
-            self._syntaxError(stop)
+            self._syntaxError(stop, self._ff.first("constant"))
         self._strTree += "]"
