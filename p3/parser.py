@@ -26,6 +26,7 @@ class SynAn:
             _lookahead = token o simbolo de preanalisis
             _scanner = instancia de la clase analizador lexico
             _strTree = cadena que describe el arbol de analisis sintactico obtenido en notacion phpSyntaxTree
+            _linerror = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
         """
         self._lookahead = None
         self._scanner = None
@@ -51,26 +52,19 @@ class SynAn:
         """
         self._strTree += " [[SYNTAX-ERROR[IGNORED-TOKENS"
         if self._scanner.getPos()[0] != self._linerror:
-            # print "error en la linea:", self._scanner.getPos(), self._lookahead.getLexeme()
             SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
             self._linerror = self._scanner.getPos()[0]
-            #if expected is not None: usar las clases aqui
         if self._lookahead in stop:
             self._strTree += "[None]"
         while self._lookahead not in stop:
             self._strTree += " " + self._lookahead.getLexeme()
             self._lookahead = self._scanner.yyLex()
         self._strTree += "]]"
-        #self._strTree += "[TOKEN-ERROR]"
-        # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
-        #if expected is not None:
-            #raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
-                  #" - Found '" + self._lookahead.getLexeme() + "', expected '" + Token(expected).getLexeme() + "'")
-        #else:
-            #raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
-                  #" - Found '" + self._lookahead.getLexeme() + "'")
 
     def _syntaxCheck(self, stop):
+    """ Comprueba que el token siguiente este dentro de lo que puede esperarse a continuacion (el token
+        pertenezca al conjunto de parada)
+    """
         if self._lookahead not in stop:
             self._syntaxError(stop)
 
