@@ -50,7 +50,12 @@ class SynAn:
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
-        self._strTree += " [[SYNTAX-ERROR[IGNORED-TOKENS"
+        if self._lookahead == WrapTk.TOKEN_ERROR:
+            self._strTree += " [[LEX-ERROR"
+            self._linerror = self._scanner.getPos()[0]
+        else:
+            self._strTree += " [[SYNTAX-ERROR[IGNORED-TOKENS"
+
         if self._scanner.getPos()[0] != self._linerror:
             SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
             self._linerror = self._scanner.getPos()[0]
@@ -62,9 +67,9 @@ class SynAn:
         self._strTree += "]]"
 
     def _syntaxCheck(self, stop):
-    """ Comprueba que el token siguiente este dentro de lo que puede esperarse a continuacion (el token
-        pertenezca al conjunto de parada)
-    """
+        """ Comprueba que el token siguiente este dentro de lo que puede esperarse a continuacion (el token
+            pertenezca al conjunto de parada)
+        """
         if self._lookahead not in stop:
             self._syntaxError(stop)
 

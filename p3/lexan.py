@@ -137,7 +137,8 @@ class LexAn:
             if match is None:
                 self._buffer = self._buffer[1:]
                 self._ncol += 1
-                raise LexError(LexError.UNKNOWN_CHAR, self.getPos())
+                LexError(LexError.UNKNOWN_CHAR, self.getPos())
+                return Token(WrapTk.TOKEN_ERROR)
 
             token = WrapTk.toToken(match.lastgroup)
             value = match.group(match.lastgroup)
@@ -152,7 +153,8 @@ class LexAn:
                     token = WrapTk.toToken(match.lastgroup)
                     value = match.group(match.lastgroup)
                 else:
-                    raise LexError(LexError.UNCLOSED_COM, self.getPos())
+                    LexError(LexError.UNCLOSED_COM, self.getPos())
+                    return Token(WrapTk.TOKEN_ERROR)
 
             self._ncol += match.end()
             self._buffer = self._buffer[match.end():]
@@ -165,7 +167,8 @@ class LexAn:
                 return Token(WrapTk.ID, value.lower())
             elif token == WrapTk.NUMERAL:
                 if int(value) > 32767:
-                    raise LexError(LexError.INT_OVERFLOW, self.getPos())
+                    LexError(LexError.INT_OVERFLOW, self.getPos())
+                    return Token(WrapTk.TOKEN_ERROR)
                 else:
                     return Token(WrapTk.NUMERAL, int(value))
             else:   # Reconocido token valido

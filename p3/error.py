@@ -39,13 +39,11 @@ class Error(object):
     found = None
     expected = None
 
-    def __init__(self, errno, pos, found, expected=None):
+    def __init__(self, errno, pos, found=None, expected=None):
         self.errno = errno
         self.pos = pos
         self.found = found
         self.expected = expected
-            #print "errno = ", self.errno, "; pos = ", self.pos, "; found = ", self.found, "; expected = ", self.expected
-        #self.printError()
 
     @abstractmethod
     def printError(self):
@@ -67,13 +65,14 @@ class LexError(Error):
 
     def __init__(self, errno, pos):
         super(LexError, self).__init__(errno, pos)
+        self.printError()
 
-    #@classmethod
     def printError(self):
-        print Colors.WARNING + str(self.pos[0]) + "L" \
-              + ", " + str(self.pos[1]) + "C " \
-              + Colors.FAIL + "[LEX ERROR] " + Colors.ENDC\
-              + " " + self._errStrings[self.errno]
+        print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
+        print str(str(self.pos[1]) + "C").rjust(3),
+
+        print Colors.FAIL + "[LEX ERROR] " + Colors.ENDC\
+              + self._errStrings[self.errno]
 
 # --------------------
 
@@ -87,7 +86,6 @@ class SynError(Error):
 
     def __init__(self, errno, pos, found, expected=None):
         super(SynError, self).__init__(errno, pos, found, expected)
-        #print "errno = ", self.errno, "; pos = ", self.pos, "; found = ", self.found, "; expected = ", self.expected
         self.printError()
     
     def printError(self):
@@ -95,7 +93,7 @@ class SynError(Error):
         print str(str(self.pos[1]) + "C").rjust(3),
         
         print Colors.FAIL + "[SYN ERROR]" + Colors.ENDC \
-              , " " + self._errStrings[self.errno] \
+              + " " + self._errStrings[self.errno] \
               + " - Found '" + self.found.getLexeme() + "'",
 
         if self.expected is not None:
