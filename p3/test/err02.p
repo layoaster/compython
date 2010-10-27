@@ -13,7 +13,7 @@ Program alu1661;
 Const
     jauja = 7;
     mojama = -2;        {Error, constantes negativas no permitidas}
-    Abracadabra = ;
+    Abracadabra = 25;
     chungani = 345      {Error, falta punto y coma (se detecta en la    }
     Gonzo = jauja;      {                               siguiente linea)}
     Cucucu = 4;
@@ -23,7 +23,7 @@ Type
                         f := Paraiso;   { Error, Becomes no valido}
                         i : integer;
                   end;
-    mas_regs = Recrod a,b: integer end;
+    mas_regs = Record a,b: integer end;
     Arraymalo = Array [1..<6] of boolean;        { Error, "<" no valido }
     Unarray = Array [1..2] of boolean;
 Vir                             { Error, Identificador no esperado.}
