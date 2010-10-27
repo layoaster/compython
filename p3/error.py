@@ -104,10 +104,10 @@ class SynError(Error):
                 [a for a in self.expected]
                 # Si no lanza una excepcion, es un conjunto de tokens
                 for tok in self.expected:
-                    print "'" + Token(tok).getLexeme() + "',",
+                    print "'" + Token(tok).getTokLexeme() + "',",
                 print "\b\b",
             except TypeError:
                 # Se trata de un unico token (syntaxError invocado por match, por ejemplo)
-                print "'" + Token(self.expected).getLexeme() + "'",
-        # Si expected es none, el error vino por syntaxCheck (no mostramos expected en principio)
+                print "'" + Token(self.expected).getTokLexeme() + "'",
+        # Si expected es None, el error vino por syntaxCheck (no mostramos expected en principio)
         print "\n",

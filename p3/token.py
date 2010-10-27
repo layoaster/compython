@@ -103,6 +103,9 @@ class Token:
         else:
             return WrapTk.TokLexemes[self._token - 1]
 
+    def getTokLexeme(self):
+        return WrapTk.TokLexemes[self._token - 1]
+
     def __eq__(self, token):
         if self._token == token:
             return True
