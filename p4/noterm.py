@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-$Id$
+        $Id$
 Description: Representacion de los Simbolos No Terminales.
-$Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
-$Date$
-$Revision$
+    $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
+      $Date$
+  $Revision$
 """
 
 
