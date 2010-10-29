@@ -8,9 +8,6 @@ Description: Analizador Sintáctico para Pascal-.
       $Date$
   $Revision$
 """
-
-import traceback
-import sys
 from lexan import LexAn
 from token import *
 from error import *
@@ -90,7 +87,7 @@ class SynAn:
                 self._lookahead = self._scanner.yyLex()
                 self._syntaxCheck(stop)
             else:
-                self._syntaxError(stop, )
+                self._syntaxError(stop)
         except LexError:
             raise
 
