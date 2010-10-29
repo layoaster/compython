@@ -10,7 +10,7 @@ Description: Representacion de los Simbolos No Terminales.
 """
 
 
-class NoTerm:
+class NonTerm:
 
     def __init__(self, nt = None):
         """ Constructor de la clase
