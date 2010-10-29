@@ -18,56 +18,56 @@ class ParsingTable:
     def __init__(self):
         self._table = {}
 
-        self._table = {NonTerm(WrapNT.PROGRAM) : {Token(WrapTk.PROGRAM) : Production([Token(WrapTk.PROGRAM),
-                                                                                      Token(WrapTk.ID),
-                                                                                      Token(WrapTk.SEMICOLON),
-                                                                                      NonTerm(WrapNT.BLOCKBODY),
-                                                                                      Token(WrapTk.PERIOD)])}}
+        self._table[NonTerm(WrapNT.PROGRAM)] = {Token(WrapTk.PROGRAM) : Production([Token(WrapTk.PROGRAM),
+                                                                                    Token(WrapTk.ID),
+                                                                                    Token(WrapTk.SEMICOLON),
+                                                                                    NonTerm(WrapNT.BLOCKBODY),
+                                                                                    Token(WrapTk.PERIOD)])}
 
-        self._table = {NonTerm(WrapNT.BLOCKBODY) : {Token(WrapTk.CONST) : Production([NonTerm(WrapNT.CONSTDEFPART),
-                                                                                      NonTerm(WrapNT.TYPEDEFPART),
-                                                                                      NonTerm(WrapNT.VARDEFPART),
-                                                                                      NonTerm(WrapNT.PROCDEF),
-                                                                                      NonTerm(WrapNT.COMPSTATE)]),
-
-                                                    Token(WrapTk.TYPE) : Production([NonTerm(WrapNT.CONSTDEFPART),
-                                                                                     NonTerm(WrapNT.TYPEDEFPART),
-                                                                                     NonTerm(WrapNT.VARDEFPART),
-                                                                                     NonTerm(WrapNT.PROCDEF),
-                                                                                     NonTerm(WrapNT.COMPSTATE)]),
-
-                                                    Token(WrapTk.VAR) : Production([NonTerm(WrapNT.CONSTDEFPART),
+        self._table[NonTerm(WrapNT.BLOCKBODY)] = {Token(WrapTk.CONST) : Production([NonTerm(WrapNT.CONSTDEFPART),
                                                                                     NonTerm(WrapNT.TYPEDEFPART),
                                                                                     NonTerm(WrapNT.VARDEFPART),
                                                                                     NonTerm(WrapNT.PROCDEF),
                                                                                     NonTerm(WrapNT.COMPSTATE)]),
 
-                                                    Token(WrapTk.PROCEDURE) : Production([NonTerm(WrapNT.CONSTDEFPART),
-                                                                                          NonTerm(WrapNT.TYPEDEFPART),
-                                                                                          NonTerm(WrapNT.VARDEFPART),
-                                                                                          NonTerm(WrapNT.PROCDEF),
-                                                                                          NonTerm(WrapNT.COMPSTATE)]),
+                                                  Token(WrapTk.TYPE) : Production([NonTerm(WrapNT.CONSTDEFPART),
+                                                                                   NonTerm(WrapNT.TYPEDEFPART),
+                                                                                   NonTerm(WrapNT.VARDEFPART),
+                                                                                   NonTerm(WrapNT.PROCDEF),
+                                                                                   NonTerm(WrapNT.COMPSTATE)]),
 
-                                                    Token(WrapTk.BEGIN) : Production([NonTerm(WrapNT.CONSTDEFPART),
-                                                                                      NonTerm(WrapNT.TYPEDEFPART),
-                                                                                      NonTerm(WrapNT.VARDEFPART),
-                                                                                      NonTerm(WrapNT.PROCDEF),
-                                                                                      NonTerm(WrapNT.COMPSTATE)])}}
+                                                  Token(WrapTk.VAR) : Production([NonTerm(WrapNT.CONSTDEFPART),
+                                                                                  NonTerm(WrapNT.TYPEDEFPART),
+                                                                                  NonTerm(WrapNT.VARDEFPART),
+                                                                                  NonTerm(WrapNT.PROCDEF),
+                                                                                  NonTerm(WrapNT.COMPSTATE)]),
 
-        self._table = {NonTerm(WrapNT.CONSTDEFPART) : {Token(WrapTk.CONST) : Production([Token(WrapTk.CONST),
-                                                                                      NonTerm(WrapNT.CONSTDEF),
-                                                                                      NonTerm(WrapNT.CONSTDEF2)]),
+                                                  Token(WrapTk.PROCEDURE) : Production([NonTerm(WrapNT.CONSTDEFPART),
+                                                                                        NonTerm(WrapNT.TYPEDEFPART),
+                                                                                        NonTerm(WrapNT.VARDEFPART),
+                                                                                        NonTerm(WrapNT.PROCDEF),
+                                                                                        NonTerm(WrapNT.COMPSTATE)]),
 
-                                                       Token(WrapTk.TYPE) : None}}
+                                                  Token(WrapTk.BEGIN) : Production([NonTerm(WrapNT.CONSTDEFPART),
+                                                                                    NonTerm(WrapNT.TYPEDEFPART),
+                                                                                    NonTerm(WrapNT.VARDEFPART),
+                                                                                    NonTerm(WrapNT.PROCDEF),
+                                                                                    NonTerm(WrapNT.COMPSTATE)])}
+
+        self._table[NonTerm(WrapNT.CONSTDEFPART)] = {Token(WrapTk.CONST) : Production([Token(WrapTk.CONST),
+                                                                                       NonTerm(WrapNT.CONSTDEF),
+                                                                                       NonTerm(WrapNT.CONSTDEF2)]),
+
+                                                     Token(WrapTk.TYPE) : None}
 
     def getCell(self, nterm, tok):
+        row = self._table.get(nterm)
+        return  self._table[nterm][tok]
 
-        return self._table.get(nterm)[tok]
-
-table = ParsingTable()
-lista = table.getCell(NonTerm(WrapNT.BLOCKBODY), Token(WrapTk.PROCEDURE))
-for x in lista.getProd():
-    print x.getName()
+#table = ParsingTable()
+#lista = table.getCell(NonTerm(WrapNT.BLOCKBODY), Token(WrapTk.PROCEDURE))
+#for x in lista.getProd():
+    #print x.getName()
 
 
 
