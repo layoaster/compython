@@ -101,7 +101,7 @@ class Token:
         return self._token
 
     def getValue(self):
-        """ Setter del valor que puede tomar el token en caso de ser del tipo ID o NUMERAL
+        """ Getter del valor que puede tomar el token en caso de ser del tipo ID o NUMERAL
         """
         return self._value
 

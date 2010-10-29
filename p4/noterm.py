@@ -20,14 +20,18 @@ class NoTerm:
 
 
     def setName(self, nt):
+        """ Setter del nombre del simbolo no terminal
+        """
         self._name = nt
 
     def getName(self):
+        """ Getter del nombre del simbolo no terminal
+        """
         return self._name
 
     def __eq__(self, nt):
-        """ Sobrecarga del operador de comparacion "igual que", para establecer las comparaciones con un enteros
-            tambien es necesario para insertar el objeto en un set/frozenset
+        """ Sobrecarga del operador de comparacion "igual que", para establecer las comparaciones entre objetos NoTerm
+            tambien necesaria para utilizarlo como clave en los diccionarios
         """
         if self._name == nt.getName():
             return True
@@ -35,7 +39,7 @@ class NoTerm:
             return False
 
     def __hash__ (self):
-        """ Sobrecarga de la funcion hash (identificando el objeto token de manera unica) necesaria para insertar
-        el objeto en un set/frozenset
+        """ Sobrecarga de la funcion hash (identificando el objeto NoTerm de manera unica) necesaria para utilizarlo
+            como clave en los diccionarios
         """
         return hash(self._name)
