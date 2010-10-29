@@ -86,25 +86,51 @@ class Token:
         self._value = value
 
     def setToken(self, token):
+        """ Setter del numero que representa internamente al token
+        """
         self._token = token
 
     def setValue(self, value):
+        """ Setter del valor que puede tomar el token en caso de ser del tipo ID o NUMERAL
+        """
         self._value = value
 
     def getToken(self):
+        """ Getter del numero que representa internamente al token
+        """
         return self._token
 
     def getValue(self):
+        """ Setter del valor que puede tomar el token en caso de ser del tipo ID o NUMERAL
+        """
         return self._value
 
     def getLexeme(self):
+        """ Devuelve cadena que da nombre al TOKEN, en el caso de los token ID y NUMERAL devuelve su valor
+            util en el informe del error, cuando se muestran el token encontrado
+        """
         if self._token in (WrapTk.ID, WrapTk.NUMERAL):
             return str(self._value)
         else:
             return WrapTk.TokLexemes[self._token - 1]
 
+    def getTokLexeme(self):
+        """ Devuelve cadena que da nombre al TOKEN, en el caso de los token ID y NUMERAL no devuelve su valor
+            util en el informe del error, cuando se muestran los token esperados
+        """
+        return WrapTk.TokLexemes[self._token - 1]
+
     def __eq__(self, token):
+        """ Sobrecarga del operador de comparacion "igual que", para establecer las comparaciones con un enteros
+            tambien es necesario para insertar el objeto en un set/frozenset
+        """
         if self._token == token:
             return True
         else:
             return False
+
+    def __hash__ (self):
+        """ Sobrecarga de la funcion hash (identificando el objeto token de manera unica) necesaria para insertar
+            el objeto en un set/frozenset
+        """
+        return self._token
