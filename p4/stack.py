@@ -13,32 +13,32 @@ class Stack:
 
     def __init__(self):
         """ Constructor de la clase
-            _st = pila
+            _stack = pila
         """
-        self._st = []
+        self._stack = []
 
     def push(self, t):
         """ Inserta el elemento t en la pila
         """
-        self._st.append(t)
+        self._stack.append(t)
 
     def pop(self):
         """ Extrae elemento de la cima de la pila
         """
-        return self._st.pop()
+        return self._stack.pop()
 
     def top(self):
         """ Retorna elemento de la cima de la pila
         """
-        return self._st[-1]
+        return self._stack[-1]
 
     def isEmpty(self):
         """ Retorna False = si la pila no esta vacía
                      True = si la pila esta vacía
         """
-        return (len(self._st) == 0)
+        return (len(self._stack) == 0)
 
     def printStack(self):
         """ Imprime el contenido de la pila (util en trazas)
         """
-        print self._st
+        print self._stack
