@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+        $Id$
+Description: Implementación de la fase del Analisis Sintactico basado en el Análisis Sintáctico Descendente No Recursivo.
+    $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
+      $Date$
+  $Revision$
+"""
+
 from lexan import LexAn
 from token import *
 from error import *
@@ -19,7 +30,7 @@ class SynAn:
         self._scanner = None
         self._lookahead = None
         self._top = None
-        
+
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico,
             ordenarle abrir el fichero y recoger el primer token de entrada para comenzar
@@ -30,7 +41,7 @@ class SynAn:
             self._scanner.openFile(fin)
         except IOError:
             raise
-        
+
         self._stack = Stack()
 #        self._table = ParsingTable()
 
