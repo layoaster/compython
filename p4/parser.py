@@ -55,15 +55,21 @@ class SynAn:
                     self._lookahead = self._scanner.yyLex()
                 else:   # El top es diferente del lookahead
                     print self._scanner.getPos(),
-                    print "Syntax Error:", self._top.getLexeme(), "found",
+                    print "Syntax Error:", self._symbol.getLexeme(), "found",
                     print "-", self._lookahead.getLexeme(), "expected."
                     exit(1)
             else:   	# Si en el top hay un no terminal
                 try:
                     rule = self._table.getCell(self._symbol, self._lookahead)
+                    #for x in rule.getProd():
+                        #if isinstance(x, Token):
+                            #print x.getLexeme()
+                        #else:
+                            #print x.getName()
+                    #print "---------------------------"
                     self._stack.pop()
                     if rule is not None:  # Si la regla no es epsilon
-                        for i in reversed(rule):   # Idea: sobrecargar pila
+                        for i in reversed(rule.getProd()):   # Idea: sobrecargar pila
                             self._stack.push(i)    # para hacer push a la lista
                 except KeyError:    # La celda esta vacia
                     print self._scanner.getPos(),
