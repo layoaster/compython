@@ -60,13 +60,13 @@ class SynAn:
                     exit(1)
             else:   	# Si en el top hay un no terminal
                 try:
-		    rule = self._table.getCell(self._symbol, self._lookahead)
-		    self._stack.pop()
-		    if rule is not None:  # Si la regla no es epsilon
-		        for i in reversed(rule):   # Idea: sobrecargar pila
-			    self._stack.push(i)    # para hacer push a la lista
-		except KeyError:    # La celda esta vacia
-		    print self._scanner.getPos(),
-		    print "Syntax Error: do no exist production rule for",
-		    print self._lookahead
-		    exit(1)
+                    rule = self._table.getCell(self._symbol, self._lookahead)
+                    self._stack.pop()
+                    if rule is not None:  # Si la regla no es epsilon
+                        for i in reversed(rule):   # Idea: sobrecargar pila
+                            self._stack.push(i)    # para hacer push a la lista
+                except KeyError:    # La celda esta vacia
+                    print self._scanner.getPos(),
+                    print "Syntax Error: do no exist production rule for",
+                    print self._lookahead
+                    exit(1)
