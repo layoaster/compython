@@ -324,22 +324,22 @@ class ParsingTable:
                                                                                                NonTerm(WrapNT.EXPRGROUP)])}
 
         self._table[NonTerm(WrapNT.EXPRGROUP)] = {Token(WrapTk.LESS) : Production([NonTerm(WrapNT.RELATOPER),
-                                                                                   NonTerm(WrapNT.SIMPLEEXR)]),
+                                                                                   NonTerm(WrapNT.SIMPLEEXPR)]),
 
                                                   Token(WrapTk.EQUAL) : Production([NonTerm(WrapNT.RELATOPER),
-                                                                                    NonTerm(WrapNT.SIMPLEEXR)]),
+                                                                                    NonTerm(WrapNT.SIMPLEEXPR)]),
 
                                                   Token(WrapTk.GREATER) : Production([NonTerm(WrapNT.RELATOPER),
-                                                                                      NonTerm(WrapNT.SIMPLEEXR)]),
+                                                                                      NonTerm(WrapNT.SIMPLEEXPR)]),
 
                                                   Token(WrapTk.NOTGREATER) : Production([NonTerm(WrapNT.RELATOPER),
-                                                                                         NonTerm(WrapNT.SIMPLEEXR)]),
+                                                                                         NonTerm(WrapNT.SIMPLEEXPR)]),
 
                                                   Token(WrapTk.NOTEQUAL) : Production([NonTerm(WrapNT.RELATOPER),
-                                                                                       NonTerm(WrapNT.SIMPLEEXR)]),
+                                                                                       NonTerm(WrapNT.SIMPLEEXPR)]),
 
                                                   Token(WrapTk.NOTLESS) : Production([NonTerm(WrapNT.RELATOPER),
-                                                                                      NonTerm(WrapNT.SIMPLEEXR)]),
+                                                                                      NonTerm(WrapNT.SIMPLEEXPR)]),
 
                                                   Token(WrapTk.ELSE) : None,
 
