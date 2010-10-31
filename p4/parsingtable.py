@@ -98,7 +98,7 @@ class ParsingTable:
 
         self._table[NonTerm(WrapNT.NEWTYPE)] = {Token(WrapTk.ARRAY) : Production([NonTerm(WrapNT.NEWARRAYTYPE)]),
 
-                                                 Token(WrapTk.RECORD) : Production([NonTerm(WrapNT.NEWRECTYPE)])}
+                                                Token(WrapTk.RECORD) : Production([NonTerm(WrapNT.NEWRECTYPE)])}
 
         self._table[NonTerm(WrapNT.NEWARRAYTYPE)] = {Token(WrapTk.ARRAY) : Production([Token(WrapTk.ARRAY),
                                                                                        Token(WrapTk.LEFTBRACKET),
@@ -116,17 +116,15 @@ class ParsingTable:
                                                                                    NonTerm(WrapNT.CONSTANT)])}
 
         self._table[NonTerm(WrapNT.NEWRECTYPE)] = {Token(WrapTk.RECORD) : Production([Token(WrapTk.RECORD),
-                                                                                      NonTerm(WrapNT.RECSECTION),
                                                                                       NonTerm(WrapNT.FIELDLIST),
                                                                                       Token(WrapTk.END)])}
 
-        self._table[NonTerm(WrapNT.FIELDLIST)] = {Token(WrapTk.ID) : Production([Token(WrapTk.SEMICOLON),
-                                                                                 NonTerm(WrapNT.RECSECTION),
-                                                                                 NonTerm(WrapNT.FIELDLIST)])}
+        self._table[NonTerm(WrapNT.FIELDLIST)] = {Token(WrapTk.ID) : Production([NonTerm(WrapNT.RECSECTION),
+                                                                                 NonTerm(WrapNT.FIELDLIST2)])}
 
         self._table[NonTerm(WrapNT.FIELDLIST2)] = {Token(WrapTk.SEMICOLON) : Production([Token(WrapTk.SEMICOLON),
                                                                                          NonTerm(WrapNT.RECSECTION),
-                                                                                         NonTerm(WrapNT.FIELDLIST)]),
+                                                                                         NonTerm(WrapNT.FIELDLIST2)]),
 
                                                    Token(WrapTk.END) : None}
 
@@ -136,6 +134,7 @@ class ParsingTable:
                                                                                   Token(WrapTk.ID)])}
 
         self._table[NonTerm(WrapNT.RECSECTION2)] = {Token(WrapTk.COMMA) : Production([Token(WrapTk.COMMA),
+                                                                                      Token(WrapTk.ID),
                                                                                       NonTerm(WrapNT.RECSECTION2)]),
 
                                                    Token(WrapTk.COLON) : None}
@@ -283,7 +282,7 @@ class ParsingTable:
         self._table[NonTerm(WrapNT.IFSTATE2)] = {Token(WrapTk.ELSE) : Production([Token(WrapTk.ELSE),
                                                                                   NonTerm(WrapNT.STATEMENT)]),
 
-                                                 Token(WrapTk.ELSE) : None,
+                                                 #Token(WrapTk.ELSE) : None,
 
                                                  Token(WrapTk.END) : None,
 
@@ -359,15 +358,15 @@ class ParsingTable:
 
         self._table[NonTerm(WrapNT.RELATOPER)] = {Token(WrapTk.LESS) : Production([Token(WrapTk.LESS)]),
 
-                                                  Token(WrapTk.EQUAL) : Production([Token(WrapTk.LESS)]),
+                                                  Token(WrapTk.EQUAL) : Production([Token(WrapTk.EQUAL)]),
 
-                                                  Token(WrapTk.GREATER) : Production([Token(WrapTk.LESS)]),
+                                                  Token(WrapTk.GREATER) : Production([Token(WrapTk.GREATER)]),
 
-                                                  Token(WrapTk.NOTGREATER) : Production([Token(WrapTk.LESS)]),
+                                                  Token(WrapTk.NOTGREATER) : Production([Token(WrapTk.NOTGREATER)]),
 
-                                                  Token(WrapTk.NOTEQUAL) : Production([Token(WrapTk.LESS)]),
+                                                  Token(WrapTk.NOTEQUAL) : Production([Token(WrapTk.NOTEQUAL)]),
 
-                                                  Token(WrapTk.NOTLESS) : Production([Token(WrapTk.LESS)])}
+                                                  Token(WrapTk.NOTLESS) : Production([Token(WrapTk.NOTLESS)])}
 
         self._table[NonTerm(WrapNT.SIMPLEEXPR)] = {Token(WrapTk.PLUS) : Production([NonTerm(WrapNT.SIGN),
                                                                                     NonTerm(WrapNT.TERM),
