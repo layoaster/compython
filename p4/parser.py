@@ -46,9 +46,9 @@ class SynAn:
 
         self._stack.push(Token(WrapTk.ENDTEXT))
         self._stack.push(NonTerm(WrapNT.PROGRAM))
-        while self._stack.top() != Token(WrapTk.ENDTEXT):
+        self._lookahead = self._scanner.yyLex()
+        while not self._stack.isEmpty():
             self._symbol = self._stack.top()
-            self._lookahead = self._scanner.yyLex()
             if isinstance(self._symbol, Token):    # Si en el top hay un token
                 if self._symbol.getToken() == self._lookahead.getToken():
                     self._stack.pop()
@@ -61,15 +61,9 @@ class SynAn:
             else:   	# Si en el top hay un no terminal
                 try:
                     rule = self._table.getCell(self._symbol, self._lookahead)
-                    #for x in rule.getProd():
-                        #if isinstance(x, Token):
-                            #print x.getLexeme()
-                        #else:
-                            #print x.getName()
-                    #print "---------------------------"
                     self._stack.pop()
                     if rule is not None:  # Si la regla no es epsilon
-                        for i in reversed(rule.getProd()):   # Idea: sobrecargar pila
+                        for i in reversed(rule.getProd()):   # Sobrecargar pila
                             self._stack.push(i)    # para hacer push a la lista
                 except KeyError:    # La celda esta vacia
                     print self._scanner.getPos(),
