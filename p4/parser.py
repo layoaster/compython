@@ -55,8 +55,8 @@ class SynAn:
                     self._lookahead = self._scanner.yyLex()
                 else:   # El top es diferente del lookahead
                     print self._scanner.getPos(),
-                    print "Syntax Error:", self._symbol.getLexeme(), "found",
-                    print "-", self._lookahead.getLexeme(), "expected."
+                    print "Syntax Error:", self._lookahead.getLexeme(), "found",
+                    print "-", self._symbol.getLexeme(), "expected."
                     exit(1)
             else:   	# Si en el top hay un no terminal
                 try:
