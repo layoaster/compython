@@ -4,7 +4,7 @@
 
 
 
-program test2d
+program test2d;
 const
   a = 1;
   b = 2;
