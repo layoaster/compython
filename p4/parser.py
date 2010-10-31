@@ -68,5 +68,5 @@ class SynAn:
                 except KeyError:    # La celda esta vacia
                     print self._scanner.getPos(),
                     print "Syntax Error: do no exist production rule for",
-                    print self._lookahead
+                    print self._lookahead.getLexeme()
                     exit(1)
