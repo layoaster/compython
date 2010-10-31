@@ -2,7 +2,7 @@
 
 program test_2a;
 const
-  a = 1;                         { Error }
+  a := 1;                         { Error }
   b = 2;
   c = ;                           { Error }
   d = 4;
