@@ -25,6 +25,7 @@ class SynAn:
         """ Constructor de la clase. Atributos:
             _lookahead = token o simbolo de preanalisis
             _scanner = instancia de la clase analizador lexico
+            _symbol = simbolo actual (terminal o no terminal) en el tope de la pila 
         """
         self._scanner = None
         self._lookahead = None
@@ -54,10 +55,8 @@ class SynAn:
                     self._stack.pop()
                     self._lookahead = self._scanner.yyLex()
                 else:   # El top es diferente del lookahead
-                    print self._scanner.getPos(),
-                    print "Syntax Error:", self._lookahead.getLexeme(), "found",
-                    print "-", self._symbol.getLexeme(), "expected."
-                    exit(1)
+                    raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
+                                   " - Found '" + self._lookahead.getLexeme() + "', expected '" + self._symbol.getLexeme() + "'")
             else:   	# Si en el top hay un no terminal
                 try:
                     rule = self._table.getCell(self._symbol, self._lookahead)
@@ -66,7 +65,5 @@ class SynAn:
                         for i in reversed(rule.getProd()):   # Sobrecargar pila
                             self._stack.push(i)    # para hacer push a la lista
                 except KeyError:    # La celda esta vacia
-                    print self._scanner.getPos(),
-                    print "Syntax Error: do no exist production rule for",
-                    print self._lookahead.getLexeme()
-                    exit(1)
+                    raise SynError(SynError.NO_VALID_PROD, self._scanner.getPos(),
+                                   " - From '" + self._symbol.getName() + "' having '" + self._lookahead.getLexeme() + "' as stack top")

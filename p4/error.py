@@ -76,8 +76,10 @@ class SynError(Error):
 
     # Constantes de errores sintacticos
     UNEXPECTED_SYM = 0
+    NO_VALID_PROD  = 1
 
-    _errStrings = ("Unexpected symbol", )
+    _errStrings = ("Unexpected symbol", 
+                   "No valid production rule")
 
     def __init__(self, errno, pos, info=""):
         #super.__init__(errno, pos, info)
