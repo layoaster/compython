@@ -27,6 +27,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Realiza el Analisis Sintactico de ficheros de codigo fuente en Pascal-')
     parser.add_argument('fin', metavar='fich_texto.p', type=str, action='store', help='fichero de codigo fuente')
     parser.add_argument('-t', metavar='fich_tree.html', type=str, dest="tree", help='genera fichero html con el AAS del codigo fuente')
+    parser.add_argument('-v', action='store_true', dest="verbose", help='imprimir traza del analizador sintactico')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
     if (len(sys.argv) < 2):
@@ -34,7 +35,7 @@ if __name__ == '__main__':
     else:
         args = parser.parse_args()
 
-        parser = SynAn()
+        parser = SynAn(args.verbose)
         try:
             parser.start(args.fin)
             print Colors.OKGREEN + "All OK" + Colors.ENDC
