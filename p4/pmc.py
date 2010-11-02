@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
     parser = argparse.ArgumentParser(description='Realiza el Analisis Sintactico de ficheros de codigo fuente en Pascal-')
     parser.add_argument('fin', metavar='fich_texto.p', type=str, action='store', help='fichero de codigo fuente')
-    parser.add_argument('-t', metavar='fich_tree.html', type=str, dest="tree", help='genera fichero html con el AAS del codigo fuente')
+    parser.add_argument('-t', metavar='fich_trace.html', type=str, dest="trace", help='genera fichero html la traza')
     parser.add_argument('-v', action='store_true', dest="verbose", help='imprimir traza del analizador sintactico')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
@@ -46,8 +46,8 @@ if __name__ == '__main__':
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
         finally:
-            if args.tree:
-                webTree(args.tree)
+            if args.trace:
+                webTree(args.trace)
                 print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
 
 
