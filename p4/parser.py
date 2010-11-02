@@ -66,4 +66,4 @@ class SynAn:
                             self._stack.push(i)    # para hacer push a la lista
                 except KeyError:    # La celda esta vacia
                     raise SynError(SynError.NO_VALID_PROD, self._scanner.getPos(),
-                                   " - From '" + self._symbol.getName() + "' having '" + self._lookahead.getLexeme() + "' as stack top")
+                                   " - From '" + self._symbol.getName() + "' having '" + self._lookahead.getLexeme() + "' as input token")
