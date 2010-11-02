@@ -585,7 +585,7 @@ class ParsingTable:
                                                 Token(WrapTk.NOTEQUAL) : None,
 
                                                 Token(WrapTk.NOTLESS) : None}
-        
+
         self._table[NonTerm(WrapNT.SELECTOR)] = {Token(WrapTk.LEFTBRACKET) : Production([NonTerm(WrapNT.INDEXSELECTOR)]),
 
                                                  Token(WrapTk.PERIOD) : Production([NonTerm(WrapNT.FIELDSELECTOR)])}
@@ -604,11 +604,3 @@ class ParsingTable:
     def getCell(self, nterm, tok):
         row = self._table.get(nterm)
         return  self._table[nterm][tok]
-
-#table = ParsingTable()
-#lista = table.getCell(NonTerm(WrapNT.BLOCKBODY), Token(WrapTk.PROCEDURE))
-#for x in lista.getProd():
-    #print x.getName()
-
-
-
