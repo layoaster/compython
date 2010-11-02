@@ -204,7 +204,7 @@ class ParsingTable:
                                                                                              Token(WrapTk.BECOMES),
                                                                                              NonTerm(WrapNT.EXPRESSION)]),
 
-                                                     Token(WrapTk.PERIOD)      : Production([NonTerm(WrapNT.FACTOR),
+                                                     Token(WrapTk.PERIOD)      : Production([NonTerm(WrapNT.FACTOR2),
                                                                                              Token(WrapTk.BECOMES),
                                                                                              NonTerm(WrapNT.EXPRESSION)]),
 
