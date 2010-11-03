@@ -62,8 +62,8 @@ class WrapTk:
                   "NUMERAL", "OF", "OR", "PERIOD", "PLUS", "PROCEDURE", "PROGRAM", "RECORD", "RIGHTBRACKET",
                   "RIGHTPARENTHESIS", "SEMICOLON", "THEN", "TYPE", "TOKEN_ERROR", "VAR", "WHILE", "COMMENT")
 
-    TokLexemes = ("and", "array", "*", ":=", "begin", ":", ",", "const", "div", "do", "..", "else", "end", "<EOF>",
-                  "=", ">", "identifier", "if", "[", "(", "<", "-", "mod", "not", "<>", "<=", ">=", "numeral", "of",
+    TokLexemes = ("and", "array", "*", ":=", "begin", ":", ",", "const", "div", "do", "..", "else", "end", "$",
+                  "=", ">", "id", "if", "[", "(", "<", "-", "mod", "not", "<>", "<=", ">=", "numeral", "of",
                   "or", ".", "+", "procedure", "program", "record", "]", ")", ";", "then", "type", "", "var", "while", "")
 
     @classmethod
