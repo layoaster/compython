@@ -33,6 +33,8 @@ class SynAn:
         self._symbol = None
         self._tokens = ""
         self._trace = ""
+        self._ctrace = []
+        self._verbose = verbose
         self._n = 0
 
     def getTrace(self):
@@ -60,6 +62,18 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._tokens += self._lookahead.getTokLexeme() + "|"
         while not self._stack.isEmpty():
+            ### Verbose Mode
+            if self._verbose:
+                self._ctrace = ['', '']
+                for i in self._stack.return3Last():
+                    if isinstance(i, Token):
+                        self._ctrace[0] += Colors.OKBLUE + i.getTokLexeme() + Colors.ENDC + ' '
+                    else:
+                        self._ctrace[0] += Colors.OKGREEN + '<' + i.getName() + '> ' + Colors.ENDC
+                self._ctrace[1] += Colors.OKBLUE + self._lookahead.getLexeme() + Colors.ENDC
+                print (self._ctrace[0]).rjust(100) + ' || ',
+                print self._ctrace[1]
+            ### Verbose Mode End
             self._trace += '<input type="hidden" name="trace' + str(self._n) + '" value="' + self._stack.printStack() + '">\n'
             self._symbol = self._stack.top()
             if isinstance(self._symbol, Token):    # Si en el top hay un token
