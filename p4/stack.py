@@ -51,7 +51,7 @@ class Stack:
                 s += i.getTokLexeme() + " "
             else:
                 s += i.getName() + " "
-        return s
+        return s[:-1]
     
     def return3Last(self):
         """ Retorna los tres ultimos elementos empezando desde el tope de la pila (para la traza por consola)
