@@ -50,7 +50,7 @@ class Stack:
             if isinstance(i, Token):
                 s += i.getTokLexeme() + " "
             else:
-                s += i.getName() + " "
+                s += "[" + i.getName() + "] "
         return s[:-1]
     
     def return3Last(self):
