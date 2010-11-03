@@ -31,8 +31,15 @@ class SynAn:
         self._scanner = None
         self._lookahead = None
         self._symbol = None
-        self._trace = []
-        self._verbose = verbose
+        self._tokens = ""
+        self._trace = ""
+        self._n = 0
+
+    def getTrace(self):
+        return self._trace
+
+    def getTokens(self):
+        return self._tokens
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico,
@@ -51,24 +58,15 @@ class SynAn:
         self._stack.push(Token(WrapTk.ENDTEXT))
         self._stack.push(NonTerm(WrapNT.PROGRAM))
         self._lookahead = self._scanner.yyLex()
+        self._tokens += self._lookahead.getTokLexeme() + "|"
         while not self._stack.isEmpty():
-            ###
-            if self._verbose:
-                self._trace = ['', '']
-                for i in self._stack.return3Last():
-                    if isinstance(i, Token):
-                        self._trace[0] += Colors.OKBLUE + i.getTokLexeme() + Colors.ENDC + ' '
-                    else:
-                        self._trace[0] += Colors.OKGREEN + '<' + i.getName() + '> ' + Colors.ENDC
-                self._trace[1] += Colors.OKBLUE + self._lookahead.getLexeme() + Colors.ENDC
-                print (self._trace[0]).rjust(100) + ' || ',
-                print self._trace[1]
-            ###
+            self._trace += '<input type="hidden" name="trace' + str(self._n) + '" value="' + self._stack.printStack() + '">\n'
             self._symbol = self._stack.top()
             if isinstance(self._symbol, Token):    # Si en el top hay un token
                 if self._symbol.getToken() == self._lookahead.getToken():
                     self._stack.pop()
                     self._lookahead = self._scanner.yyLex()
+                    self._tokens += self._lookahead.getTokLexeme() + "|"
                 else:   # El top es diferente del lookahead
                     raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), 
                                    " - Found '" + self._lookahead.getLexeme() + "', expected '" + self._symbol.getTokLexeme() + "'")
@@ -81,4 +79,6 @@ class SynAn:
                             self._stack.push(i)    # para hacer push a la lista
                 except KeyError:    # La celda esta vacia
                     raise SynError(SynError.NO_VALID_PROD, self._scanner.getPos(),
-                                   " - From '" + self._symbol.getName() + "' having '" + self._lookahead.getLexeme() + "' as input token")
+                                   " - From '" + self._symbol.getName() + "' having '" + self._lookahead.getLexeme() + "' as input token") 
+            self._n += 1
+        self._tokens = '<input type="hidden" name="tokens" value="' + self._tokens[:-3] + '">\n'

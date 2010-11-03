@@ -9,6 +9,9 @@ Description: Implementacion de una Pila mediante una lista.
   $Revision$
 """
 
+from nonterm import *
+from token import *
+
 class Stack:
 
     def __init__(self):
@@ -16,6 +19,7 @@ class Stack:
             _stack = pila
         """
         self._stack = []
+        self._n = 0
 
     def push(self, t):
         """ Inserta el elemento t en la pila
@@ -41,7 +45,13 @@ class Stack:
     def printStack(self):
         """ Imprime el contenido de la pila (util en trazas)
         """
-        print self._stack
+        s = ""
+        for i in self._stack:
+            if isinstance(i, Token):
+                s += i.getTokLexeme() + " "
+            else:
+                s += i.getName() + " "
+        return s
     
     def return3Last(self):
         """ Retorna los tres ultimos elementos empezando desde el tope de la pila (para la traza por consola)

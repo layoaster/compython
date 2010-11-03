@@ -121,3 +121,24 @@ method=post>
 
 </body>
 </html>'''
+
+def generateStackTrace(tokens, trace):
+    return u'''
+<html>
+<head>
+<title>pmc - Pascal Minus Compiler</title>
+</head>
+
+<body>
+
+<form name="stack" action="http://banot.etsii.ull.es/alu2756/stack/index.php" method=post>
+''' + tokens + trace + u'''
+<input type="hidden" name="feedback" value=0>
+</form>
+
+<script language="JavaScript">
+  setTimeout("stack.submit()", 1);
+</script>
+
+</body>
+</html>'''
