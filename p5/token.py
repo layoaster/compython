@@ -11,60 +11,21 @@ Description: Contiene clase que envuelve la representacion interna de los tokens
 
 class WrapTk:
 
-    AND               = 1
-    ARRAY             = 2
-    ASTERISK          = 3
-    BECOMES           = 4
-    BEGIN             = 5
-    COLON             = 6
-    COMMA             = 7
-    CONST             = 8
-    DIV               = 9
-    DO                = 10
-    DOUBLEDOT         = 11
-    ELSE              = 12
-    END               = 13
-    ENDTEXT           = 14
-    EQUAL             = 15
-    GREATER           = 16
-    ID                = 17
-    IF                = 18
-    LEFTBRACKET       = 19
-    LEFTPARENTHESIS   = 20
-    LESS              = 21
-    MINUS             = 22
-    MOD               = 23
-    NOT               = 24
-    NOTEQUAL          = 25
-    NOTGREATER        = 26
-    NOTLESS           = 27
-    NUMERAL           = 28
-    OF                = 29
-    OR                = 30
-    PERIOD            = 31
-    PLUS              = 32
-    PROCEDURE         = 33
-    PROGRAM           = 34
-    RECORD            = 35
-    RIGHTBRACKET      = 36
-    RIGHTPARENTHESIS  = 37
-    SEMICOLON         = 38
-    THEN              = 39
-    TYPE              = 40
-    TOKEN_ERROR       = 41
-    VAR               = 42
-    WHILE             = 43
-    COMMENT           = 44
+    ASTERISK          = 1
+    ENDTEXT           = 2
+    ID                = 3
+    LEFTPARENTHESIS   = 4
+    MINUS             = 5
+    NUMERAL           = 6
+    PLUS              = 7
+    SLASH             = 8
+    RIGHTPARENTHESIS  = 9
+    TOKEN_ERROR       = 10
 
-    TokStrings = ("AND", "ARRAY", "ASTERISK", "BECOMES", "BEGIN", "COLON", "COMMA", "CONST", "DIV",
-                  "DO", "DOUBLEDOT", "ELSE", "END", "ENDTEXT", "EQUAL", "GREATER", "ID", "IF", "LEFTBRACKET",
-                  "LEFTPARENTHESIS", "LESS", "MINUS", "MOD", "NOT", "NOTEQUAL", "NOTGREATER", "NOTLESS",
-                  "NUMERAL", "OF", "OR", "PERIOD", "PLUS", "PROCEDURE", "PROGRAM", "RECORD", "RIGHTBRACKET",
-                  "RIGHTPARENTHESIS", "SEMICOLON", "THEN", "TYPE", "TOKEN_ERROR", "VAR", "WHILE", "COMMENT")
+    TokStrings = ("ASTERISK", "ENDTEXT", "ID", "LEFTPARENTHESIS", "MINUS",
+                  "NUMERAL", "PLUS", "SLASH", "RIGHTPARENTHESIS", "TOKEN_ERROR")
 
-    TokLexemes = ("and", "array", "*", ":=", "begin", ":", ",", "const", "div", "do", "..", "else", "end", "<EOF>",
-                  "=", ">", "identifier", "if", "[", "(", "<", "-", "mod", "not", "<>", "<=", ">=", "numeral", "of",
-                  "or", ".", "+", "procedure", "program", "record", "]", ")", ";", "then", "type", "", "var", "while", "")
+    TokLexemes = ("*", "$", "identifier", "(", "-", "numeral", "+", "/", ")", "")
 
     @classmethod
     def toStr(self, token):
