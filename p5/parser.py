@@ -46,9 +46,9 @@ class SynAn:
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
         """
-        if self._scanner.getPos()[0] != self._linerror:
-            SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
-            self._linerror = self._scanner.getPos()[0]
+        #if self._scanner.getPos()[0] != self._linerror:
+        SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
+        #    self._linerror = self._scanner.getPos()[0]
         while self._lookahead not in stop:
             self._lookahead = self._scanner.yyLex()
 
