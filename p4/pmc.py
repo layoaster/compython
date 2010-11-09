@@ -41,7 +41,7 @@ if __name__ == '__main__':
     else:
         args = parser.parse_args()
 
-        parser = SynAn()
+        parser = SynAn(args.verbose)
         try:
             parser.start(args.fin)
             print Colors.OKGREEN + "All OK" + Colors.ENDC
