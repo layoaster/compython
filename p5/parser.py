@@ -13,6 +13,7 @@ from token import *
 from error import *
 from ffsets import *
 from stack import *
+from ast import *
 
 class SynAn:
     """ Clase Analizador Sintactico:
@@ -45,6 +46,9 @@ class SynAn:
             raise
         self._lookahead = self._scanner.yyLex()
         self._expr(frozenset([WrapTk.ENDTEXT]))
+        self._ast.preOrder(self._ast.getRoot())
+        print " "
+        self._ast.postOrder(self._ast.getRoot())
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es

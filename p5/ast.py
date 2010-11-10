@@ -27,10 +27,10 @@ class AbstractSyntaxTree:
             self.preOrder(n)
 
 
-    def inOrder(self):
+    def inOrder(self, node):
         pass
 
-    def postOrder(self):
+    def postOrder(self, node):
         for n in node.getChildren():
             self.preOrder(n)
         print node.getLabel()

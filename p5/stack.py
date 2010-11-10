@@ -9,9 +9,6 @@ Description: Implementacion de una Pila mediante una lista.
   $Revision$
 """
 
-from nonterm import *
-from token import *
-
 class Stack:
 
     def __init__(self):
