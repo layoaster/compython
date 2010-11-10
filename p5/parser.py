@@ -99,34 +99,34 @@ class SynAn:
 
     # <Term> ::= <Factor> <Term2>
     def _term(self, stop):
-    self._factor(stop.union(self._ff.first("term2")))
-        self._term2(stop)
-
-    # <Term2> ::= * <Factor> <Term2> | / <Factor> <Term2> | ~
-    def _term2(self, stop):
-    if self._lookahead == WrapTk.ASTERISK:
-        self._match(WrapTk.ASTERISK, stop.union(self._ff.first("factor"), self._ff.first("term2")))
         self._factor(stop.union(self._ff.first("term2")))
             self._term2(stop)
-    elif self._lookahead == WrapTk.SLASH:
-        self._match(WrapTk.SLASH, stop.union(self._ff.first("factor"), self._ff.first("term2")))
-        self._factor(stop.union(self._ff.first("term2")))
-        self._term2(stop)
-    else:
-        self._syntaxCheck(stop)
+
+        # <Term2> ::= * <Factor> <Term2> | / <Factor> <Term2> | ~
+    def _term2(self, stop):
+        if self._lookahead == WrapTk.ASTERISK:
+            self._match(WrapTk.ASTERISK, stop.union(self._ff.first("factor"), self._ff.first("term2")))
+            self._factor(stop.union(self._ff.first("term2")))
+                self._term2(stop)
+        elif self._lookahead == WrapTk.SLASH:
+            self._match(WrapTk.SLASH, stop.union(self._ff.first("factor"), self._ff.first("term2")))
+            self._factor(stop.union(self._ff.first("term2")))
+            self._term2(stop)
+        else:
+            self._syntaxCheck(stop)
 
     # <Factor> ::= ( <Expr> ) | - <Factor> | id | numeral
     def _factor(self, stop):
-    if self._lookahead == WrapTk.LEFTPARENTHESIS:
-        self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expr")))
-        self._expr(stop.union([WrapTk.RIGHTPARENTHESIS]))
-            self._match(WrapTk.RIGHTPARENTHESIS, stop)
-    elif self._lookahead == WrapTk.MINUS:
-        self._match(WrapTk.MINUS, stop.union(self._ff.first("factor")))
-            self._factor(stop)
-    elif self._lookahead == WrapTk.ID:
-            self._match(WrapTk.ID, stop)
-        elif self._lookahead == WrapTk.NUMERAL:
-        self._match(WrapTk.NUMERAL, stop)
-    else:
-        self._syntaxError(stop, self._ff.first("factor"))
+        if self._lookahead == WrapTk.LEFTPARENTHESIS:
+            self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expr")))
+            self._expr(stop.union([WrapTk.RIGHTPARENTHESIS]))
+                self._match(WrapTk.RIGHTPARENTHESIS, stop)
+        elif self._lookahead == WrapTk.MINUS:
+            self._match(WrapTk.MINUS, stop.union(self._ff.first("factor")))
+                self._factor(stop)
+        elif self._lookahead == WrapTk.ID:
+                self._match(WrapTk.ID, stop)
+            elif self._lookahead == WrapTk.NUMERAL:
+            self._match(WrapTk.NUMERAL, stop)
+        else:
+            self._syntaxError(stop, self._ff.first("factor"))
