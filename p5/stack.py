@@ -45,14 +45,9 @@ class Stack:
     def printStack(self):
         """ Imprime el contenido de la pila (util en trazas)
         """
-        s = ""
         for i in self._stack:
-            if isinstance(i, Token):
-                s += i.getTokLexeme() + " "
-            else:
-                s += "[" + i.getName() + "] "
-        return s[:-1]
-    
+            print i
+
     def return3Last(self):
         """ Retorna los tres ultimos elementos empezando desde el tope de la pila (para la traza por consola)
         """

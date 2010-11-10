@@ -9,7 +9,7 @@ Description: Contiene clase AST que representa un Arbol Sintactico Abstracto y c
   $Revision$
 """
 
-class AST:
+class AbstractSyntaxTree:
 
     def __init__(self, root = None):
         self._root = root
@@ -21,6 +21,19 @@ class AST:
     def mkLeaf(self, label):
         return Node(label)
 
+    def preOrder(self, node):
+        print node.getLabel()
+        for n in node.getChildren():
+            self.preOrder(n)
+
+
+    def inOrder(self):
+        pass
+
+    def postOrder(self):
+        for n in node.getChildren():
+            self.preOrder(n)
+        print node.getLabel()
 
     def setRoot(self, root):
         """ Setter del nodo raiz del arbol
@@ -51,14 +64,14 @@ class Node:
         """
         self._label = label
 
-    def setLeaves(self, *children):
+    def setChildren(self, *children):
         """ Setter para establecer los "punteros" a nodos hijos, eliminando si hubiese punteros almacenados previamente
         """
         self._children = []
         for p in children:
             self._children.append(p)
 
-    def addLeaves(self, *children):
+    def addChildren(self, *children):
         """ Setter para añadir "punteros" a nodos hijos, conservando si hubiese punteros almacenados previamente
         """
         for p in children:
@@ -69,8 +82,13 @@ class Node:
         """
         return self._label
 
-    def getLeaves(self):
+    def getChildren(self):
         """ Getter de la lista de "punteros" a nodos hijos
         """
         return self._children
+
+    def __str__(self):
+        """ Representacion string del objeto nodo, que se traduce en su etiqueta
+        """
+        return self._label
 

@@ -12,6 +12,7 @@ from lexan import LexAn
 from token import *
 from error import *
 from ffsets import *
+from stack import *
 
 class SynAn:
     """ Clase Analizador Sintactico:
@@ -29,6 +30,9 @@ class SynAn:
         self._scanner = None
         self._ff = FFSets()
         self._linerror = 0
+        self._ast = AbstractSyntaxTree()
+        self._stack = Stack()
+
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -82,38 +86,58 @@ class SynAn:
     # <Expr> ::= <Term> <Expr2>
     def _expr(self, stop):
         self._term(stop.union(self._ff.first("expr2")))
+        #self._stack.push(self._ast.pop())
         self._expr2(stop)
+        #self._stack.push(self._ast.pop())
+        self._ast.setRoot(self._stack.pop())
 
     # <Expr2> ::= + <Term> <Expr2> | - <Term> <Expr2> | ~
     def _expr2(self, stop):
         if self._lookahead == WrapTk.PLUS:
             self._match(WrapTk.PLUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
             self._term(stop.union(self._ff.first("expr2")))
+            temp = self._stack.pop()
+            self._stack.push(self._ast.mkNode("+", self._stack.pop(), temp))
             self._expr2(stop)
+            #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
+            temp = self._stack.pop()
+            self._stack.push(self._ast.mkNode("-", self._stack.pop(), temp))
             self._term(stop.union(self._ff.first("expr2")))
             self._expr2(stop)
+            #self._stack.push(self._ast.pop())
         else:
             self._syntaxCheck(stop)
+            #self._stack.push(self._ast.pop())
 
     # <Term> ::= <Factor> <Term2>
     def _term(self, stop):
         self._factor(stop.union(self._ff.first("term2")))
+        #self._stack.push(self._ast.pop())
         self._term2(stop)
+        #self._stack.push(self._ast.pop())
 
     # <Term2> ::= * <Factor> <Term2> | / <Factor> <Term2> | ~
     def _term2(self, stop):
         if self._lookahead == WrapTk.ASTERISK:
             self._match(WrapTk.ASTERISK, stop.union(self._ff.first("factor"), self._ff.first("term2")))
             self._factor(stop.union(self._ff.first("term2")))
+            temp = self._stack.pop()
+            self._stack.push(self._ast.mkNode("*", self._stack.pop(), temp))
             self._term2(stop)
+            #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.SLASH:
             self._match(WrapTk.SLASH, stop.union(self._ff.first("factor"), self._ff.first("term2")))
             self._factor(stop.union(self._ff.first("term2")))
+            temp = self._stack.pop()
+            self._stack.push(self._ast.mkNode("/", self._stack.pop(), temp))
             self._term2(stop)
+            #self._stack.push(self._ast.pop())
+
         else:
             self._syntaxCheck(stop)
+            #self._stack.push(self._ast.pop())
 
     # <Factor> ::= ( <Expr> ) | - <Factor> | id | numeral
     def _factor(self, stop):
@@ -121,12 +145,16 @@ class SynAn:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expr")))
             self._expr(stop.union([WrapTk.RIGHTPARENTHESIS]))
             self._match(WrapTk.RIGHTPARENTHESIS, stop)
+            #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop.union(self._ff.first("factor")))
             self._factor(stop)
+            self._stack.push(self._ast.mkNode("-", self._ast.pop()))
         elif self._lookahead == WrapTk.ID:
+            self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.ID, stop)
         elif self._lookahead == WrapTk.NUMERAL:
+            self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.NUMERAL, stop)
         else:
             self._syntaxError(stop, self._ff.first("factor"))
