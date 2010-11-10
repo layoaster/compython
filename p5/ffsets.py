@@ -16,20 +16,20 @@ class FFSets:
     def __init__(self):
         self._ffs = {}
 
-        self._ffs["expr"]   = [[WrapTk.LEFTPARENTHESIS, WrapTk.MINUS, WrapTk.ID, WrapTk.NUMERAL],
-                               [WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS]]
+        self._ffs["expr"]   = ((WrapTk.LEFTPARENTHESIS, WrapTk.MINUS, WrapTk.ID, WrapTk.NUMERAL),
+                               (WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS))
 
-        self._ffs["expr2"]  = [[WrapTk.PLUS, WrapTk.MINUS],
-                               [WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS]]
+        self._ffs["expr2"]  = ((WrapTk.PLUS, WrapTk.MINUS),
+                               (WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS))
 
-        self._ffs["term"]   = [[WrapTk.LEFTPARENTHESIS, WrapTk.MINUS, WrapTk.ID, WrapTk.NUMERAL],
-                               [WrapTk.PLUS, WrapTk.MINUS, WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS]]
+        self._ffs["term"]   = ((WrapTk.LEFTPARENTHESIS, WrapTk.MINUS, WrapTk.ID, WrapTk.NUMERAL),
+                               (WrapTk.PLUS, WrapTk.MINUS, WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS))
 
-        self._ffs["term2"]  = [[WrapTk.ASTERISK, WrapTk.SLASH],
-                               [WrapTk.PLUS, WrapTk.MINUS, WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS]]
+        self._ffs["term2"]  = ((WrapTk.ASTERISK, WrapTk.SLASH),
+                               (WrapTk.PLUS, WrapTk.MINUS, WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS))
 
-        self._ffs["factor"] = [[WrapTk.LEFTPARENTHESIS, WrapTk.MINUS, WrapTk.ID, WrapTk.NUMERAL],
-                               [WrapTk.ASTERISK, WrapTk.SLASH, WrapTk.PLUS, WrapTk.MINUS, WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS]]
+        self._ffs["factor"] = ((WrapTk.LEFTPARENTHESIS, WrapTk.MINUS, WrapTk.ID, WrapTk.NUMERAL),
+                               (WrapTk.ASTERISK, WrapTk.SLASH, WrapTk.PLUS, WrapTk.MINUS, WrapTk.ENDTEXT, WrapTk.RIGHTPARENTHESIS))
 
     def first(self, noterm):
         """ Devuelve el conjunto FIRST de un simbolo no terminal de la gramatica
