@@ -51,14 +51,14 @@ class Node:
         """
         self._label = label
 
-    def setLeafs(self, *children):
+    def setLeaves(self, *children):
         """ Setter para establecer los "punteros" a nodos hijos, eliminando si hubiese punteros almacenados previamente
         """
         self._children = []
         for p in children:
             self._children.append(p)
 
-    def addLeafs(self, *children):
+    def addLeaves(self, *children):
         """ Setter para añadir "punteros" a nodos hijos, conservando si hubiese punteros almacenados previamente
         """
         for p in children:
@@ -69,7 +69,7 @@ class Node:
         """
         return self._label
 
-    def getLeafs(self):
+    def getLeaves(self):
         """ Getter de la lista de "punteros" a nodos hijos
         """
         return self._children
