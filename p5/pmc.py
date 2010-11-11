@@ -13,6 +13,14 @@ import sys
 import argparse
 from error import *
 from parser import SynAn
+from html import generatePHPSyntaxTree
+
+def webTree(tree):
+    """Crea el archivo html que genera el el Árbol de Análisis Sintático correspondiente al codigo fuente parseado
+    """
+    fout = open(tree, "w")
+    fout.write(generatePHPSyntaxTree(args.fin, parser.getAAS()))
+    fout.close()
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
@@ -37,5 +45,6 @@ if __name__ == '__main__':
             exit(2)
         finally:
             if args.tree:
+                webTree(args.tree)
                 print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
 

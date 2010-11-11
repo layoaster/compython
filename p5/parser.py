@@ -73,7 +73,8 @@ class SynAn:
             self._syntaxError(stop)
 
     def getAAS(self):
-        """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web """
+        """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web
+        """
         return self._strTree
 
     def _match(self, tok, stop):
