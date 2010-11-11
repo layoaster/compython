@@ -99,7 +99,7 @@ def tail():
 </body>
 </html>'''
 
-def generatePHPSyntaxTree(code, ast):
+def generatePHPSyntaxTree(code, ast, sequences):
     return u'''
 <html>
 <head>
@@ -109,10 +109,13 @@ def generatePHPSyntaxTree(code, ast):
 <body>
 
 <form name="tree"
-action="http://banot.etsii.ull.es/alu2756/tree/index.php"
+action="http://banot.etsii.ull.es/alu2756/tree/ast/index.php"
 method=post>
   <input type="hidden" name="code" value="''' + code + u'''">
   <input type="hidden" name="data" value="''' + ast + u'''">
+  <input type="hidden" name="preorder" value="''' + str(sequences[0]) + u'''">
+  <input type="hidden" name="inorder" value="''' + str(sequences[1]) + u'''">
+  <input type="hidden" name="postorder" value="''' + str(sequences[2]) + u'''">
 </form>
 
 <script language="Javascript">

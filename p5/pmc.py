@@ -19,7 +19,7 @@ def webTree(tree):
     """Crea el archivo html que genera el Árbol de Análisis Sintático correspondiente al codigo fuente parseado
     """
     fout = open(tree, "w")
-    fout.write(generatePHPSyntaxTree(args.fin, parser.getAAS()))
+    fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()[0], parser.getAST()[1]))
     fout.close()
 
 if __name__ == '__main__':

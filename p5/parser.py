@@ -71,10 +71,10 @@ class SynAn:
         if self._lookahead not in stop:
             self._syntaxError(stop)
 
-    def getAAS(self):
+    def getAST(self):
         """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web
         """
-        return self._strTree
+        return self._ast.getAST()
 
     def printAST(self):
         self._ast.printSequences()

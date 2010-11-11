@@ -83,6 +83,9 @@ class AbstractSyntaxTree:
     def getAST(self):
         """ Retorna la cadena de descripcion del arbol sintactico para su representacion web
         """
+        self.preOrder(self.getRoot())
+        self.inOrder(self.getRoot())
+        self.postOrder(self.getRoot())
         return self._strtree, self._sequences
 
 
