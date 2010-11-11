@@ -161,6 +161,5 @@ class SynAn:
         elif self._lookahead == WrapTk.NUMERAL:
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.NUMERAL, stop)
-
         else:
             self._syntaxError(stop)
