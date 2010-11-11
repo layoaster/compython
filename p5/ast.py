@@ -42,7 +42,7 @@ class AbstractSyntaxTree:
         """ Reccorido en Post-Orden del AST
         """
         for n in node.getChildren():
-            self.preOrder(n)
+            self.postOrder(n)
         print node.getLabel()
 
     def setRoot(self, root):
@@ -100,5 +100,5 @@ class Node:
     def __str__(self):
         """ Representacion string del objeto nodo, que se traduce en su etiqueta
         """
-        return self._label
+        return str(self._label)
 

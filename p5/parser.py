@@ -100,7 +100,6 @@ class SynAn:
         self._expr2(stop)
         #self._stack.push(self._ast.pop())
 
-
     # <Expr2> ::= + <Term> <Expr2> | - <Term> <Expr2> | ~
     def _expr2(self, stop):
         if self._lookahead == WrapTk.PLUS:

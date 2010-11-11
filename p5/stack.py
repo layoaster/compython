@@ -44,8 +44,17 @@ class Stack:
         """
         for i in self._stack:
             print i, " | ",
+        print ""
 
     def return3Last(self):
         """ Retorna los tres ultimos elementos empezando desde el tope de la pila (para la traza por consola)
         """
         return self._stack[-3:]
+
+    def __str__(self):
+        """ Representacion string del objeto pila (util en trazas)
+        """
+        string = ""
+        for i in self._stack:
+            string = string + str(i.getLabel()) + " | "
+        return string
