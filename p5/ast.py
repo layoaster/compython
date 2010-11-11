@@ -37,9 +37,12 @@ class AbstractSyntaxTree:
             self.preOrder(n)
         self._strtree += "]"
 
-
     def inOrder(self, node):
-        pass
+      for n in range(0, len(node.getChildren()) / 2):
+	  self.inOrder(node.getChildren()[n])
+      print node.getLabel()
+      for n in range(len(node.getChildren()) / 2, len(node.getChildren())):
+	  self.inOrder(node.getChildren()[n])
 
     def postOrder(self, node):
         """ Reccorido en Post-Orden del AST
