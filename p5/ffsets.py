@@ -3,7 +3,7 @@
 
 """
         $Id$
-Description: Clase que almacena first y follow de cada uno de los simbolos no terminales de la gramatica de Pascal-
+Description: Clase que almacena first y follow de cada uno de los simbolos no terminales de la gramatica de expresiones aritmeticas (+, -, *, /, - (unario)) parentizadas.
     $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$

@@ -3,7 +3,7 @@
 
 """
         $Id$
-Description: Modulo del Analizador Lexico para Pascal-.
+Description: Modulo del Analizador Lexico para expresiones aritmeticas (+, -, *, /, - (unario)) parentizadas.
     $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$

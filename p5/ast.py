@@ -61,7 +61,7 @@ class Node:
 
     def __init__(self, label = "~", *children):
         """ Constructor de la clase con los atributos:
-            _label = etiqueta del nodo
+            _label    = etiqueta del nodo
             _children = lista de "punteros" a nodos hijos
         """
         self._label = label

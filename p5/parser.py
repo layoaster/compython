@@ -3,7 +3,7 @@
 
 """
         $Id$
-Description: Analizador Sintáctico para Pascal-.
+Description: Analizador Sintáctico para expresiones aritmeticas (+, -, *, /, - (unario)) parentizadas con recuperacion de errores y con Traduccion Dirigida por la Sintaxis.
     $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$
@@ -23,14 +23,18 @@ class SynAn:
     def __init__(self):
         """ Constructor de la clase. Atributos:
             _lookahead = token o simbolo de preanalisis
-            _scanner = instancia de la clase analizador lexico
-            _strTree = cadena que describe el arbol de analisis sintactico obtenido en notacion phpSyntaxTree
-            _linerror = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
+            _scanner   = instancia de la clase analizador lexico
+            _strTree   = cadena que describe el arbol de analisis sintactico obtenido en notacion phpSyntaxTree
+            _linerror  = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
+            _ast       = Arbol Sintactico resultado de la traduccion
+            _stack     = pila que almacena los atributos resultado del proceso de traduccion
+
         """
         self._lookahead = None
         self._scanner = None
         self._ff = FFSets()
         self._linerror = 0
+        self._strTree = ""
         self._ast = AbstractSyntaxTree()
         self._stack = Stack()
 
@@ -68,7 +72,7 @@ class SynAn:
         if self._lookahead not in stop:
             self._syntaxError(stop)
 
-    def getAST(self):
+    def getAAS(self):
         """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web """
         return self._strTree
 
