@@ -46,19 +46,13 @@ class SynAn:
         self._scanner = LexAn()
         try:
             self._scanner.openFile(fin)
-        except IOError:
-            raise
-        self._lookahead = self._scanner.yyLex()
-        try:
+            self._lookahead = self._scanner.yyLex()
             self._expr(frozenset([WrapTk.ENDTEXT]))
             self._ast.setRoot(self._stack.pop())
-            self._ast.preOrder(self._ast.getRoot())
-            print " "
-            self._ast.postOrder(self._ast.getRoot())
-        except IndexError:
+        except IOError:
+            raise
+        except IndexError: # Excepcion provocada al intentar hacer pop cuando la pila esta vacia
             pass
-
-
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
@@ -81,6 +75,9 @@ class SynAn:
         """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web
         """
         return self._strTree
+
+    def printAST(self):
+        self._ast.printSequences()
 
     def _match(self, tok, stop):
         """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching
@@ -148,7 +145,6 @@ class SynAn:
             self._stack.push(self._ast.mkNode("/", self._stack.pop(), temp))
             self._term2(stop)
             #self._stack.push(self._ast.pop())
-
         else:
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
@@ -163,7 +159,7 @@ class SynAn:
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop.union(self._ff.first("factor")))
             self._factor(stop)
-            self._stack.push(self._ast.mkNode("-", self._ast.pop()))
+            self._stack.push(self._ast.mkNode("-", self._stack.pop()))
         elif self._lookahead == WrapTk.ID:
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.ID, stop)

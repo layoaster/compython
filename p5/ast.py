@@ -8,8 +8,11 @@ Description: Contiene clase AST que representa un Arbol Sintactico Abstracto y c
       $Date$
   $Revision$
 """
+import string
+from error import Colors
 
 class AbstractSyntaxTree:
+    _seqStrings = ('Pre-order:', 'In-order:', 'Post-order:')
 
     def __init__(self, root = None):
         """ Constructor de la clase con los atributos
@@ -17,6 +20,7 @@ class AbstractSyntaxTree:
         """
         self._root = root
         self._strtree = ""
+        self._sequences = [[], [], []]
 
     def mkNode(self, label, *children):
         """ Crea un nodo intermedio con n hijos y una etiqueta
@@ -29,9 +33,9 @@ class AbstractSyntaxTree:
         return Node(label)
 
     def preOrder(self, node):
-        """ Reccorido en Pre-Orden del AST
+        """ Recorrido en Pre-Orden del AST
         """
-        print node.getLabel()
+        self._sequences[0].append(node.getLabel())
         self._strtree += "[" + str(node.getLabel())
         for n in node.getChildren():
             self.preOrder(n)
@@ -40,32 +44,46 @@ class AbstractSyntaxTree:
     def inOrder(self, node):
         for n in range(0, len(node.getChildren()) / 2):
             self.inOrder(node.getChildren()[n])
-        print node.getLabel()
+        self._sequences[1].append(node.getLabel())
         for n in range(len(node.getChildren()) / 2, len(node.getChildren())):
 	    self.inOrder(node.getChildren()[n])
 
     def postOrder(self, node):
-        """ Reccorido en Post-Orden del AST
+        """ Recorrido en Post-Orden del AST
         """
         for n in node.getChildren():
             self.postOrder(n)
-        print node.getLabel()
+        self._sequences[2].append(node.getLabel())
 
     def setRoot(self, root):
         """ Setter del nodo raiz del arbol
         """
         self._root = root
 
-
     def getRoot(self):
         """ Getter del nodo raiz del arbol
         """
         return self._root
 
+    def printSequences(self):
+        self.preOrder(self.getRoot())
+        self.inOrder(self.getRoot())
+        self.postOrder(self.getRoot())
+        print ''
+        for i in range(0, len(self._sequences)):
+            print self._seqStrings[i].ljust(12),
+            for j in range(0, len(self._sequences[i])):
+                try:
+                    self._sequences[i][j] in string.punctuation
+                    print Colors.WARNING + str(self._sequences[i][j]) + Colors.ENDC,
+                except TypeError:
+                    print Colors.FAIL + str(self._sequences[i][j]) + Colors.ENDC,
+            print ''
+        
     def getAST(self):
         """ Retorna la cadena de descripcion del arbol sintactico para su representacion web
         """
-        return self._strtree
+        return self._strtree, self._sequences
 
 
 class Node:
