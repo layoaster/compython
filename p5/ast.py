@@ -12,15 +12,24 @@ Description: Contiene clase AST que representa un Arbol Sintactico Abstracto y c
 class AbstractSyntaxTree:
 
     def __init__(self, root = None):
+        """ Constructor de la clase con los atributos
+            _root = nodo raiz del AST
+        """
         self._root = root
 
     def mkNode(self, label, *children):
+        """ Crea un nodo intermedio con n hijos y una etiqueta
+        """
         return Node(label, *children)
 
     def mkLeaf(self, label):
+        """ Crea un nodo hoja con su etiqueta
+        """
         return Node(label)
 
     def preOrder(self, node):
+        """ Reccorido en Pre-Orden del AST
+        """
         print node.getLabel()
         for n in node.getChildren():
             self.preOrder(n)
@@ -30,6 +39,8 @@ class AbstractSyntaxTree:
         pass
 
     def postOrder(self, node):
+        """ Reccorido en Post-Orden del AST
+        """
         for n in node.getChildren():
             self.preOrder(n)
         print node.getLabel()
