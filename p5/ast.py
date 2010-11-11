@@ -15,7 +15,6 @@ class AbstractSyntaxTree:
         self._root = root
 
     def mkNode(self, label, *children):
-
         return Node(label, *children)
 
     def mkLeaf(self, label):
@@ -49,7 +48,7 @@ class AbstractSyntaxTree:
 
 class Node:
 
-    def __init__(self, label = "", *children):
+    def __init__(self, label = "~", *children):
         """ Constructor de la clase con los atributos:
             _label = etiqueta del nodo
             _children = lista de "punteros" a nodos hijos

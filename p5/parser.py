@@ -46,6 +46,7 @@ class SynAn:
             raise
         self._lookahead = self._scanner.yyLex()
         self._expr(frozenset([WrapTk.ENDTEXT]))
+        self._ast.setRoot(self._stack.pop())
         self._ast.preOrder(self._ast.getRoot())
         print " "
         self._ast.postOrder(self._ast.getRoot())
@@ -93,7 +94,7 @@ class SynAn:
         #self._stack.push(self._ast.pop())
         self._expr2(stop)
         #self._stack.push(self._ast.pop())
-        self._ast.setRoot(self._stack.pop())
+
 
     # <Expr2> ::= + <Term> <Expr2> | - <Term> <Expr2> | ~
     def _expr2(self, stop):
@@ -106,9 +107,9 @@ class SynAn:
             #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
+            self._term(stop.union(self._ff.first("expr2")))
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("-", self._stack.pop(), temp))
-            self._term(stop.union(self._ff.first("expr2")))
             self._expr2(stop)
             #self._stack.push(self._ast.pop())
         else:
@@ -160,5 +161,6 @@ class SynAn:
         elif self._lookahead == WrapTk.NUMERAL:
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.NUMERAL, stop)
+
         else:
-            self._syntaxError(stop, self._ff.first("factor"))
+            self._syntaxError(stop)

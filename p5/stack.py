@@ -43,7 +43,7 @@ class Stack:
         """ Imprime el contenido de la pila (util en trazas)
         """
         for i in self._stack:
-            print i
+            print i, " | ",
 
     def return3Last(self):
         """ Retorna los tres ultimos elementos empezando desde el tope de la pila (para la traza por consola)
