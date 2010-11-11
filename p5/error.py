@@ -3,7 +3,7 @@
 
 """
 $Id$
-Description: Excepciones para manejar los distintos errores de las fases del Compilador para Pascal-.
+Description: Excepciones para manejar los distintos errores de las fases del Compilador para expresiones aritmeticas (+, -, *, /, - (unario)) parentizadas.
 $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
 $Date$
 $Revision$
@@ -87,11 +87,11 @@ class SynError(Error):
     def __init__(self, errno, pos, found, expected=None):
         super(SynError, self).__init__(errno, pos, found, expected)
         self.printError()
-    
+
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
         print str(str(self.pos[1]) + "C").rjust(3),
-        
+
         print Colors.FAIL + "[SYN ERROR]" + Colors.ENDC \
               + " " + self._errStrings[self.errno] \
               + " - Found '" + self.found.getLexeme() + "'",

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
         $Id: html.py 69 2010-09-29 15:58:18Z s.armasperez $
-Description: Modulo de creacion de diccionario HTML.
+Description: Modulo de creacion de Arbol de Analisis Sintactico en formato HTML.
     $Author: s.armasperez $ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date: 2010-09-29 16:58:18 +0100 (mié 29 de sep de 2010) $
   $Revision: 69 $
@@ -64,7 +64,7 @@ def body(dict):
     for word in sorted:
         if word[0] != char:
             char = word[0]
-            table += u'''  
+            table += u'''
   <tr>
     <td>
       &nbsp;

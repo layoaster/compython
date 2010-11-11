@@ -3,7 +3,7 @@
 
 """
         $Id$
-Description: Main del Analizador Sintáctico de Pascal-.
+Description: Compilador del legunaje de expresiones aritmeticas (+, -, *, /, - (unario)) parentizadas.
     $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
       $Date$
   $Revision$
@@ -38,4 +38,4 @@ if __name__ == '__main__':
         finally:
             if args.tree:
                 print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
-            
+
