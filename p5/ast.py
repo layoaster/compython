@@ -16,6 +16,7 @@ class AbstractSyntaxTree:
             _root = nodo raiz del AST
         """
         self._root = root
+        self._strtree = ""
 
     def mkNode(self, label, *children):
         """ Crea un nodo intermedio con n hijos y una etiqueta
@@ -31,8 +32,10 @@ class AbstractSyntaxTree:
         """ Reccorido en Pre-Orden del AST
         """
         print node.getLabel()
+        self._strtree += "[" + str(node.getLabel())
         for n in node.getChildren():
             self.preOrder(n)
+        self._strtree += "]"
 
 
     def inOrder(self, node):
@@ -55,6 +58,11 @@ class AbstractSyntaxTree:
         """ Getter del nodo raiz del arbol
         """
         return self._root
+
+    def getAST(self):
+        """ Retorna la cadena de descripcion del arbol sintactico para su representacion web
+        """
+        return self._strtree
 
 
 class Node:

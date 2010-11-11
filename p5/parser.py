@@ -49,11 +49,16 @@ class SynAn:
         except IOError:
             raise
         self._lookahead = self._scanner.yyLex()
-        self._expr(frozenset([WrapTk.ENDTEXT]))
-        self._ast.setRoot(self._stack.pop())
-        self._ast.preOrder(self._ast.getRoot())
-        print " "
-        self._ast.postOrder(self._ast.getRoot())
+        try:
+            self._expr(frozenset([WrapTk.ENDTEXT]))
+            self._ast.setRoot(self._stack.pop())
+            self._ast.preOrder(self._ast.getRoot())
+            print " "
+            self._ast.postOrder(self._ast.getRoot())
+        except IndexError:
+            pass
+
+
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
