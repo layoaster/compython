@@ -53,6 +53,7 @@ class SynAn:
             raise
         except IndexError: # Excepcion provocada al intentar hacer pop cuando la pila esta vacia
             pass
+	print self._strTree
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
@@ -71,8 +72,15 @@ class SynAn:
         if self._lookahead not in stop:
             self._syntaxError(stop)
 
+    def getDPT(self):
+	""" Retorna la cadena de descripcion del arbol de analisis sintactico con adornos.
+            (DPT - Decorated Parse Tree)
+	"""
+	return self._str
+
     def getAST(self):
-        """ Retorna la cadena de descripcion del arbol de analisis sintactico para su representacion web
+        """ Retorna la cadena de descripcion del arbol sintactico abstracto para su representacion web
+	    (AST - Abstract Syntax Tree)
         """
         return self._ast.getAST()
 
@@ -88,6 +96,7 @@ class SynAn:
         """
         try:
             if self._lookahead == tok:
+		self._strTree += "[" + self._lookahead.getLexeme() + "]"
                 self._lookahead = self._scanner.yyLex()
                 self._syntaxCheck(stop)
             else:
@@ -95,15 +104,20 @@ class SynAn:
         except LexError:
             raise
 
-    # <Expr> ::= <Term> <Expr2>
+    # <Expr> ::= <Term> {Expr2.h := Term.ptr} <Expr2> {Expr.ptr := Expr2.s}
     def _expr(self, stop):
+	self._strTree += "[<Expr>"
         self._term(stop.union(self._ff.first("expr2")))
         #self._stack.push(self._ast.pop())
         self._expr2(stop)
         #self._stack.push(self._ast.pop())
+	self._strTree += "]"
 
-    # <Expr2> ::= + <Term> <Expr2> | - <Term> <Expr2> | ~
+    # <Expr2> ::= + <Term> {Expr2.h := mknode('+', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
+    #           | - <Term> {Expr2.h := mknode('-', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
+    #           | ~ {Expr2.s := Expr2.h}
     def _expr2(self, stop):
+	self._strTree += "[<Expr2>"
         if self._lookahead == WrapTk.PLUS:
             self._match(WrapTk.PLUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
             self._term(stop.union(self._ff.first("expr2")))
@@ -119,18 +133,25 @@ class SynAn:
             self._expr2(stop)
             #self._stack.push(self._ast.pop())
         else:
+            self._strTree += "[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
+	self._strTree += "]"
 
-    # <Term> ::= <Factor> <Term2>
+    # <Term> ::= <Factor> {Term2.h := Factor.ptr} <Term2> {Term.ptr := Term2.s}
     def _term(self, stop):
+	self._strTree += "[<Term>"
         self._factor(stop.union(self._ff.first("term2")))
         #self._stack.push(self._ast.pop())
         self._term2(stop)
         #self._stack.push(self._ast.pop())
+	self._strTree += "]"
 
-    # <Term2> ::= * <Factor> <Term2> | / <Factor> <Term2> | ~
+    # <Term2> ::= * <Factor> {Term2.h := mknode('*', Term2.h, Factor.ptr)} <Term2> {Term2.s := Term2.s}
+    #           | / <Factor> {Term2.h := mknode('/', Term2.h, Factor,ptr)} <Term2> {Term2.s := Term2.s}
+    #           | ~ {Term2.s := Term2.h}
     def _term2(self, stop):
+	self._strTree += "[<Term2>"
         if self._lookahead == WrapTk.ASTERISK:
             self._match(WrapTk.ASTERISK, stop.union(self._ff.first("factor"), self._ff.first("term2")))
             self._factor(stop.union(self._ff.first("term2")))
@@ -146,25 +167,36 @@ class SynAn:
             self._term2(stop)
             #self._stack.push(self._ast.pop())
         else:
+            self._strTree += "[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
+	self._strTree += "]"
 
-    # <Factor> ::= ( <Expr> ) | - <Factor> | id | numeral
+    # <Factor> ::= ( <Expr> ) {Factor.ptr := Expr.ptr}
+    #            | - <Factor> {Factor.ptr := mkunode('-', Factor.ptr)}
+    #            | id {Factor.ptr := mkleaf(id, id.ptr)}
+    #            | numeral {Factor.ptr := mkleaf(num, num.ptr)}
     def _factor(self, stop):
+	self._strTree += "[<Factor>"
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
+            self._strTree += "_Factor.ptr:=Expr.ptr"
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expr")))
             self._expr(stop.union([WrapTk.RIGHTPARENTHESIS]))
             self._match(WrapTk.RIGHTPARENTHESIS, stop)
             #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.MINUS:
+	    self._strTree += "_Factor.ptr:=mkunode('-',Factor.ptr)"
             self._match(WrapTk.MINUS, stop.union(self._ff.first("factor")))
             self._factor(stop)
             self._stack.push(self._ast.mkNode("-", self._stack.pop()))
         elif self._lookahead == WrapTk.ID:
+	    self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.ID, stop)
         elif self._lookahead == WrapTk.NUMERAL:
+	    self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.NUMERAL, stop)
         else:
             self._syntaxError(stop)
+	self._strTree += "]"
