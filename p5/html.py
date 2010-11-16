@@ -100,7 +100,7 @@ def tail():
 </html>'''
 
 def generatePHPSyntaxTree(code, ast, sequences):
-    return u'''
+    page = '''
 <html>
 <head>
 <title>pmc - Pascal Minus Compiler</title>
@@ -113,9 +113,18 @@ action="http://banot.etsii.ull.es/alu2756/tree/ast/index.php"
 method=post>
   <input type="hidden" name="code" value="''' + code + u'''">
   <input type="hidden" name="data" value="''' + ast + u'''">
-  <input type="hidden" name="preorder" value="''' + str(sequences[0]) + u'''">
-  <input type="hidden" name="inorder" value="''' + str(sequences[1]) + u'''">
-  <input type="hidden" name="postorder" value="''' + str(sequences[2]) + u'''">
+  <input type="hidden" name="preorder" value="'''
+    for i in sequences[0]:
+        page += str(i) + u''' '''
+    page += u'''">
+  <input type="hidden" name="inorder" value="'''
+    for i in sequences[1]:
+        page += str(i) + u''' '''
+    page += u'''">
+  <input type="hidden" name="postorder" value="'''
+    for i in sequences[2]:
+        page += str(i) + u''' '''
+    page += u'''">
 </form>
 
 <script language="Javascript">
@@ -124,3 +133,4 @@ method=post>
 
 </body>
 </html>'''
+    return page

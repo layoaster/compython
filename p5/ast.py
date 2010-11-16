@@ -66,6 +66,7 @@ class AbstractSyntaxTree:
         return self._root
 
     def printSequences(self):
+        self._sequences = [[], [], []]
         self.preOrder(self.getRoot())
         self.inOrder(self.getRoot())
         self.postOrder(self.getRoot())
@@ -83,6 +84,7 @@ class AbstractSyntaxTree:
     def getAST(self):
         """ Retorna la cadena de descripcion del arbol sintactico para su representacion web
         """
+        self._sequences = [[], [], []]
         self.preOrder(self.getRoot())
         self.inOrder(self.getRoot())
         self.postOrder(self.getRoot())
