@@ -108,10 +108,11 @@ class SynAn:
     def _expr(self, stop):
 	self._strTree += "[<Expr>"
         self._term(stop.union(self._ff.first("expr2")))
+	self._strTree += "^Expr2.h:=Term.ptr"
         #self._stack.push(self._ast.pop())
         self._expr2(stop)
         #self._stack.push(self._ast.pop())
-	self._strTree += "]"
+	self._strTree += "_Expr.ptr:=Expr2.s]"
 
     # <Expr2> ::= + <Term> {Expr2.h := mknode('+', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
     #           | - <Term> {Expr2.h := mknode('-', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
@@ -121,19 +122,23 @@ class SynAn:
         if self._lookahead == WrapTk.PLUS:
             self._match(WrapTk.PLUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
             self._term(stop.union(self._ff.first("expr2")))
+	    self._strTree += "^Expr2.h:=mknode('+',Expr2.h,Term.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("+", self._stack.pop(), temp))
             self._expr2(stop)
+            self._strTree += "_Expr2.s:=Expr2.s"
             #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
             self._term(stop.union(self._ff.first("expr2")))
+	    self._strTree += "^Expr2.h:=mknode('-',Expr2.h,Term.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("-", self._stack.pop(), temp))
             self._expr2(stop)
+            self._strTree += "_Expr2.s:=Expr2.s"
             #self._stack.push(self._ast.pop())
         else:
-            self._strTree += "[&#248;]"
+            self._strTree += "_Expr2.s:=Expr2.h[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
 	self._strTree += "]"
@@ -142,10 +147,11 @@ class SynAn:
     def _term(self, stop):
 	self._strTree += "[<Term>"
         self._factor(stop.union(self._ff.first("term2")))
+        self._strTree += "^Term2.h:=Factor.ptr"
         #self._stack.push(self._ast.pop())
         self._term2(stop)
         #self._stack.push(self._ast.pop())
-	self._strTree += "]"
+	self._strTree += "_Term.ptr:=Term2.s]"
 
     # <Term2> ::= * <Factor> {Term2.h := mknode('*', Term2.h, Factor.ptr)} <Term2> {Term2.s := Term2.s}
     #           | / <Factor> {Term2.h := mknode('/', Term2.h, Factor,ptr)} <Term2> {Term2.s := Term2.s}
@@ -155,19 +161,23 @@ class SynAn:
         if self._lookahead == WrapTk.ASTERISK:
             self._match(WrapTk.ASTERISK, stop.union(self._ff.first("factor"), self._ff.first("term2")))
             self._factor(stop.union(self._ff.first("term2")))
+	    self._strTree += "^Term2.h:=mknode('*',Term2.h,Factor.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("*", self._stack.pop(), temp))
             self._term2(stop)
+            self._strTree += "_Term2.s:=Term2.s"
             #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.SLASH:
             self._match(WrapTk.SLASH, stop.union(self._ff.first("factor"), self._ff.first("term2")))
             self._factor(stop.union(self._ff.first("term2")))
+            self._strTree += "^Term2.h:=mknode('/',Term2.h,Factor.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("/", self._stack.pop(), temp))
             self._term2(stop)
+            self._strTree += "_Term2.s:=Term2.s"
             #self._stack.push(self._ast.pop())
         else:
-            self._strTree += "[&#248;]"
+            self._strTree += "_Term2.s:=Term2.h[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
 	self._strTree += "]"
