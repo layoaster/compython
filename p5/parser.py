@@ -106,78 +106,72 @@ class SynAn:
 
     # <Expr> ::= <Term> {Expr2.h := Term.ptr} <Expr2> {Expr.ptr := Expr2.s}
     def _expr(self, stop):
-	self._strTree += "[<Expr>"
+	self._strTree += "[<Expr>_Expr.ptr:=Expr2.s"
         self._term(stop.union(self._ff.first("expr2")))
-	self._strTree += "^Expr2.h:=Term.ptr"
         #self._stack.push(self._ast.pop())
         self._expr2(stop)
         #self._stack.push(self._ast.pop())
-	self._strTree += "_Expr.ptr:=Expr2.s]"
+	self._strTree += "]"
 
     # <Expr2> ::= + <Term> {Expr2.h := mknode('+', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
     #           | - <Term> {Expr2.h := mknode('-', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
     #           | ~ {Expr2.s := Expr2.h}
     def _expr2(self, stop):
-	self._strTree += "[<Expr2>"
+	self._strTree += "[<Expr2>_Expr2.s:=Expr2.s"
         if self._lookahead == WrapTk.PLUS:
+	    self._strTree += "^Expr2.h:=mknode('+',Expr2.h,Term.ptr)"
             self._match(WrapTk.PLUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
             self._term(stop.union(self._ff.first("expr2")))
-	    self._strTree += "^Expr2.h:=mknode('+',Expr2.h,Term.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("+", self._stack.pop(), temp))
             self._expr2(stop)
-            self._strTree += "_Expr2.s:=Expr2.s"
             #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.MINUS:
+	    self._strTree += "^Expr2.h:=mknode('-',Expr2.h,Term.ptr)"
             self._match(WrapTk.MINUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
             self._term(stop.union(self._ff.first("expr2")))
-	    self._strTree += "^Expr2.h:=mknode('-',Expr2.h,Term.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("-", self._stack.pop(), temp))
             self._expr2(stop)
-            self._strTree += "_Expr2.s:=Expr2.s"
             #self._stack.push(self._ast.pop())
         else:
-            self._strTree += "_Expr2.s:=Expr2.h[&#248;]"
+            self._strTree += "\bh^Expr2.h:=Term.ptr[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
 	self._strTree += "]"
 
     # <Term> ::= <Factor> {Term2.h := Factor.ptr} <Term2> {Term.ptr := Term2.s}
     def _term(self, stop):
-	self._strTree += "[<Term>"
+	self._strTree += "[<Term>_Term.ptr:=Term2.s"
         self._factor(stop.union(self._ff.first("term2")))
-        self._strTree += "^Term2.h:=Factor.ptr"
         #self._stack.push(self._ast.pop())
         self._term2(stop)
         #self._stack.push(self._ast.pop())
-	self._strTree += "_Term.ptr:=Term2.s]"
+        self._strTree += "]"
 
     # <Term2> ::= * <Factor> {Term2.h := mknode('*', Term2.h, Factor.ptr)} <Term2> {Term2.s := Term2.s}
     #           | / <Factor> {Term2.h := mknode('/', Term2.h, Factor,ptr)} <Term2> {Term2.s := Term2.s}
     #           | ~ {Term2.s := Term2.h}
     def _term2(self, stop):
-	self._strTree += "[<Term2>"
+	self._strTree += "[<Term2>_Term2.s:=Term2.s"
         if self._lookahead == WrapTk.ASTERISK:
+	    self._strTree += "^Term2.h:=mknode('*',Term2.h,Factor.ptr)"
             self._match(WrapTk.ASTERISK, stop.union(self._ff.first("factor"), self._ff.first("term2")))
             self._factor(stop.union(self._ff.first("term2")))
-	    self._strTree += "^Term2.h:=mknode('*',Term2.h,Factor.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("*", self._stack.pop(), temp))
             self._term2(stop)
-            self._strTree += "_Term2.s:=Term2.s"
             #self._stack.push(self._ast.pop())
         elif self._lookahead == WrapTk.SLASH:
+            self._strTree += "^Term2.h:=mknode('/',Term2.h,Factor.ptr)"
             self._match(WrapTk.SLASH, stop.union(self._ff.first("factor"), self._ff.first("term2")))
             self._factor(stop.union(self._ff.first("term2")))
-            self._strTree += "^Term2.h:=mknode('/',Term2.h,Factor.ptr)"
             temp = self._stack.pop()
             self._stack.push(self._ast.mkNode("/", self._stack.pop(), temp))
             self._term2(stop)
-            self._strTree += "_Term2.s:=Term2.s"
             #self._stack.push(self._ast.pop())
         else:
-            self._strTree += "_Term2.s:=Term2.h[&#248;]"
+            self._strTree += "\bh^Term2.h:=Factor.ptr[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
 	self._strTree += "]"
