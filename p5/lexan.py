@@ -46,6 +46,9 @@ class LexAn:
         self._wsregex = re.compile("\s*", re.MULTILINE)
 
     def openFile(self, fin):
+        """ Abre el fichero para lectura (con modo de saltos de linea universales). Si se crea
+            una excepcion de tipo IOError, se lanza hacia la clase llamante
+        """
         try:
             self._fin = open(fin, "rU")
         except IOError:
@@ -71,6 +74,8 @@ class LexAn:
         return True
 
     def getPos(self):
+        """ Retorna la linea y columna en la que se situa el ultimo token obtenido
+        """
         return (self._nline, self._tokstart)
 
     def yyLex(self):

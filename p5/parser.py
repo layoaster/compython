@@ -62,7 +62,7 @@ class SynAn:
         """ Retorna la cadena de descripcion del arbol de analisis sintactico con adornos.
             (DPT - Decorated Parse Tree)
         """
-        return self._str
+        return self._strTree
 
     def getAST(self):
         """ Retorna la cadena de descripcion del arbol sintactico abstracto para su representacion web
