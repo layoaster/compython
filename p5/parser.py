@@ -156,7 +156,8 @@ class SynAn:
             op = self._eval.pop()
             self._eval.push((self._eval.pop() * -1.0) + op)
         else:
-            self._strTree += "\bh^Expr2.h:=Term.ptr[&#248;]"
+            self._strTree = self._strTree[:-1]
+            self._strTree += "h^Expr2.h:=Term.ptr[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
             #ETDS Evaluacion de la Expresion
@@ -203,7 +204,8 @@ class SynAn:
             op = self._eval.pop()
             self._eval.push((1 / self._eval.pop()) * op)
         else:
-            self._strTree += "\bh^Term2.h:=Factor.ptr[&#248;]"
+            self._strTree = self._strTree[:-1]
+            self._strTree += "h^Term2.h:=Factor.ptr[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
             #ETDS Evaluacion de la Expresion
@@ -235,7 +237,7 @@ class SynAn:
             self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._match(WrapTk.ID, stop)
-            self._eval.push(0.0)
+            self._eval.push(1.0)
         elif self._lookahead == WrapTk.NUMERAL:
             self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
