@@ -28,6 +28,7 @@ if __name__ == '__main__':
     argparser.add_argument('fin', metavar='fich_texto.p', type=str, action='store', help='fichero de codigo fuente')
     argparser.add_argument('-w', metavar='fich_tree.html', type=str, dest="tree", help='genera fichero html con el AAS del codigo fuente')
     argparser.add_argument('-t', action='store_true', dest="traverse", help='imprime el recorrido del AST resultante en pre, in y post orden')
+    argparser.add_argument('-r', action='store_true', dest="result", help='muestra el resultado de evaluar una expresion que no contenga identificadores')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
     if (len(sys.argv) < 2):
@@ -50,3 +51,5 @@ if __name__ == '__main__':
                     print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
                 if args.traverse:
                     parser.printAST()
+                if args.result:
+                    print "Resultado: ", parser.getResult()
