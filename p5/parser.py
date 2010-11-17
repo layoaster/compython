@@ -27,8 +27,9 @@ class SynAn:
             _strTree   = cadena que describe el arbol de analisis sintactico obtenido en notacion phpSyntaxTree
             _linerror  = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
             _ast       = Arbol Sintactico resultado de la traduccion
-            _stack     = pila que almacena los atributos resultado del proceso de traduccion
-
+            _stack     = pila que almacena los atributos resultado del proceso de traduccion para la construccion del AST
+            _eval      = pila que almacena los atributos resultado del proceso de traduccion para dar el resultado de la expresion
+            _result    = resultado de la evaluar la expresion analizada sintacticamente
         """
         self._lookahead = None
         self._scanner = None
@@ -37,6 +38,8 @@ class SynAn:
         self._strTree = ""
         self._ast = AbstractSyntaxTree()
         self._stack = Stack()
+        self._eval = Stack()
+        self._result = 0
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -48,28 +51,12 @@ class SynAn:
             self._lookahead = self._scanner.yyLex()
             self._expr(frozenset([WrapTk.ENDTEXT]))
             self._ast.setRoot(self._stack.pop())
+            self._result = self._eval.pop()
         except IOError:
             raise
         except IndexError: # Excepcion provocada al intentar hacer pop cuando la pila esta vacia
             pass
         return self._lastError
-
-    def _syntaxError(self, stop, expected=None):
-        """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
-            capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
-        """
-        #if self._scanner.getPos()[0] != self._linerror:
-        self._lastError = SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
-        #    self._linerror = self._scanner.getPos()[0]
-        while self._lookahead not in stop:
-            self._lookahead = self._scanner.yyLex()
-
-    def _syntaxCheck(self, stop):
-        """ Comprueba que el token siguiente este dentro de lo que puede esperarse a continuacion (el token
-            pertenezca al conjunto de parada)
-        """
-        if self._lookahead not in stop:
-            self._syntaxError(stop)
 
     def getDPT(self):
         """ Retorna la cadena de descripcion del arbol de analisis sintactico con adornos.
@@ -88,6 +75,29 @@ class SynAn:
             in-orden y post-orden
         """
         self._ast.printSequences()
+
+    def getResult(self):
+        """ Getter del atributo result, que almacena el resultado de evaluar la expresion
+        """
+        return self._result
+
+
+    def _syntaxError(self, stop, expected=None):
+        """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
+            capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
+        """
+        #if self._scanner.getPos()[0] != self._linerror:
+        self._lastError = SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
+        #    self._linerror = self._scanner.getPos()[0]
+        while self._lookahead not in stop:
+            self._lookahead = self._scanner.yyLex()
+
+    def _syntaxCheck(self, stop):
+        """ Comprueba que el token siguiente este dentro de lo que puede esperarse a continuacion (el token
+            pertenezca al conjunto de parada)
+        """
+        if self._lookahead not in stop:
+            self._syntaxError(stop)
 
     def _match(self, tok, stop):
         """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching
@@ -114,6 +124,9 @@ class SynAn:
         self._expr2(stop)
         #self._stack.push(self._ast.pop())
         self._strTree += "]"
+        #ETDS Evaluacion de la Expresion
+        op = self._eval.pop()
+        self._eval.push(self._eval.pop() + op)
 
     # <Expr2> ::= + <Term> {Expr2.h := mknode('+', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
     #           | - <Term> {Expr2.h := mknode('-', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
@@ -128,6 +141,9 @@ class SynAn:
             self._stack.push(self._ast.mkNode("+", self._stack.pop(), temp))
             self._expr2(stop)
             #self._stack.push(self._ast.pop())
+            #ETDS Evaluacion de la Expresion
+            op = self._eval.pop()
+            self._eval.push(self._eval.pop() + op)
         elif self._lookahead == WrapTk.MINUS:
             self._strTree += "^Expr2.h:=mknode('-',Expr2.h,Term.ptr)"
             self._match(WrapTk.MINUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
@@ -136,10 +152,15 @@ class SynAn:
             self._stack.push(self._ast.mkNode("-", self._stack.pop(), temp))
             self._expr2(stop)
             #self._stack.push(self._ast.pop())
+            #ETDS Evaluacion de la Expresion
+            op = self._eval.pop()
+            self._eval.push((self._eval.pop() * -1.0) + op)
         else:
             self._strTree += "\bh^Expr2.h:=Term.ptr[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
+            #ETDS Evaluacion de la Expresion
+            self._eval.push(0)
         self._strTree += "]"
 
     # <Term> ::= <Factor> {Term2.h := Factor.ptr} <Term2> {Term.ptr := Term2.s}
@@ -150,6 +171,9 @@ class SynAn:
         self._term2(stop)
         #self._stack.push(self._ast.pop())
         self._strTree += "]"
+        #ETDS Evaluacion de la Expresion
+        op = self._eval.pop()
+        self._eval.push(self._eval.pop() * op)
 
     # <Term2> ::= * <Factor> {Term2.h := mknode('*', Term2.h, Factor.ptr)} <Term2> {Term2.s := Term2.s}
     #           | / <Factor> {Term2.h := mknode('/', Term2.h, Factor,ptr)} <Term2> {Term2.s := Term2.s}
@@ -164,6 +188,9 @@ class SynAn:
             self._stack.push(self._ast.mkNode("*", self._stack.pop(), temp))
             self._term2(stop)
             #self._stack.push(self._ast.pop())
+            #ETDS Evaluacion de la Expresion
+            op = self._eval.pop()
+            self._eval.push(self._eval.pop() * op)
         elif self._lookahead == WrapTk.SLASH:
             self._strTree += "^Term2.h:=mknode('/',Term2.h,Factor.ptr)"
             self._match(WrapTk.SLASH, stop.union(self._ff.first("factor"), self._ff.first("term2")))
@@ -172,10 +199,15 @@ class SynAn:
             self._stack.push(self._ast.mkNode("/", self._stack.pop(), temp))
             self._term2(stop)
             #self._stack.push(self._ast.pop())
+            #ETDS Evaluacion de la Expresion
+            op = self._eval.pop()
+            self._eval.push((1 / self._eval.pop()) * op)
         else:
             self._strTree += "\bh^Term2.h:=Factor.ptr[&#248;]"
             self._syntaxCheck(stop)
             #self._stack.push(self._ast.pop())
+            #ETDS Evaluacion de la Expresion
+            self._eval.push(1)
         self._strTree += "]"
 
     # <Factor> ::= ( <Expr> ) {Factor.ptr := Expr.ptr}
@@ -190,11 +222,15 @@ class SynAn:
             self._expr(stop.union([WrapTk.RIGHTPARENTHESIS]))
             self._match(WrapTk.RIGHTPARENTHESIS, stop)
             #self._stack.push(self._ast.pop())
+            #ETDS Evaluacion de la Expresion
+            #self._eval.push(self._eval.pop())
         elif self._lookahead == WrapTk.MINUS:
             self._strTree += "_Factor.ptr:=mkunode('-',Factor.ptr)"
             self._match(WrapTk.MINUS, stop.union(self._ff.first("factor")))
             self._factor(stop)
             self._stack.push(self._ast.mkNode("-", self._stack.pop()))
+            #ETDS Evaluacion de la Expresion
+            self._eval.push(self._eval.pop() * -1.0)
         elif self._lookahead == WrapTk.ID:
             self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
@@ -202,6 +238,8 @@ class SynAn:
         elif self._lookahead == WrapTk.NUMERAL:
             self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
             self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
+            #ETDS Evaluacion de la Expresion
+            self._eval.push(float(self._lookahead.getValue()))
             self._match(WrapTk.NUMERAL, stop)
         else:
             self._syntaxError(stop)
