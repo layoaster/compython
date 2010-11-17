@@ -37,11 +37,13 @@ if __name__ == '__main__':
         args = argparser.parse_args()
 
         parser = SynAn()
+        error = None
         try:
             error = parser.start(args.fin)
             if not isinstance(error, Error):
                 print Colors.OKGREEN + "All OK" + Colors.ENDC
         except IOError as e:
+            error = e
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
         finally:
