@@ -42,6 +42,10 @@ class AbstractSyntaxTree:
         self._strtree += "]"
 
     def inOrder(self, node):
+        """ Recorrido en In-Orden del AST. Notese que para arboles no binarios, este recorrido solo puede
+            realizarse en arboles cuyo grado sea par; de otro modo no puede saberse que hijos corresponden
+            a la descendencia izquierda del nodo padre y cuales a la descendencia derecha
+        """
         for n in range(0, len(node.getChildren()) / 2):
             self.inOrder(node.getChildren()[n])
         self._sequences[1].append(node.getLabel())
@@ -74,10 +78,9 @@ class AbstractSyntaxTree:
         for i in range(0, len(self._sequences)):
             print self._seqStrings[i].ljust(12),
             for j in range(0, len(self._sequences[i])):
-                try:
-                    self._sequences[i][j] in string.punctuation
+                if str(self._sequences[i][j]) in string.punctuation:
                     print Colors.WARNING + str(self._sequences[i][j]) + Colors.ENDC,
-                except TypeError:
+                else:
                     print Colors.FAIL + str(self._sequences[i][j]) + Colors.ENDC,
             print ''
         

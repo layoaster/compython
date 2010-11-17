@@ -37,16 +37,16 @@ if __name__ == '__main__':
 
         parser = SynAn()
         try:
-            parser.start(args.fin)
-            print Colors.OKGREEN + "All OK" + Colors.ENDC
-        except Error as e:
-            e.printError()
+            error = parser.start(args.fin)
+            if not isinstance(error, Error):
+                print Colors.OKGREEN + "All OK" + Colors.ENDC
         except IOError as e:
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
         finally:
-            if args.tree:
-                webTree(args.tree)
-                print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
-            if args.traverse:
-                parser.printAST()
+            if not error:
+                if args.tree:
+                    webTree(args.tree)
+                    print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
+                if args.traverse:
+                    parser.printAST()
