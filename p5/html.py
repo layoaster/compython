@@ -99,7 +99,7 @@ def tail():
 </body>
 </html>'''
 
-def generatePHPSyntaxTree(code, ast, sequences):
+def generatePHPSyntaxTree(code, ast, sequences, dpt):
     page = '''
 <html>
 <head>
@@ -112,7 +112,8 @@ def generatePHPSyntaxTree(code, ast, sequences):
 action="http://banot.etsii.ull.es/alu2756/tree/ast/index.php"
 method=post>
   <input type="hidden" name="code" value="''' + code + u'''">
-  <input type="hidden" name="data" value="''' + ast + u'''">
+  <input type="hidden" name="dpt" value="''' + dpt + u'''">
+  <input type="hidden" name="ast" value="''' + ast + u'''">
   <input type="hidden" name="preorder" value="'''
     for i in sequences[0]:
         page += str(i) + u''' '''
