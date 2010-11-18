@@ -46,16 +46,11 @@ class SynAn:
         try:
             self._scanner.openFile(fin)
             self._lookahead = self._scanner.yyLex()
-            while self._lookahead.getToken() != WrapTk.ENDTEXT:
-		print self._lookahead.getLexeme(), self._lookahead.getToken(), WrapTk.TokStrings[self._lookahead.getToken()-1]
-		self._lookahead = self._scanner.yyLex()
-            #self._expr(frozenset([WrapTk.ENDTEXT]))
+            self._rexp1()
             #self._ast.setRoot(self._stack.pop())
-            self._result = self._eval.pop()
+            #self._result = self._eval.pop()
         except IOError:
             raise
-        except IndexError: # Excepcion provocada al intentar hacer pop cuando la pila esta vacia
-            pass
         return self._lastError
 
     def getDPT(self):
@@ -81,25 +76,7 @@ class SynAn:
         """
         return self._result
 
-
-    def _syntaxError(self, stop, expected=None):
-        """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
-            capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
-        """
-        #if self._scanner.getPos()[0] != self._linerror:
-        self._lastError = SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
-        #    self._linerror = self._scanner.getPos()[0]
-        while self._lookahead not in stop:
-            self._lookahead = self._scanner.yyLex()
-
-    def _syntaxCheck(self, stop):
-        """ Comprueba que el token siguiente este dentro de lo que puede esperarse a continuacion (el token
-            pertenezca al conjunto de parada)
-        """
-        if self._lookahead not in stop:
-            self._syntaxError(stop)
-
-    def _match(self, tok, stop):
+    def _match(self, tok):
         """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching
             tuvo exito, se lee el siguiente token (a la vez que se adjunta la descripcion del terminal en strTree).
             En caso contrario, se llama al metodo syntaxError que se encargara de la gestion del error. Ademas,
@@ -108,10 +85,59 @@ class SynAn:
         """
         try:
             if self._lookahead == tok:
-                self._strTree += "[" + self._lookahead.getLexeme() + "]"
                 self._lookahead = self._scanner.yyLex()
-                self._syntaxCheck(stop)
             else:
-                self._syntaxError(stop)
+                #self._syntaxError(stop)
+                exit(1)
         except LexError:
             raise
+
+    # <Rexp1> ::= <Rexp2> <Disjunct>
+    def _rexp1(self):
+	self._rexp2()
+	self._disjunct()
+
+    # <Disjunct> ::= | <Rexp2> <Disjunct>
+    # <Disjunct> ::= ~
+    def _disjunct(self):
+	if self._lookahead == WrapTk.VERTICALBAR:
+	    self._match(WrapTk.VERTICALBAR)
+	    self._rexp2()
+	    self._disjunct()
+
+    # <Rexp2> ::= <Rexp3> <Concat>
+    def _rexp2(self):
+	self._rexp3()
+	self._concat()
+
+    # <Concat> ::= <Rexp3> <Concat>
+    # <Concat> ::= ~
+    def _concat(self):
+	self._rexp3()
+	self._concat()
+
+    # <Rexp3> ::= ( <Rexp1> ) <KClosure>
+    # <Rexp3> ::= letter <KClosure>
+    def _rexp3(self):
+	if self._lookahead == WrapTk.LEFTPARENTHESIS:
+	    self._match(WrapTk.LEFTPARENTHESIS)
+	    self._rexp1()
+	    self._match(WrapTk.RIGHTPARENTHESIS)
+	    self._kClosure()
+	elif self._lookahead == WrapTk.LETTER:
+	    self._match(WrapTk.LETTER)
+	    self._kClosure()
+	else:
+            if self._lookahead == WrapTk.ENDTEXT:
+		print "Fin del fichero"
+		exit(1)
+	    else:
+	        print "Error", self._scanner.getPos(), "Look:", self._lookahead.getLexeme()
+	        exit(1)
+
+    # <KClosure> ::= * <KClosure>
+    # <KClosure> ::= ~
+    def _kClosure(self):
+	if self._lookahead == WrapTk.ASTERISK:
+	    self._match(WrapTk.ASTERISK)
+	    self._kClosure()
