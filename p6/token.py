@@ -13,19 +13,16 @@ class WrapTk:
 
     ASTERISK          = 1
     ENDTEXT           = 2
-    ID                = 3
-    LEFTPARENTHESIS   = 4
-    MINUS             = 5
-    NUMERAL           = 6
-    PLUS              = 7
-    SLASH             = 8
-    RIGHTPARENTHESIS  = 9
-    TOKEN_ERROR       = 10
+    LEFTPARENTHESIS   = 3
+    LETTER            = 4
+    RIGHTPARENTHESIS  = 5
+    TOKEN_ERROR       = 6
+    VERTICALBAR       = 7
 
-    TokStrings = ("ASTERISK", "ENDTEXT", "ID", "LEFTPARENTHESIS", "MINUS",
-                  "NUMERAL", "PLUS", "SLASH", "RIGHTPARENTHESIS", "TOKEN_ERROR")
+    TokStrings = ("ASTERISK", "ENDTEXT", "LEFTPARENTHESIS", "LETTER",
+                  "RIGHTPARENTHESIS", "TOKEN_ERROR", "VERTICALBAR")
 
-    TokLexemes = ("*", "$", "identifier", "(", "-", "numeral", "+", "/", ")", "")
+    TokLexemes = ("*", "$", "(", "letter", ")", "", "|")
 
     @classmethod
     def toStr(self, token):

@@ -19,13 +19,10 @@ class LexAn:
 
     _patterns = [
         (WrapTk.ASTERISK,        r"\*"),
-        (WrapTk.ID,              r"[a-zA-Z]\w*"),
         (WrapTk.LEFTPARENTHESIS, r"\("),
-        (WrapTk.MINUS,           r"-"),
-        (WrapTk.NUMERAL,         r"\d+"),
-        (WrapTk.PLUS,            r"\+"),
+        (WrapTk.LETTER,          r"[a-zA-Z]"),
         (WrapTk.RIGHTPARENTHESIS,r"\)"),
-        (WrapTk.SLASH,           r"\/")
+        (WrapTk.VERTICALBAR,     r"\|")
     ]
 
     def __init__(self):
@@ -94,14 +91,8 @@ class LexAn:
             self._ncol += match.end()
             self._buffer = self._buffer[match.end():]
 
-            if token == WrapTk.ID:
+            if token == WrapTk.LETTER:
                 return Token(WrapTk.ID, value.lower())
-            elif token == WrapTk.NUMERAL:
-                if int(value) > 32767:
-                    LexError(LexError.INT_OVERFLOW, self.getPos())
-                    return Token(WrapTk.TOKEN_ERROR)
-                else:
-                    return Token(WrapTk.NUMERAL, int(value))
             else:   # Reconocido token valido
                 return Token(token)
         else:   # Se ha llegado a fin del fichero
