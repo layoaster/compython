@@ -92,7 +92,7 @@ class LexAn:
             self._buffer = self._buffer[match.end():]
 
             if token == WrapTk.LETTER:
-                return Token(WrapTk.ID, value.lower())
+                return Token(WrapTk.LETTER, value.lower())
             else:   # Reconocido token valido
                 return Token(token)
         else:   # Se ha llegado a fin del fichero
