@@ -67,7 +67,7 @@ class Token:
         """ Devuelve cadena que da nombre al TOKEN, en el caso de los token ID y NUMERAL devuelve su valor
             util en el informe del error, cuando se muestran el token encontrado
         """
-        if self._token in (WrapTk.ID, WrapTk.NUMERAL):
+        if self._token == WrapTk.LETTER:
             return str(self._value)
         else:
             return WrapTk.TokLexemes[self._token - 1]

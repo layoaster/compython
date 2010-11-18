@@ -11,7 +11,6 @@ Description: Analizador Sintáctico para expresiones aritmeticas (+, -, *, /, - 
 from lexan import LexAn
 from token import *
 from error import *
-from ffsets import *
 from stack import *
 from ast import *
 
@@ -33,10 +32,8 @@ class SynAn:
         """
         self._lookahead = None
         self._scanner = None
-        self._ff = FFSets()
         self._lastError = None
         self._strTree = ""
-        self._ast = AbstractSyntaxTree()
         self._stack = Stack()
         self._eval = Stack()
         self._result = 0
@@ -49,8 +46,11 @@ class SynAn:
         try:
             self._scanner.openFile(fin)
             self._lookahead = self._scanner.yyLex()
-            self._expr(frozenset([WrapTk.ENDTEXT]))
-            self._ast.setRoot(self._stack.pop())
+            while self._lookahead.getToken() != WrapTk.ENDTEXT:
+		print self._lookahead.getLexeme(), self._lookahead.getToken(), WrapTk.TokStrings[self._lookahead.getToken()-1]
+		self._lookahead = self._scanner.yyLex()
+            #self._expr(frozenset([WrapTk.ENDTEXT]))
+            #self._ast.setRoot(self._stack.pop())
             self._result = self._eval.pop()
         except IOError:
             raise
@@ -115,135 +115,3 @@ class SynAn:
                 self._syntaxError(stop)
         except LexError:
             raise
-
-    # <Expr> ::= <Term> {Expr2.h := Term.ptr} <Expr2> {Expr.ptr := Expr2.s}
-    def _expr(self, stop):
-        self._strTree += "[<Expr>_Expr.ptr:=Expr2.s"
-        self._term(stop.union(self._ff.first("expr2")))
-        #self._stack.push(self._ast.pop())
-        self._expr2(stop)
-        #self._stack.push(self._ast.pop())
-        self._strTree += "]"
-        #ETDS Evaluacion de la Expresion
-        op = self._eval.pop()
-        self._eval.push(self._eval.pop() + op)
-
-    # <Expr2> ::= + <Term> {Expr2.h := mknode('+', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
-    #           | - <Term> {Expr2.h := mknode('-', Expr2.h, Term.ptr)} <Expr2> {Expr2.s := Expr2.s}
-    #           | ~ {Expr2.s := Expr2.h}
-    def _expr2(self, stop):
-        self._strTree += "[<Expr2>_Expr2.s:=Expr2.s"
-        if self._lookahead == WrapTk.PLUS:
-            self._strTree += "^Expr2.h:=mknode('+',Expr2.h,Term.ptr)"
-            self._match(WrapTk.PLUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
-            self._term(stop.union(self._ff.first("expr2")))
-            temp = self._stack.pop()
-            self._stack.push(self._ast.mkNode("+", self._stack.pop(), temp))
-            self._expr2(stop)
-            #self._stack.push(self._ast.pop())
-            #ETDS Evaluacion de la Expresion
-            op = self._eval.pop()
-            self._eval.push(self._eval.pop() + op)
-        elif self._lookahead == WrapTk.MINUS:
-            self._strTree += "^Expr2.h:=mknode('-',Expr2.h,Term.ptr)"
-            self._match(WrapTk.MINUS, stop.union(self._ff.first("term"), self._ff.first("expr2")))
-            self._term(stop.union(self._ff.first("expr2")))
-            temp = self._stack.pop()
-            self._stack.push(self._ast.mkNode("-", self._stack.pop(), temp))
-            self._expr2(stop)
-            #self._stack.push(self._ast.pop())
-            #ETDS Evaluacion de la Expresion
-            op = self._eval.pop()
-            self._eval.push((self._eval.pop() * -1.0) + op)
-        else:
-            self._strTree = self._strTree[:-1]
-            self._strTree += "h^Expr2.h:=Term.ptr[&#248;]"
-            self._syntaxCheck(stop)
-            #self._stack.push(self._ast.pop())
-            #ETDS Evaluacion de la Expresion
-            self._eval.push(0)
-        self._strTree += "]"
-
-    # <Term> ::= <Factor> {Term2.h := Factor.ptr} <Term2> {Term.ptr := Term2.s}
-    def _term(self, stop):
-        self._strTree += "[<Term>_Term.ptr:=Term2.s"
-        self._factor(stop.union(self._ff.first("term2")))
-        #self._stack.push(self._ast.pop())
-        self._term2(stop)
-        #self._stack.push(self._ast.pop())
-        self._strTree += "]"
-        #ETDS Evaluacion de la Expresion
-        op = self._eval.pop()
-        self._eval.push(self._eval.pop() * op)
-
-    # <Term2> ::= * <Factor> {Term2.h := mknode('*', Term2.h, Factor.ptr)} <Term2> {Term2.s := Term2.s}
-    #           | / <Factor> {Term2.h := mknode('/', Term2.h, Factor,ptr)} <Term2> {Term2.s := Term2.s}
-    #           | ~ {Term2.s := Term2.h}
-    def _term2(self, stop):
-        self._strTree += "[<Term2>_Term2.s:=Term2.s"
-        if self._lookahead == WrapTk.ASTERISK:
-            self._strTree += "^Term2.h:=mknode('*',Term2.h,Factor.ptr)"
-            self._match(WrapTk.ASTERISK, stop.union(self._ff.first("factor"), self._ff.first("term2")))
-            self._factor(stop.union(self._ff.first("term2")))
-            temp = self._stack.pop()
-            self._stack.push(self._ast.mkNode("*", self._stack.pop(), temp))
-            self._term2(stop)
-            #self._stack.push(self._ast.pop())
-            #ETDS Evaluacion de la Expresion
-            op = self._eval.pop()
-            self._eval.push(self._eval.pop() * op)
-        elif self._lookahead == WrapTk.SLASH:
-            self._strTree += "^Term2.h:=mknode('/',Term2.h,Factor.ptr)"
-            self._match(WrapTk.SLASH, stop.union(self._ff.first("factor"), self._ff.first("term2")))
-            self._factor(stop.union(self._ff.first("term2")))
-            temp = self._stack.pop()
-            self._stack.push(self._ast.mkNode("/", self._stack.pop(), temp))
-            self._term2(stop)
-            #self._stack.push(self._ast.pop())
-            #ETDS Evaluacion de la Expresion
-            op = self._eval.pop()
-            self._eval.push((1 / self._eval.pop()) * op)
-        else:
-            self._strTree = self._strTree[:-1]
-            self._strTree += "h^Term2.h:=Factor.ptr[&#248;]"
-            self._syntaxCheck(stop)
-            #self._stack.push(self._ast.pop())
-            #ETDS Evaluacion de la Expresion
-            self._eval.push(1)
-        self._strTree += "]"
-
-    # <Factor> ::= ( <Expr> ) {Factor.ptr := Expr.ptr}
-    #            | - <Factor> {Factor.ptr := mkunode('-', Factor.ptr)}
-    #            | id {Factor.ptr := mkleaf(id, id.ptr)}
-    #            | numeral {Factor.ptr := mkleaf(num, num.ptr)}
-    def _factor(self, stop):
-        self._strTree += "[<Factor>"
-        if self._lookahead == WrapTk.LEFTPARENTHESIS:
-            self._strTree += "_Factor.ptr:=Expr.ptr"
-            self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expr")))
-            self._expr(stop.union([WrapTk.RIGHTPARENTHESIS]))
-            self._match(WrapTk.RIGHTPARENTHESIS, stop)
-            #self._stack.push(self._ast.pop())
-            #ETDS Evaluacion de la Expresion
-            #self._eval.push(self._eval.pop())
-        elif self._lookahead == WrapTk.MINUS:
-            self._strTree += "_Factor.ptr:=mkunode('-',Factor.ptr)"
-            self._match(WrapTk.MINUS, stop.union(self._ff.first("factor")))
-            self._factor(stop)
-            self._stack.push(self._ast.mkNode("-", self._stack.pop()))
-            #ETDS Evaluacion de la Expresion
-            self._eval.push(self._eval.pop() * -1.0)
-        elif self._lookahead == WrapTk.ID:
-            self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
-            self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
-            self._match(WrapTk.ID, stop)
-            self._eval.push(1.0)
-        elif self._lookahead == WrapTk.NUMERAL:
-            self._strTree += "_Factor.ptr:=mkleaf(" + self._lookahead.getLexeme() + ")"
-            self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
-            #ETDS Evaluacion de la Expresion
-            self._eval.push(float(self._lookahead.getValue()))
-            self._match(WrapTk.NUMERAL, stop)
-        else:
-            self._syntaxError(stop)
-        self._strTree += "]"
