@@ -77,12 +77,7 @@ class SynAn:
         """
         #self._strTree += "[TOKEN-ERROR]"
         # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
-        if expected is not None:
-            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
-                    " - Found '" + self._lookahead.getLexeme() + "', expected '" + Token(expected).getLexeme() + "'")
-        else:
-            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
-                    " - Found '" + self._lookahead.getLexeme() + "'")
+        raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(), self._lookahead, expected)
 
     def _match(self, tok):
         """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching

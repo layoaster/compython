@@ -82,8 +82,7 @@ class LexAn:
             if match is None:
                 self._buffer = self._buffer[1:]
                 self._ncol += 1
-                LexError(LexError.UNKNOWN_CHAR, self.getPos())
-                return Token(WrapTk.TOKEN_ERROR)
+                raise LexError(LexError.UNKNOWN_CHAR, self.getPos())    
 
             token = WrapTk.toToken(match.lastgroup)
             value = match.group(match.lastgroup)

@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-$Id$
-Description: Excepciones para manejar los distintos errores de las fases del Compilador para expresiones aritmeticas (+, -, *, /, - (unario)) parentizadas.
-$Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
-$Date$
-$Revision$
+        $Id$
+Description: Excepciones para manejar los distintos errores de las fases del Compilador para Pascal-.
+    $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
+      $Date$
+  $Revision$
 """
 
-from token import Token
 from abc import ABCMeta, abstractmethod
 
 class Colors:
@@ -30,7 +29,7 @@ class Colors:
 
 #---------------------
 
-class Error(object):
+class Error(Exception, object):
     """ Clase padre de errores """
     __metaclass__ = ABCMeta
 
@@ -56,23 +55,17 @@ class LexError(Error):
 
     # Constantes de errores lexicos
     UNKNOWN_CHAR = 0
-    INT_OVERFLOW = 1
-    UNCLOSED_COM = 2
-
-    _errStrings = ("Invalid character",
-                   "Integer overflow",
-                   "Unclosed comment")
 
     def __init__(self, errno, pos):
         super(LexError, self).__init__(errno, pos)
-        self.printError()
 
     def printError(self):
-        print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
-        print str(str(self.pos[1]) + "C").rjust(3),
+        errStrings = ("Invalid character", )
 
-        print Colors.FAIL + "[LEX ERROR] " + Colors.ENDC\
-              + self._errStrings[self.errno]
+        print Colors.WARNING + str(self.pos[0]) + "L" \
+              + ", " + str(self.pos[1]) + "C " \
+              + Colors.FAIL + "[LEX ERROR] " + Colors.ENDC\
+              + " " + errStrings[self.errno]
 
 # --------------------
 
@@ -82,19 +75,18 @@ class SynError(Error):
     # Constantes de errores sintacticos
     UNEXPECTED_SYM = 0
 
-    _errStrings = ("Unexpected symbol", )
-
     def __init__(self, errno, pos, found, expected=None):
         super(SynError, self).__init__(errno, pos, found, expected)
-        self.printError()
 
     def printError(self):
-        print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
-        print str(str(self.pos[1]) + "C").rjust(3),
+        errStrings = ("Unexpected symbol", )
+        
+        print Colors.WARNING + str(self.pos[0]) + "L" \
+              + ", " + str(self.pos[1]) + "C " \
+              + Colors.FAIL + "[SYN ERROR] " + Colors.ENDC \
+              + " " + errStrings[self.errno] + " - Found '" \
+              + self.found.getLexeme() + "'",
 
-        print Colors.FAIL + "[SYN ERROR]" + Colors.ENDC \
-              + " " + self._errStrings[self.errno] \
-              + " - Found '" + self.found.getLexeme() + "'",
 
         if self.expected is not None:
             print "\b, expected",
