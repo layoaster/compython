@@ -32,6 +32,7 @@ class SynAn:
         self._scanner = None
         self._lastError = None
         self._strTree = ""
+        self._ast = AbstractSyntaxTree()
         self._stack = Stack()
 
     def getDPT(self):
@@ -97,7 +98,9 @@ class SynAn:
     # <Rexp1> ::= <Rexp2> <Disjunct>
     def _rexp1(self):
         self._rexp2()
+        #self._stack.push(self._stack.pop())
         self._disjunct()
+        #self._stack.push(self._stack.pop())
 
     # <Disjunct> ::= | <Rexp2> <Disjunct>
     # <Disjunct> ::= ~
@@ -105,19 +108,33 @@ class SynAn:
         if self._lookahead == WrapTk.VERTICALBAR:
             self._match(WrapTk.VERTICALBAR)
             self._rexp2()
+            temp = self._stack.pop()
+            self._stack.push(self._ast.mkNode("|", self._stack.pop(), temp))
             self._disjunct()
+            #self._stack.push(self._stack.pop())
+        else:
+            pass
+            #self._stack.push(self._stack.pop())
 
     # <Rexp2> ::= <Rexp3> <Concat>
     def _rexp2(self):
         self._rexp3()
+        #self._stack.push(self._stack.pop())
         self._concat()
+        #self._stack.push(self._stack.pop())
 
     # <Concat> ::= <Rexp3> <Concat>
     # <Concat> ::= ~
     def _concat(self):
         if self._lookahead in (WrapTk.LEFTPARENTHESIS, WrapTk.LETTER):
             self._rexp3()
+            temp = self._stack.pop()
+            self._stack.push(self._ast.mkNode("·", self._stack.pop(), temp))
             self._concat()
+            #self._stack.push(self._stack.pop())
+        else:
+            pass
+            #self._stack.push(self._stack.pop())
 
     # <Rexp3> ::= ( <Rexp1> ) <KClosure>
     # <Rexp3> ::= letter <KClosure>
@@ -126,10 +143,14 @@ class SynAn:
             self._match(WrapTk.LEFTPARENTHESIS)
             self._rexp1()
             self._match(WrapTk.RIGHTPARENTHESIS)
+            #self._stack.push(self._stack.pop())
             self._kClosure()
+            #self._stack.push(self._stack.pop())
         elif self._lookahead == WrapTk.LETTER:
             self._match(WrapTk.LETTER)
+            self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._kClosure()
+            #self._stack.push(self._stack.pop())
         else:
             self._syntaxError()
 
@@ -139,3 +160,4 @@ class SynAn:
         if self._lookahead == WrapTk.ASTERISK:
             self._match(WrapTk.ASTERISK)
             self._kClosure()
+            self._stack.push(self._ast.mkNode("*", self._stack.pop()))
