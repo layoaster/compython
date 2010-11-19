@@ -27,31 +27,12 @@ class SynAn:
             _linerror  = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
             _ast       = Arbol Sintactico resultado de la traduccion
             _stack     = pila que almacena los atributos resultado del proceso de traduccion para la construccion del AST
-            _eval      = pila que almacena los atributos resultado del proceso de traduccion para dar el resultado de la expresion
-            _result    = resultado de la evaluar la expresion analizada sintacticamente
         """
         self._lookahead = None
         self._scanner = None
         self._lastError = None
         self._strTree = ""
         self._stack = Stack()
-        self._eval = Stack()
-        self._result = 0
-
-    def start(self, fin):
-        """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
-            fichero y recoger el primer token de entrada para comenzar el analisis
-        """
-        self._scanner = LexAn()
-        try:
-            self._scanner.openFile(fin)
-            self._lookahead = self._scanner.yyLex()
-            self._rexp1()
-            #self._ast.setRoot(self._stack.pop())
-            #self._result = self._eval.pop()
-        except IOError:
-            raise
-        return self._lastError
 
     def getDPT(self):
         """ Retorna la cadena de descripcion del arbol de analisis sintactico con adornos.
@@ -76,6 +57,33 @@ class SynAn:
         """
         return self._result
 
+    def start(self, fin):
+        """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
+            fichero y recoger el primer token de entrada para comenzar el analisis
+        """
+        self._scanner = LexAn()
+        try:
+            self._scanner.openFile(fin)
+            self._lookahead = self._scanner.yyLex()
+            self._rexp1()
+            #self._ast.setRoot(self._stack.pop())
+        except IOError:
+            raise
+        return self._lastError
+
+    def _syntaxError(self, expected=None):
+        """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
+            capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
+        """
+        #self._strTree += "[TOKEN-ERROR]"
+        # Si el error vino desde 'match', podemos saber que token esperariamos encontrar
+        if expected is not None:
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
+                    " - Found '" + self._lookahead.getLexeme() + "', expected '" + Token(expected).getLexeme() + "'")
+        else:
+            raise SynError(SynError.UNEXPECTED_SYM, self._scanner.getPos(),
+                    " - Found '" + self._lookahead.getLexeme() + "'")
+
     def _match(self, tok):
         """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching
             tuvo exito, se lee el siguiente token (a la vez que se adjunta la descripcion del terminal en strTree).
@@ -87,8 +95,7 @@ class SynAn:
             if self._lookahead == tok:
                 self._lookahead = self._scanner.yyLex()
             else:
-                #self._syntaxError(stop)
-                exit(1)
+                self._syntaxError()
         except LexError:
             raise
 
@@ -129,12 +136,7 @@ class SynAn:
             self._match(WrapTk.LETTER)
             self._kClosure()
         else:
-            if self._lookahead == WrapTk.ENDTEXT:
-                print "Fin del fichero"
-                exit(1)
-            else:   
-                print "Error", self._scanner.getPos(), "Look:", self._lookahead.getLexeme()
-                exit(1)
+            self._syntaxError()
 
     # <KClosure> ::= * <KClosure>
     # <KClosure> ::= ~
