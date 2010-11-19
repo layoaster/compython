@@ -13,7 +13,7 @@ import sys
 import argparse
 from error import *
 from parser import SynAn
-from html import generatePHPSyntaxTree
+#from html import generatePHPSyntaxTree
 
 def webTree(tree):
     """Crea el archivo html que genera el Árbol de Análisis Sintático correspondiente al codigo fuente parseado

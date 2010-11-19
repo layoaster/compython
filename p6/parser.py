@@ -94,50 +94,51 @@ class SynAn:
 
     # <Rexp1> ::= <Rexp2> <Disjunct>
     def _rexp1(self):
-	self._rexp2()
-	self._disjunct()
+        self._rexp2()
+        self._disjunct()
 
     # <Disjunct> ::= | <Rexp2> <Disjunct>
     # <Disjunct> ::= ~
     def _disjunct(self):
-	if self._lookahead == WrapTk.VERTICALBAR:
-	    self._match(WrapTk.VERTICALBAR)
-	    self._rexp2()
-	    self._disjunct()
+        if self._lookahead == WrapTk.VERTICALBAR:
+            self._match(WrapTk.VERTICALBAR)
+            self._rexp2()
+            self._disjunct()
 
     # <Rexp2> ::= <Rexp3> <Concat>
     def _rexp2(self):
-	self._rexp3()
-	self._concat()
+        self._rexp3()
+        self._concat()
 
     # <Concat> ::= <Rexp3> <Concat>
     # <Concat> ::= ~
     def _concat(self):
-	self._rexp3()
-	self._concat()
+        if self._lookahead in (WrapTk.LEFTPARENTHESIS, WrapTk.LETTER):
+            self._rexp3()
+            self._concat()
 
     # <Rexp3> ::= ( <Rexp1> ) <KClosure>
     # <Rexp3> ::= letter <KClosure>
     def _rexp3(self):
-	if self._lookahead == WrapTk.LEFTPARENTHESIS:
-	    self._match(WrapTk.LEFTPARENTHESIS)
-	    self._rexp1()
-	    self._match(WrapTk.RIGHTPARENTHESIS)
-	    self._kClosure()
-	elif self._lookahead == WrapTk.LETTER:
-	    self._match(WrapTk.LETTER)
-	    self._kClosure()
-	else:
+        if self._lookahead == WrapTk.LEFTPARENTHESIS:
+            self._match(WrapTk.LEFTPARENTHESIS)
+            self._rexp1()
+            self._match(WrapTk.RIGHTPARENTHESIS)
+            self._kClosure()
+        elif self._lookahead == WrapTk.LETTER:
+            self._match(WrapTk.LETTER)
+            self._kClosure()
+        else:
             if self._lookahead == WrapTk.ENDTEXT:
-		print "Fin del fichero"
-		exit(1)
-	    else:
-	        print "Error", self._scanner.getPos(), "Look:", self._lookahead.getLexeme()
-	        exit(1)
+                print "Fin del fichero"
+                exit(1)
+            else:   
+                print "Error", self._scanner.getPos(), "Look:", self._lookahead.getLexeme()
+                exit(1)
 
     # <KClosure> ::= * <KClosure>
     # <KClosure> ::= ~
     def _kClosure(self):
-	if self._lookahead == WrapTk.ASTERISK:
-	    self._match(WrapTk.ASTERISK)
-	    self._kClosure()
+        if self._lookahead == WrapTk.ASTERISK:
+            self._match(WrapTk.ASTERISK)
+            self._kClosure()
