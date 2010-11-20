@@ -67,7 +67,7 @@ class SynAn:
             self._scanner.openFile(fin)
             self._lookahead = self._scanner.yyLex()
             self._rexp1()
-            #self._ast.setRoot(self._stack.pop())
+            self._ast.setRoot(self._stack.pop())
         except IOError:
             raise
         return self._lastError

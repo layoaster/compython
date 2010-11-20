@@ -10,6 +10,7 @@ Description: Contiene clase AST que representa un Arbol Sintactico Abstracto y c
 """
 import string
 from error import Colors
+from pygraphviz import *
 
 class AbstractSyntaxTree:
     _seqStrings = ('Pre-order:', 'In-order:', 'Post-order:')
@@ -83,7 +84,7 @@ class AbstractSyntaxTree:
                 else:
                     print Colors.FAIL + str(self._sequences[i][j]) + Colors.ENDC,
             print ''
-        
+
     def getAST(self):
         """ Retorna la cadena de descripcion del arbol sintactico para su representacion web
         """
