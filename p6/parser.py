@@ -146,8 +146,8 @@ class SynAn:
             self._kClosure()
             #self._stack.push(self._stack.pop())
         elif self._lookahead == WrapTk.LETTER:
+            self._stack.push(self._ast.mkLeaf(self._lookahead.getLexeme()))
             self._match(WrapTk.LETTER)
-            self._stack.push(self._ast.mkLeaf(self._lookahead.getValue()))
             self._kClosure()
             #self._stack.push(self._stack.pop())
         else:
