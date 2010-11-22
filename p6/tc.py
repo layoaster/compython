@@ -62,7 +62,7 @@ class ThompsonConstruction:
     def writeDOT(self, filename = "graph.dot"):
         self._graph.write(filename)
 
-    def drawGraph(self, filename = "graph", format = "svg")
+    def drawGraph(self, filename = "graph", format = "svg"):
         filepath = ".".join(filename, format)
         self._graph.draw(filepath, format)
 
