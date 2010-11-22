@@ -31,12 +31,10 @@ if __name__ == '__main__':
     argparser.add_argument('-t', action='store_true', dest="format", help='imprime el recorrido del AST resultante en pre, in y post orden')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
-    """
     if (len(sys.argv) < 3):
         argparser.print_help()
     else:
         args = argparser.parse_args()
-    """
         parser = SynAn()
         try:
             parser.start(args.fin)
@@ -48,6 +46,6 @@ if __name__ == '__main__':
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
         finally:
-            tc = ThompsonConstruction(parser.getSequence())
+            tc = ThompsonConstruction(parser.getASTSequence())
             tc.createGraph()
             tc.drawGraph('pepe')
