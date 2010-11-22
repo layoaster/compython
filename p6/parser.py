@@ -47,11 +47,10 @@ class SynAn:
         """
         return self._ast.getAST()
 
-    def printAST(self):
-        """ Imprime por pantalla los tres recorridos del arbol sintactico generado, a saber: pre-orden,
-            in-orden y post-orden
+    def getASTSequence(self):
+        """ Retorna ...
         """
-        self._ast.printSequences()
+        return self._ast.getSequence()
 
     def getResult(self):
         """ Getter del atributo result, que almacena el resultado de evaluar la expresion
