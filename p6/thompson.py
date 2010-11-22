@@ -13,6 +13,7 @@ import sys
 import argparse
 from error import *
 from parser import SynAn
+from tc import *
 #from html import generatePHPSyntaxTree
 
 def webTree(tree):
@@ -25,13 +26,12 @@ def webTree(tree):
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
     argparser = argparse.ArgumentParser(description='Realiza el Analisis Sintactico de ficheros de codigo fuente en Pascal-')
-    argparser.add_argument('fin', metavar='fich_texto.p', type=str, action='store', help='fichero de codigo fuente')
-    argparser.add_argument('-w', metavar='fich_tree.html', type=str, dest="tree", help='genera fichero html con el AAS del codigo fuente')
-    argparser.add_argument('-t', action='store_true', dest="traverse", help='imprime el recorrido del AST resultante en pre, in y post orden')
-    argparser.add_argument('-r', action='store_true', dest="result", help='muestra el resultado de evaluar una expresion que no contenga identificadores')
+    argparser.add_argument('fin', metavar='regex_file', type=str, action='store', help='fichero de expresion regular')
+    argparser.add_argument('fout', metavar='image_file', type=str, action='store', help='fichero de imagen')
+    argparser.add_argument('-t', action='store_true', dest="format", help='imprime el recorrido del AST resultante en pre, in y post orden')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
-    if (len(sys.argv) < 2):
+    if (len(sys.argv) < 3):
         argparser.print_help()
     else:
         args = argparser.parse_args()
@@ -46,11 +46,5 @@ if __name__ == '__main__':
         except IOError as e:
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
-        finally:
-            if args.tree:
-                webTree(args.tree)
-                print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
-            if args.traverse:
-                parser.printAST()
-            if args.result:
-                print "Resultado: ", parser.getResult()
+
+
