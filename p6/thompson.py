@@ -27,11 +27,10 @@ if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
     argparser = argparse.ArgumentParser(description='Realiza el Analisis Sintactico de ficheros de codigo fuente en Pascal-')
     argparser.add_argument('fin', metavar='regex_file', type=str, action='store', help='fichero de expresion regular')
-    argparser.add_argument('fout', metavar='image_file', type=str, action='store', help='fichero de imagen')
-    argparser.add_argument('-t', action='store_true', dest="format", help='imprime el recorrido del AST resultante en pre, in y post orden')
+    argparser.add_argument('fout', metavar='image_file', type=str, action='store', nargs='?', help='fichero de imagen')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
-    if (len(sys.argv) < 3):
+    if (len(sys.argv) < 2):
         argparser.print_help()
     else:
         args = argparser.parse_args()
@@ -46,6 +45,10 @@ if __name__ == '__main__':
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
         finally:
-            tc = ThompsonConstruction(parser.getASTSequence())
-            tc.createGraph()
-            tc.drawGraph(args.fout)
+            if args.fout:
+                tc = ThompsonConstruction(parser.getASTSequence())
+                tc.createGraph()
+                if args.fout.partition('.')[2] == "dot":
+                    tc.writeDOT(args.fout)
+                else:
+                    tc.drawGraph(args.fout)
