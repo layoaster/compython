@@ -160,3 +160,11 @@ class SynAn:
             self._match(WrapTk.ASTERISK)
             self._kClosure()
             self._stack.push(self._ast.mkNode("*", self._stack.pop()))
+        elif self._lookahead == WrapTk.PLUS:
+            self._match(WrapTk.PLUS)
+            self._kClosure()
+            self._stack.push(self._ast.mkNode("+", self._stack.pop()))
+        elif self._lookahead == WrapTk.QUESTION:
+            self._match(WrapTk.QUESTION)
+            self._kClosure()
+            self._stack.push(self._ast.mkNode("?", self._stack.pop()))
