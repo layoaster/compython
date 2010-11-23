@@ -32,28 +32,39 @@ class ThompsonConstruction:
                 newpair = (self._count, self._count + 1)
                 if symbol == '*': #cierre de Kleene
                     lastpair = nodes.pop()
-                    self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON, fontcolor='red')
-                    self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON, fontcolor='red')
-                    self._graph.add_edge(lastpair[1], lastpair[0], label = self._EPSILON, fontcolor='red')
-                    self._graph.add_edge(newpair[0], newpair[1], label = self._EPSILON, fontcolor='red')
+                    self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
+                    self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON)
+                    self._graph.add_edge(lastpair[1], lastpair[0], label = self._EPSILON)
+                    self._graph.add_edge(newpair[0], newpair[1], label = self._EPSILON)
 
                 elif symbol == '|': #disyuncion
                     while not nodes.isEmpty():
                         lastpair = nodes.pop()
-                        self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON, fontcolor='red')
-                        self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON, fontcolor='red')
+                        self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
+                        self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON)
 
                 else: #simbolos
-                    self._graph.add_edge(newpair[0], newpair[1], label = symbol)
+                    self._graph.add_edge(newpair[0], newpair[1], label = symbol, fontcolor='red')
 
                 nodes.push(newpair)
                 self._count += 2
             else: #concatenacion
                 lastpair2 = nodes.pop()
                 lastpair1 = nodes.pop()
-                label = self._graph.get_edge(lastpair2[0], lastpair2[1]).attr["label"]
-                self._graph.delete_edge(lastpair2[0], lastpair2[1])
-                self._graph.add_edge(lastpair1[1], lastpair2[0], label = label)
+                #self._graph.add_edge(lastpair1[1], lastpair2[0], label = self._EPSILON, fontcolor='red')
+                for n in self._graph.predecessors(lastpair2[1]):
+                    label = self._graph.get_edge(n, lastpair2[1]).attr["label"]
+                    color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
+                    self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
+                    self._graph.delete_edge(n, lastpair2[1])
+                for n in self._graph.successors(lastpair2[0]):
+                    label = self._graph.get_edge(lastpair2[0], n).attr["label"]
+                    color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
+                    self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
+                    self._graph.delete_edge(lastpair2[0], n)
+                #label = self._graph.get_edge(lastpair2[0], lastpair2[1]).attr["label"]
+                #self._graph.delete_edge(lastpair2[0], lastpair2[1])
+                #self._graph.add_edge(lastpair1[1], lastpair2[0], label = label)
                 self._graph.delete_node(lastpair2[1])
                 nodes.push((lastpair1[0], lastpair2[0]))
                 self._count -= 1
