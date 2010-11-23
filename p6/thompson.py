@@ -14,20 +14,19 @@ import argparse
 from error import *
 from parser import SynAn
 from tc import *
-#from html import generatePHPSyntaxTree
+from html import generateWebOutput
 
-def webTree(tree):
+def webOutput(output):
     """Crea el archivo html que genera el Árbol de Análisis Sintático correspondiente al codigo fuente parseado
     """
-    fout = open(tree, "w")
-    fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()[0], parser.getAST()[1], parser.getDPT()))
-    fout.close()
+    generateWebOutput(output, parser.getAST()[0], args.fout)
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
-    argparser = argparse.ArgumentParser(description='Realiza el Analisis Sintactico de ficheros de codigo fuente en Pascal-')
+    argparser = argparse.ArgumentParser(description='Realiza la construccion de thompson de una expresion regular, generando a la salida una imagen o un fichero DOT')
     argparser.add_argument('fin', metavar='regex_file', type=str, action='store', help='fichero de expresion regular')
-    argparser.add_argument('fout', metavar='image_file', type=str, action='store', nargs='?', help='fichero de imagen')
+    argparser.add_argument('fout', metavar='output_file', type=str, action='store', nargs='?', help='fichero DOT | fichero de imagen (‘gif’, ‘jpe’, ‘jpeg’, ‘jpg’, ‘pdf’, ‘pic’, ‘png’, ‘ps’, ‘ps2’, ‘svg’, ‘svgz’, ‘wbmp’, ‘xdot’, ‘xlib’)')
+    argparser.add_argument('-w', metavar='file.html', type=str, dest="web", help='genera fichero html con el AST de la expresion y su construccion de Thompson')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
     if (len(sys.argv) < 2):
@@ -35,6 +34,7 @@ if __name__ == '__main__':
     else:
         args = argparser.parse_args()
         parser = SynAn()
+        #for i in args.fin[i]
         try:
             parser.start(args.fin)
             print Colors.OKGREEN + "All OK" + Colors.ENDC
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         except IOError as e:
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
-        
+
         if args.fout:
             tc = ThompsonConstruction(parser.getASTSequence())
             tc.createGraph()
@@ -52,3 +52,7 @@ if __name__ == '__main__':
                 tc.writeDOT(args.fout)
             else:
                 tc.drawGraph(args.fout)
+
+        if args.web and args.fout:
+            webOutput(args.web)
+
