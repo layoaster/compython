@@ -52,9 +52,10 @@ class ThompsonConstruction:
                 lastpair1 = nodes.pop()
                 label = self._graph.get_edge(lastpair2[0], lastpair2[1]).attr["label"]
                 self._graph.delete_edge(lastpair2[0], lastpair2[1])
-                self._graph.add_edge(lastpair1[1], lastpair2[1], label = label)
-                self._graph.delete_node(lastpair2[0])
-                nodes.push((lastpair1[0], lastpair2[1]))
+                self._graph.add_edge(lastpair1[1], lastpair2[0], label = label)
+                self._graph.delete_node(lastpair2[1])
+                nodes.push((lastpair1[0], lastpair2[0]))
+                self._count -= 1
 
         lastpair = nodes.pop()
         self._graph.get_node(lastpair[1]).attr['shape'] = "doublecircle"
