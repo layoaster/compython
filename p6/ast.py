@@ -47,7 +47,7 @@ class AbstractSyntaxTree:
         """
         for n in node.getChildren():
             self.postOrder(n)
-        self._postorder.append(node.getLabel())
+        self._postorder.append(str(node.getLabel()))
 
     def setRoot(self, root):
         """ Setter del nodo raiz del arbol
@@ -62,12 +62,14 @@ class AbstractSyntaxTree:
     def getSequence(self):
         """ Devuelve la secuencia correspondiente al recorrido en post-order del AST
         """
+        self._postorder = []
         self.postOrder(self.getRoot())
         return self._postorder
 
     def getAST(self):
         """ Retorna la cadena de descripcion del arbol sintactico para su representacion web
         """
+        self._preorder = []
         self.preOrder(self.getRoot())
         return self._strtree, self._preorder
 
