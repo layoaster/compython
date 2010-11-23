@@ -30,14 +30,14 @@ class ThompsonConstruction:
         for symbol in self._seq:
             if symbol != '·':
                 newpair = (self._count, self._count + 1)
-                if symbol == '*':
+                if symbol == '*': #cierre de Kleene
                     lastpair = nodes.pop()
                     self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON, fontcolor='red')
                     self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON, fontcolor='red')
                     self._graph.add_edge(lastpair[1], lastpair[0], label = self._EPSILON, fontcolor='red')
                     self._graph.add_edge(newpair[0], newpair[1], label = self._EPSILON, fontcolor='red')
 
-                elif symbol == '|':
+                elif symbol == '|': #disyuncion
                     while not nodes.isEmpty():
                         lastpair = nodes.pop()
                         self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON, fontcolor='red')
@@ -59,10 +59,14 @@ class ThompsonConstruction:
                 self._count -= 1
 
         lastpair = nodes.pop()
+        #creamos estado de arranque
+        self._graph.add_node(0, shape='point', width=0, height=0)
+        self._graph.add_edge(0, lastpair[0])
+        #creamos estado de aceptacion
         self._graph.get_node(lastpair[1]).attr['shape'] = "doublecircle"
-        self._start = lastpair[0]
+        #guardamos los estados de arranque y aceptacion del NFA
+        self._start = 0
         self._end = lastpair[1]
-        self._graph.graph_attr['start'] = str(self._start)
 
     def writeDOT(self, filename = "graph.dot"):
         self._graph.write(filename)
