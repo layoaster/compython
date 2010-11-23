@@ -106,7 +106,7 @@ def generateWebOutput(page, ast, image):
     <title>Thompson Construction for Nondeterministic finite-state machine</title>
     </head>
 
-    <frameset cols="30%, 70%">
+    <frameset rows="50%, 50%">
       <frame src="ast.html">
       <frame src="nfa.html">
     </frameset>
