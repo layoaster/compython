@@ -22,7 +22,9 @@ class LexAn:
         (WrapTk.LEFTPARENTHESIS, r"\("),
         (WrapTk.LETTER,          r"[a-zA-Z]"),
         (WrapTk.RIGHTPARENTHESIS,r"\)"),
-        (WrapTk.VERTICALBAR,     r"\|")
+        (WrapTk.VERTICALBAR,     r"\|"),
+        (WrapTk.QUESTION,        r"\?"),
+        (WrapTk.PLUS,            r"\+")
     ]
 
     def __init__(self):

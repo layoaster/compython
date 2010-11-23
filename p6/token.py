@@ -15,14 +15,16 @@ class WrapTk:
     ENDTEXT           = 2
     LEFTPARENTHESIS   = 3
     LETTER            = 4
-    RIGHTPARENTHESIS  = 5
-    TOKEN_ERROR       = 6
-    VERTICALBAR       = 7
+    PLUS              = 5
+    QUESTION          = 6
+    RIGHTPARENTHESIS  = 7
+    TOKEN_ERROR       = 8
+    VERTICALBAR       = 9
 
-    TokStrings = ("ASTERISK", "ENDTEXT", "LEFTPARENTHESIS", "LETTER",
-                  "RIGHTPARENTHESIS", "TOKEN_ERROR", "VERTICALBAR")
+    TokStrings = ("ASTERISK", "ENDTEXT", "LEFTPARENTHESIS", "LETTER", "PLUS"
+                  "QUESTION", "RIGHTPARENTHESIS", "TOKEN_ERROR", "VERTICALBAR")
 
-    TokLexemes = ("*", "$", "(", "letter", ")", "", "|")
+    TokLexemes = ("*", "$", "(", "letter", "+", "?", ")", "", "|")
 
     @classmethod
     def toStr(self, token):
