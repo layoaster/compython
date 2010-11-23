@@ -48,4 +48,4 @@ if __name__ == '__main__':
         finally:
             tc = ThompsonConstruction(parser.getASTSequence())
             tc.createGraph()
-            tc.drawGraph(args.fout, "svg")
+            tc.drawGraph(args.fout)
