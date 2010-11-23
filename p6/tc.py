@@ -11,14 +11,13 @@ Description: Contiene clase AST que representa un Arbol Sintactico Abstracto y c
 
 import pygraphviz as pgv
 from stack import *
-import string
 
 class ThompsonConstruction:
     _EPSILON = "&#949;"
 
     def __init__(self, seq):
         self._seq = seq
-        self._graph = pgv.AGraph(strict = False, directed = True, rankdir = 'LR', size = "6.0, 2.0")
+        self._graph = pgv.AGraph(strict = False, directed = True, rankdir = 'LR', size = "14.0, 6.0")
         self._graph.node_attr['shape'] = 'circle'
         #self._graph.rankdir = "LR"
         self._count = 1
@@ -30,52 +29,51 @@ class ThompsonConstruction:
         for symbol in self._seq:
             if symbol != '·':
                 newpair = (self._count, self._count + 1)
-                if symbol == '*': #cierre de Kleene
+                if symbol == '*': # Cierre de Kleene
                     lastpair = nodes.pop()
                     self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
                     self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON)
                     self._graph.add_edge(lastpair[1], lastpair[0], label = self._EPSILON)
                     self._graph.add_edge(newpair[0], newpair[1], label = self._EPSILON)
 
-                elif symbol == '|': #disyuncion
+                elif symbol == '|': # Disyuncion
                     while not nodes.isEmpty():
                         lastpair = nodes.pop()
                         self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
                         self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON)
 
-                else: #simbolos
+                else: # Simbolos
                     self._graph.add_edge(newpair[0], newpair[1], label = symbol, fontcolor='red')
 
                 nodes.push(newpair)
                 self._count += 2
-            else: #concatenacion
+            else: # Concatenacion
                 lastpair2 = nodes.pop()
                 lastpair1 = nodes.pop()
-                #self._graph.add_edge(lastpair1[1], lastpair2[0], label = self._EPSILON, fontcolor='red')
+                # Obteniendo nodos predecesores del nodo a eliminar, y asignando sus transiciones al nodo inicial del segundo subgrafo
                 for n in self._graph.predecessors(lastpair2[1]):
                     label = self._graph.get_edge(n, lastpair2[1]).attr["label"]
                     color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
                     self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
                     self._graph.delete_edge(n, lastpair2[1])
+                # Obteniendo nodos sucesores del nodo a preservar, y asignando sus transiciones al nodo final del primer subgrafo
                 for n in self._graph.successors(lastpair2[0]):
                     label = self._graph.get_edge(lastpair2[0], n).attr["label"]
                     color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
                     self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
                     self._graph.delete_edge(lastpair2[0], n)
-                #label = self._graph.get_edge(lastpair2[0], lastpair2[1]).attr["label"]
-                #self._graph.delete_edge(lastpair2[0], lastpair2[1])
-                #self._graph.add_edge(lastpair1[1], lastpair2[0], label = label)
+
                 self._graph.delete_node(lastpair2[1])
                 nodes.push((lastpair1[0], lastpair2[0]))
                 self._count -= 1
 
         lastpair = nodes.pop()
-        #creamos estado de arranque
-        self._graph.add_node(0, shape='point', width=0, height=0)
+        # Creamos estado de arranque
+        self._graph.add_node(0, shape = 'point', width = 0, height = 0)
         self._graph.add_edge(0, lastpair[0])
-        #creamos estado de aceptacion
+        # Creamos estado de aceptacion
         self._graph.get_node(lastpair[1]).attr['shape'] = "doublecircle"
-        #guardamos los estados de arranque y aceptacion del NFA
+        # Guardamos los estados de arranque y aceptacion del NFA
         self._start = 0
         self._end = lastpair[1]
 

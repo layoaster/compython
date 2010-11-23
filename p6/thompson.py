@@ -44,11 +44,11 @@ if __name__ == '__main__':
         except IOError as e:
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
-        finally:
-            if args.fout:
-                tc = ThompsonConstruction(parser.getASTSequence())
-                tc.createGraph()
-                if args.fout.partition('.')[2] == "dot":
-                    tc.writeDOT(args.fout)
-                else:
-                    tc.drawGraph(args.fout)
+        
+        if args.fout:
+            tc = ThompsonConstruction(parser.getASTSequence())
+            tc.createGraph()
+            if args.fout.partition('.')[2] == "dot":
+                tc.writeDOT(args.fout)
+            else:
+                tc.drawGraph(args.fout)
