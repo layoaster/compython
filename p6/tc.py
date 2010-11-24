@@ -19,7 +19,6 @@ class ThompsonConstruction:
         self._seq = seq
         self._graph = pgv.AGraph(strict = False, directed = True, rankdir = 'LR', size = "14.0, 6.0")
         self._graph.node_attr['shape'] = 'circle'
-        #self._graph.rankdir = "LR"
         self._count = 1
         self._start = None
         self._end = None
@@ -73,17 +72,17 @@ class ThompsonConstruction:
         # Obteniendo nodos predecesores del nodo que se elimina, y asignando sus transiciones al nodo inicial del segundo subgrafo
         for n in self._graph.predecessors(lastpair2[1]):
             label = self._graph.get_edge(n, lastpair2[1]).attr["label"]
-	    color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
-	    self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
-	    self._graph.delete_edge(n, lastpair2[1])
+            color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
+            self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
+            self._graph.delete_edge(n, lastpair2[1])
         # Obteniendo nodos sucesores del nodo que se preserva, y asignando sus transiciones al nodo final del primer subgrafo
         for n in self._graph.successors(lastpair2[0]):
-	    label = self._graph.get_edge(lastpair2[0], n).attr["label"]
-	    color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
-	    self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
-	    self._graph.delete_edge(lastpair2[0], n)
+            label = self._graph.get_edge(lastpair2[0], n).attr["label"]
+            color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
+            self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
+            self._graph.delete_edge(lastpair2[0], n)
         # Eliminando el nodo sobrante
-	self._graph.delete_node(lastpair2[1])
+        self._graph.delete_node(lastpair2[1])
 
     def _kClosure(self, newpair, lastpair):
         self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
@@ -92,8 +91,8 @@ class ThompsonConstruction:
         self._graph.add_edge(newpair[0], newpair[1], label = self._EPSILON)
 
     def _disjunction(self, newpair, lastpair):
-	self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
-	self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON)
+        self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
+        self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON)
 
     def writeDOT(self, filename = "graph.dot"):
         self._graph.write(filename)
