@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
     argparser = argparse.ArgumentParser(description='Realiza la construccion de thompson de una expresion regular, generando a la salida una imagen o un fichero DOT')
     argparser.add_argument('fin', metavar='regex_file', type=str, action='store', help='fichero de expresion regular')
-    argparser.add_argument('fout', metavar='output_file', type=str, action='store', nargs='?', help='fichero DOT | fichero de imagen (‘gif’, ‘jpe’, ‘jpeg’, ‘jpg’, ‘pdf’, ‘pic’, ‘png’, ‘ps’, ‘ps2’, ‘svg’, ‘svgz’, ‘wbmp’, ‘xdot’, ‘xlib’)')
+    argparser.add_argument('fout', metavar='output_file', type=str, action='store', nargs='?', help='fichero DOT | JFLAP | fichero de imagen (‘gif’, ‘jpe’, ‘jpeg’, ‘jpg’, ‘pdf’, ‘pic’, ‘png’, ‘ps’, ‘ps2’, ‘svg’, ‘svgz’, ‘wbmp’, ‘xdot’, ‘xlib’)')
     argparser.add_argument('-w', metavar='file.html', type=str, dest="web", help='genera fichero html con el AST de la expresion y su construccion de Thompson')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
@@ -52,6 +52,9 @@ if __name__ == '__main__':
             if args.fout.partition('.')[2] == "dot":
                 tc.writeDOT(args.fout)
                 print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " DOT file written to '" + args.fout + "'"
+            elif rgs.fout.partition('.')[2] == "jff":
+                tc.writeJFLAP(args.fout)
+                print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " JFlap file written to '" + args.fout + "'"
             else:
                 tc.drawGraph(args.fout)
                 print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " Thompson Construction graph written to '" + args.fout + "'"
