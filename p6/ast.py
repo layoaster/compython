@@ -71,7 +71,7 @@ class AbstractSyntaxTree:
         """
         self._preorder = []
         self.preOrder(self.getRoot())
-        return self._strtree, self._preorder
+        return self._strtree, self._preorder, self._postorder
 
 
 class Node:

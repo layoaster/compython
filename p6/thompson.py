@@ -19,7 +19,9 @@ from html import generateWebOutput
 def webOutput(output):
     """Crea el archivo html que genera el Árbol de Análisis Sintático correspondiente al codigo fuente parseado
     """
-    generateWebOutput(output, parser.getAST()[0], args.fout)
+    fin = open(args.fin, "rU")
+    generateWebOutput(output, fin.readline(), parser.getAST()[0], parser.getAST()[2], args.fout)
+    fin.close()
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos

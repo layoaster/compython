@@ -99,7 +99,7 @@ def tail():
 </body>
 </html>'''
 
-def generateWebOutput(page, ast, image):
+def generateWebOutput(page, rexp, ast, postorder, image):
     output = '''
     <html>
     <head>
@@ -119,20 +119,21 @@ def generateWebOutput(page, ast, image):
     outputpage.close()
     # Pagina que muestra el AST
     astpage = open("ast.html", "w")
-    astpage.write(generatePHPSyntaxTree(ast))
+    astpage.write(generatePHPSyntaxTree(ast, postorder))
     astpage.close()
     # Pagina que muestra el NFA
     nfa = head("NFA")
     nfa += '''
     <p align="center">
-    <img src="''' + image + '''">
+    <img src="''' + image + '''"><br>
+    <font face="Courier" size=5><strong>''' + rexp + '''    </strong></p>
     '''
     nfa += tail()
     nfapage = open("nfa.html", "w")
     nfapage.write(nfa)
     nfapage.close()
 
-def generatePHPSyntaxTree(ast):
+def generatePHPSyntaxTree(ast, postorder):
     page = '''
 <html>
 <head>
@@ -145,6 +146,10 @@ def generatePHPSyntaxTree(ast):
 action="http://banot.etsii.ull.es/alu2756/tree/index.php"
 method=post>
   <input type="hidden" name="ast" value="''' + ast + '''">
+  <input type="hidden" name="postorder" value="'''
+    for i in postorder:
+        page += i + " "
+    page +='''">
 </form>
 
 <script language="Javascript">
