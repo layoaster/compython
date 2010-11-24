@@ -102,30 +102,55 @@ class ThompsonConstruction:
         self._graph.write(filename)
 
     def writeJFLAP(self, filename = "graph.jff"):
-        jffheader = '''
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+        jffheader = '''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <structure>
 	<type>fa</type>
-	<automaton>
-		<!--The list of states.-->'''
+	<automaton>'''
         jfftail = '''
 	</automaton>
 </structure>'''
         fout = open(filename, "w")
+        # Header
         fout.write(jffheader)
+        # List of states
+        jffstate ='''
+		<!--The list of states.-->'''
         for node in self._graph.nodes():
-            if node != self._start:
-		print node
+            if node != str(self._start):
                 jffstate = '''
-		<state id="0" name=q"''' + node  + '''">'''
-                if node == self._jflapstart:
+		<state id="''' + str(int(node) - 1) + '''" name="q''' + self._graph.get_node(node)  + '''">'''
+                if node == str(self._jflapstart):
                     jffstate += '''
 			<initial/>'''
+                if node == str(self._end):
+                    jffstate += '''
+			<final/>'''
                 jffstate += '''
 		</state>'''
                 fout.write(jffstate)
-
+        # List of transitions
+        jfftrans ='''
+		<!--The list of transitions.-->'''
+        for edge in self._graph.edges_iter():
+            if edge[0] != "0":
+                jfftrans +='''
+                <transition>'''
+                jfftrans +='''
+                        <from>''' + edge[0] + '''</from>'''
+                jfftrans +='''
+                        <to>''' + edge[1] + '''</to>'''
+                if edge.attr['label'] != self._EPSILON:
+                    jfftrans += '''
+                        <read>''' + edge.attr['label'] + '''</read>'''
+                else:
+                    jfftrans +='''
+                        <!-- epsilon -->
+                        <read/>'''
+                jfftrans += '''
+                </transition>'''
+        fout.write(jfftrans)
         fout.write(jfftail)
+        # Tail
         fout.close()
 
     def drawGraph(self, filename = "graph.svg"):
