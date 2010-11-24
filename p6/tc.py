@@ -22,6 +22,7 @@ class ThompsonConstruction:
         self._count = 1
         self._start = None
         self._end = None
+        self._jflapstart = None
 
     def createGraph(self):
         nodes = Stack()
@@ -62,6 +63,7 @@ class ThompsonConstruction:
         # Guardamos los estados de arranque y aceptacion del NFA
         self._start = 0
         self._end = lastpair[1]
+        self._jflapstart = lastpair[0]
 
     def _positiveClosure(self, topair):
         self._graph.add_edge(topair[1], topair[0], label = self._EPSILON)
@@ -98,6 +100,33 @@ class ThompsonConstruction:
 
     def writeDOT(self, filename = "graph.dot"):
         self._graph.write(filename)
+
+    def writeJFLAP(self, filename = "graph.jff"):
+        jffheader = '''
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<structure>
+	<type>fa</type>
+	<automaton>
+		<!--The list of states.-->'''
+        jfftail = '''
+	</automaton>
+</structure>'''
+        fout = open(filename, "w")
+        fout.write(jffheader)
+        for node in self._graph.nodes():
+            if node != self._start:
+		print node
+                jffstate = '''
+		<state id="0" name="''' + self._graph.get_node(node).attr['label']  + '''">'''
+                if node == self._jflapstart:
+                    jffstate += '''
+			<initial/>'''
+                jffstate += '''
+		</state>'''
+                fout.write(jffstate)
+
+        fout.write(jfftail)
+        fout.close()
 
     def drawGraph(self, filename = "graph.svg"):
         self._graph.draw(filename, format = filename.partition('.')[2], prog = 'dot')

@@ -52,7 +52,7 @@ if __name__ == '__main__':
             if args.fout.partition('.')[2] == "dot":
                 tc.writeDOT(args.fout)
                 print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " DOT file written to '" + args.fout + "'"
-            elif rgs.fout.partition('.')[2] == "jff":
+            elif args.fout.partition('.')[2] == "jff":
                 tc.writeJFLAP(args.fout)
                 print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " JFlap file written to '" + args.fout + "'"
             else:
