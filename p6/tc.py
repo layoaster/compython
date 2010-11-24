@@ -118,7 +118,7 @@ class ThompsonConstruction:
         for node in self._graph.nodes():
             if node != str(self._start):
                 jffstate = '''
-		<state id="''' + str(int(node) - 1) + '''" name="q''' + self._graph.get_node(node)  + '''">'''
+		<state id="''' + str(node) + '''" name="q''' + self._graph.get_node(node)  + '''">'''
                 if node == str(self._jflapstart):
                     jffstate += '''
 			<initial/>'''
