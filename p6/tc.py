@@ -44,9 +44,9 @@ class ThompsonConstruction:
                     lastpair = nodes.pop()
                     self._kClosure(newpair, lastpair)
                 elif symbol == '|':
-                    while not nodes.isEmpty():
-                        lastpair = nodes.pop()
-                        self._disjunction(newpair,lastpair)
+                    lastpair2 = nodes.pop()
+                    lastpair1 = nodes.pop()
+                    self._disjunction(newpair, lastpair1, lastpair2)
                 else:
                     self._graph.add_edge(newpair[0], newpair[1], label = symbol, fontcolor='red')
 
@@ -90,9 +90,11 @@ class ThompsonConstruction:
         self._graph.add_edge(lastpair[1], lastpair[0], label = self._EPSILON)
         self._graph.add_edge(newpair[0], newpair[1], label = self._EPSILON)
 
-    def _disjunction(self, newpair, lastpair):
-        self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
-        self._graph.add_edge(lastpair[1], newpair[1], label = self._EPSILON)
+    def _disjunction(self, newpair, lastpair1, lastpair2):
+        self._graph.add_edge(newpair[0], lastpair1[0], label = self._EPSILON)
+        self._graph.add_edge(newpair[0], lastpair2[0], label = self._EPSILON)
+        self._graph.add_edge(lastpair1[1], newpair[1], label = self._EPSILON)
+        self._graph.add_edge(lastpair2[1], newpair[1], label = self._EPSILON)
 
     def writeDOT(self, filename = "graph.dot"):
         self._graph.write(filename)
