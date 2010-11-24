@@ -36,7 +36,7 @@ if __name__ == '__main__':
         parser = SynAn()
         try:
             parser.start(args.fin)
-            print Colors.OKGREEN + "All OK" + Colors.ENDC
+            print Colors.OKGREEN + "[ALL OK]" + Colors.ENDC + " Well-formed regular expression"
         except Error as e:
             e.printError()
             exit(1)
@@ -49,9 +49,11 @@ if __name__ == '__main__':
             tc.createGraph()
             if args.fout.partition('.')[2] == "dot":
                 tc.writeDOT(args.fout)
+                print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " DOT file written to '" + args.fout + "'"
             else:
                 tc.drawGraph(args.fout)
+                print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " Thompson Construction graph written to '" + args.fout + "'"
 
         if args.web and args.fout:
             webOutput(args.web)
-
+            print Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebThompson written to '" + args.web + "'"
