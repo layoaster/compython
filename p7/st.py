@@ -10,6 +10,7 @@ Description: Analizador Lexico para Pascal-.
 """
 
 from token import WrapTk
+from idclass import WrapCl
 
 class SymbolTable:
     """Clase para la gestion de la tabla de simbolos"""
@@ -55,14 +56,14 @@ class SymbolTable:
         self._table["var"] = [True, WrapTk.VAR]
         self._table["while"] = [True, WrapTk.WHILE]
         # Insertamos los identificadores estandar
-        self.insert("integer")
-        self.insert("boolean")
-        self.insert("false")
-        self.insert("true")
-        self.insert("read")
-        self.insert("write")
+        self.insert("integer", WrapCl.STANDARD_TYPE)
+        self.insert("boolean", WrapCl.STANDARD_TYPE)
+        self.insert("false", WrapCl.CONSTANT)
+        self.insert("true", WrapCl.CONSTANT)
+        self.insert("read", WrapCl.STANDARD_PROC)
+        self.insert("write", WrapCl.STANDARD_PROC)
 
-    def insert(self, lex, reserved = False):
+    def insert(self, lex, kind = None, reserved = False):
         """ Descripción:
                 Inserta los identificadores en la tabla de simbolos que
                 detecta el analizador lexico. Al no ser palabras reservadas,
