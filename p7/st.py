@@ -44,7 +44,7 @@ class LocalSymbolTable:
                 True : si se realizo la insercion
                 False: en caso contrario
         """
-        if not self.isIn(lex)
+        if not self.isIn(lex):
             self._table[lex] = attr
             return True
         else:
@@ -58,10 +58,16 @@ class LocalSymbolTable:
                 True: si se encontro;
                 False: en caso contrario.
         """
-        if lex in self._table
+        if lex in self._table:
             return True
         else:
             return False
+
+    def __str__(self):
+        string = ""
+        for i in self._table:
+            string = string + i
+        return string
 
 
 
@@ -71,7 +77,7 @@ class SymbolTable:
         self._blockstack = Stack()
         self._blocklevel = 0
         self._index = 0
-        self._localst = LocalST()
+        self._localst = LocalSymbolTable()
         self.insert("NoName", kind=WrapCl.STANDARD_TYPE)
         self.insert("integer", kind=WrapCl.STANDARD_TYPE)
         self.insert("boolean", kind=WrapCl.STANDARD_TYPE)
@@ -80,8 +86,7 @@ class SymbolTable:
         self.insert("read", kind=WrapCl.STANDARD_PROC)
         self.insert("write", kind=WrapCl.STANDARD_PROC)
         self.set(self._localst)
-        }
-
+        
     def set(self, localst):
         self._blockstack.push(localst)
         self._blocklevel += 1
@@ -93,7 +98,7 @@ class SymbolTable:
 
     def insert(self, lex, **attr):
         attr["index"] = self._index
-        if self._localst.insert(self, lex, attr):
+        if self._localst.insert(lex, attr):
 	    self._index += 1
         else:
             print "ERROR: identificador", lex, "repetido."
@@ -104,7 +109,11 @@ class SymbolTable:
     def lookup(self, lex):
         if not search(self, lex):
             for self._blocklevel in range(self._blocklevel, -1, -1):
-                if self._tablestack[self._blocklevel].search(lex):
-                    self._blocklevel = len(self._tablestack - 1)
+                if self._blockstack[self._blocklevel].search(lex):
+                    self._blocklevel = len(self._blockstack - 1)
                     return True
         return False
+
+    def printTable(self):
+        for i in self._blockstack:
+            print i
