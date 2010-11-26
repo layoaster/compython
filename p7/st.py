@@ -12,7 +12,7 @@ Description: Analizador Lexico para Pascal-.
 from token import WrapTk
 from idclass import WrapCl
 
-class SymbolTable:
+class LocalSymbolTable:
     """Clase para la gestion de la tabla de simbolos"""
 
     def __init__(self):
@@ -144,8 +144,6 @@ class SymbolTable:
                 print j, "\t",
             print ""
 
-# Objeto de la clase SymbolTable que se utilizara como tabla de simbolos
-# del compilador. El hecho de que se instancie en este modulo obedece a
-# que debe estar accesible durante todo el proceso de compilacion, para
-# que otras fases accedan y/o escriban en ella.
-st = SymbolTable()
+class SymbolTable:
+
+    def __init__(self):
