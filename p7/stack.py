@@ -51,6 +51,19 @@ class Stack:
         """
         return self._stack[-3:]
 
+    def __getitem__(self, i):
+        """ Sobrecarga del operador de indexado devuelve el contenido de la pila del nivel indicador por i
+        """
+        try:
+            return self._stack[i]
+        except IndexError:
+            raise
+
+    def __len__(self):
+        """ Sobrecarga de la funcion que determina la longitud
+        """
+        return len(self._stack)
+
     def __str__(self):
         """ Representacion string del objeto pila (util en trazas)
         """
