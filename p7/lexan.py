@@ -43,6 +43,29 @@ class LexAn:
         (WrapTk.SEMICOLON,       r";")
     ]
 
+    _reserved = { 
+        "and"       : WrapTk.AND,
+        "array"     : WrapTk.ARRAY,
+        "begin"     : WrapTk.BEGIN,
+        "const"     : WrapTk.CONST,
+        "div"       : WrapTk.DIV,
+        "do"        : WrapTk.DO,
+        "else"      : WrapTk.ELSE,
+        "end"       : WrapTk.END,
+        "if"        : WrapTk.IF,
+        "mod"       : WrapTk.MOD,
+        "not"       : WrapTk.NOT,
+        "of"        : WrapTk.OF,
+        "or"        : WrapTk.OR,
+        "procedure" : WrapTk.PROCEDURE,
+        "program"   : WrapTk.PROGRAM,
+        "record"    : WrapTk.RECORD,
+        "then"      : WrapTk.THEN,
+        "type"      : WrapTk.TYPE,
+        "var"       : WrapTk.VAR,
+        "while"     : WrapTk.WHILE
+    }
+
     def __init__(self):
         """ Constructor de la clase
         """
@@ -160,11 +183,12 @@ class LexAn:
             self._buffer = self._buffer[match.end():]
 
             if token == WrapTk.ID:
-                if st.isReserved(value.lower()):
-                    return Token(st.getIndex(value.lower()))
-                if not st.isIn(value.lower()):
-                    st.insert(value.lower())
-                return Token(WrapTk.ID, value.lower())
+                if value.lower() in self._reserved:
+                    return Token(self._reserved[value.lower()])
+                #if not st.isIn(value.lower()):
+                #    st.insert(value.lower())
+                else:
+                    return Token(WrapTk.ID, value.lower())
             elif token == WrapTk.NUMERAL:
                 if int(value) > 32767:
                     LexError(LexError.INT_OVERFLOW, self.getPos())
