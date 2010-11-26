@@ -9,6 +9,7 @@ Description: Analizador Lexico para Pascal-.
   $Revision$
 """
 
+from stack import *
 from token import WrapTk
 from idclass import WrapCl
 
@@ -64,8 +65,46 @@ class LocalSymbolTable:
 
 
 
-
-
 class SymbolTable:
 
     def __init__(self):
+        self._blockstack = Stack()
+        self._blocklevel = 0
+        self._index = 0
+        self._localst = LocalST()
+        self.insert("NoName", kind=WrapCl.STANDARD_TYPE)
+        self.insert("integer", kind=WrapCl.STANDARD_TYPE)
+        self.insert("boolean", kind=WrapCl.STANDARD_TYPE)
+        self.insert("false", kind=WrapCl.CONSTANT)
+        self.insert("true", kind=WrapCl.CONSTANT)
+        self.insert("read", kind=WrapCl.STANDARD_PROC)
+        self.insert("write", kind=WrapCl.STANDARD_PROC)
+        self.set(self._localst)
+        }
+
+    def set(self, localst):
+        self._blockstack.push(localst)
+        self._blocklevel += 1
+
+    def reset(self):
+        self._blockstack.pop()
+        #if not self._blocktable.isEmpty():
+        self._blocklevel -= 1
+
+    def insert(self, lex, **attr):
+        attr["index"] = self._index
+        if self._localst.insert(self, lex, attr):
+	    self._index += 1
+        else:
+            print "ERROR: identificador", lex, "repetido."
+
+    def _search(self, lex):
+        return self._localst.isIn(lex)
+
+    def lookup(self, lex):
+        if not search(self, lex):
+            for self._blocklevel in range(self._blocklevel, -1, -1):
+                if self._tablestack[self._blocklevel].search(lex):
+                    self._blocklevel = len(self._tablestack - 1)
+                    return True
+        return False
