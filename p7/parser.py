@@ -26,10 +26,13 @@ class SynAn:
             _linerror = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
         """
         self._lookahead = None
+        self._idtemp = None
+        self._kindtemp = None
         self._scanner = None
         self._ff = FFSets()
         self._linerror = 0
         self._strTree = ""
+        self._st = SymbolTable()
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -93,14 +96,20 @@ class SynAn:
 
     # <Program> ::= program id ; <BlockBody> .
     def _program(self, stop):
+        self._st.set()
         self._strTree += "[<Program>"
         self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("blockBody")))
+        if self._lookahead == WrapTk.ID:
+            self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CL_VARIABLE)
+        else:
+            self._st.insert("NoName", kind=WrapCl.CL_VARIABLE)
         self._match(WrapTk.ID, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
         self._match(WrapTk.PERIOD, stop)
         #self._match(WrapTk.ENDTEXT, stop)
         self._strTree += "]"
+        self._st.reset()
 
     # <BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>}
     # <CompoundStatement>
@@ -129,6 +138,11 @@ class SynAn:
     # <ConstantDefinition> ::= id = <Constant> ;
     def _constantDefinition(self, stop):
         self._strTree += "[<ConstantDefinition>"
+        # Tener cuidado con las autodefiniciones (a = a;) 
+        if self._lookahead == WrapTk.ID:
+            self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CL_CONSTANT
+        else:
+            self._st.insert("NoName", kind=CL_CONSTANT))
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("constant")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
         self._constant(stop.union([WrapTk.SEMICOLON]))
@@ -144,9 +158,13 @@ class SynAn:
             self._typeDefinition(stop.union(self._ff.first("typeDefinition")))
         self._strTree += "]"
 
-    # <TypeDefintion> ::= id = <NewType> ;
+    # <TypeDefinition> ::= id = <NewType> ;
     def _typeDefinition(self, stop):
         self._strTree += "[<TypeDefinition>"
+        if self._lookahead == WrapTk.ID:
+            self._idtemp = self._lookahead.getLexeme()
+        else:
+            self._idtemp = "NoName"
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("newType")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("newType")))
         self._newType(stop.union([WrapTk.SEMICOLON]))
@@ -157,8 +175,10 @@ class SynAn:
     def _newType(self, stop):
         self._strTree += "[<NewType>"
         if self._lookahead == WrapTk.ARRAY:
+            self._st.insert(self._idtemp, kind=CL_ARRAY_TYPE)
             self._newArrayType(stop)
         elif self._lookahead == WrapTk.RECORD:
+            self._st.insert(self._idtemp, kind=CL_RECORD_TYPE)
             self._newRecordType(stop)
         else:
             self._syntaxError(stop, self._ff.first("newType"))
@@ -172,6 +192,10 @@ class SynAn:
         self._indexRange(stop.union((WrapTk.RIGHTBRACKET, WrapTk.OF, WrapTk.ID)))
         self._match(WrapTk.RIGHTBRACKET, stop.union((WrapTk.OF, WrapTk.ID)))
         self._match(WrapTk.OF, stop.union([WrapTk.ID]))
+        # Tener cuidado con las autodefiniciones, Ej:
+        # pepe = array [1..10] of pepe;
+        if self._lookahead == WrapTk.ID:
+            self._st.lookup(self._lookahead.getLexeme())
         self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
@@ -203,11 +227,25 @@ class SynAn:
     # <RecordSection> ::= id {, id} : id
     def _recordSection(self, stop):
         self._strTree += "[<RecordSection>"
+        # Tener cuidado con las autodefiniciones, Ej:
+        # paco = record
+        #           campo1, campo2 : paco;
+        #        end;
+        if self._lookahead == WrapTk.ID:
+            self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CL_FIELD)
+        else:
+            self._st.insert("NoName", kind=WrapCl.CL_FIELD)
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
+            if self._lookahead == WrapTk.ID:
+                self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CL_FIELD)
+            else:
+                self._st.insert("NoName", kind=WrapCl.CL_FIELD)
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
+        if self._lookahead == WrapTk.ID:
+            self._st.lookup(self._lookahead.getLexeme())
         self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
@@ -223,19 +261,29 @@ class SynAn:
     # <VariableDefinition> ::= <VariableGroup> ;
     def _variableDefinition(self, stop):
         self._strTree += "[<VariableDefinition>"
+        self._kindtemp = WrapCl.CL_VARIABLE
         self._variableGroup(stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
         self._strTree += "]"
 
-
     # <VariableGroup> ::= id {, id} : id
     def _variableGroup(self, stop):
         self._strTree += "[<VariableGroup>"
+        if self._lookahead == WrapTk.ID:
+            self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp)
+        else:
+            self._st.insert("NoName", kind=self._kindtemp)
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
+            if self._lookahead == WrapTk.ID:
+                self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp)
+            else:
+                self._st.insert("NoName", kind=self._kindtemp)
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
+        if self._lookahead == WrapTk.ID:
+            self._st.lookup(self._lookahead.getLexeme())
         self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
@@ -243,6 +291,10 @@ class SynAn:
     def _procedureDefinition(self, stop):
         self._strTree += "[<ProcedureDefinition>"
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
+        if self._lookahead == WrapTk.ID:
+            self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CL_PROCEDURE)
+        else:
+            self._st.insert("NoName", kind=WrapCl.CL_PROCEDURE)
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
         self._procedureBlock(stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
@@ -250,6 +302,7 @@ class SynAn:
 
     # <ProcedureBlock> ::= [( <FormalParameterList> )] ; <BlockBody>
     def _procedureBlock(self, stop):
+        self._st.set()
         self._strTree += "[<ProcedureBlock>"
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("formalParameterList"), self._ff.first("blockBody")))
@@ -258,6 +311,7 @@ class SynAn:
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
         self._strTree += "]"
+        self._st.reset()
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
     def _formalParameterList(self, stop):
@@ -272,7 +326,10 @@ class SynAn:
     def _parameterDefinition(self, stop):
         self._strTree += "[<ParameterDefinition>"
         if self._lookahead == WrapTk.VAR:
+            self._kindtemp = CL_VAR_PARAMETER
             self._match(WrapTk.VAR, stop.union(self._ff.first("variableGroup")))
+        else:
+            self._kindtemp = CL_VALUE_PARAMETER
         self._variableGroup(stop)
         self._strTree += "]"
 
@@ -280,6 +337,7 @@ class SynAn:
     def _statement(self, stop):
         self._strTree += "[<Statement>"
         if self._lookahead == WrapTk.ID:
+            self._st.lookup(self._lookahead.getLexeme())
             self._match(WrapTk.ID, stop.union(self._ff.first("statementGroup")))
             self._statementGroup(stop)
         elif self._lookahead == WrapTk.IF:
@@ -450,6 +508,7 @@ class SynAn:
         if self._lookahead == WrapTk.NUMERAL:
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
+            self._st.lookup(self._lookahead.getLexeme())
             self._match(WrapTk.ID, stop.union(self._ff.first("selector")))
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union(self._ff.first("selector")))
@@ -487,6 +546,8 @@ class SynAn:
     def _fieldSelector(self, stop):
         self._strTree += "[<FieldSelector>"
         self._match(WrapTk.PERIOD, stop.union([WrapTk.ID]))
+        if self._lookahead == WrapTk.ID:
+            self._st.lookup(self._lookahead.getLexeme())
         self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
@@ -496,6 +557,7 @@ class SynAn:
         if self._lookahead == WrapTk.NUMERAL:
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
+            self._st.lookup(self._lookahead.getLexeme())
             self._match(WrapTk.ID, stop)
         else:
             self._syntaxError(stop, self._ff.first("constant"))
