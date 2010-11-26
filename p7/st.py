@@ -17,132 +17,54 @@ class LocalSymbolTable:
 
     def __init__(self):
         """ Descripción:
-                El constructor inicializa la tabla de simbolos insertando
-                las palabras reservadas y los identificadores estandar,
-                haciendo uso de la clase Dictionary, que implementa una
-                tabla hash. La clave de busqueda es una cadena de caracteres
-                y el valor una lista de 2 elementos: 1 valor boolean que
-                indica si la cadena es una palabra reservadas y 1 indice
-                para los identificadores que se utilizara en sucesivas etapas
-                del compilador. Las palabras reservadas no tienen indice,
-                pero utilizamos ese espacio para almacenar su token_ID.
+                Tabla de Simbolos Local que contiene solo los identificadores
+                declarados en un determinado ambito (bloque). Implementada como
+                tabla hash haciendo uso de los diccionarios.
+            Atributos de Clase:
+                _table = tabla hash
             Parametros:
                 Ninguno
-
             Valor de retorno:
                 Ninguno
 	"""
         self._table = {}
-        self._index = 1
-        # Insertamos las palabras reservadas
-        self._table["and"] = [True, WrapTk.AND]
-        self._table["array"] = [True, WrapTk.ARRAY]
-        self._table["begin"] = [True, WrapTk.BEGIN]
-        self._table["const"] = [True, WrapTk.CONST]
-        self._table["div"] = [True, WrapTk.DIV]
-        self._table["do"] = [True, WrapTk.DO]
-        self._table["else"] = [True, WrapTk.ELSE]
-        self._table["end"] = [True, WrapTk.END]
-        self._table["if"] = [True, WrapTk.IF]
-        self._table["mod"] = [True, WrapTk.MOD]
-        self._table["not"] = [True, WrapTk.NOT]
-        self._table["of"] = [True, WrapTk.OF]
-        self._table["or"] = [True, WrapTk.OR]
-        self._table["procedure"] = [True, WrapTk.PROCEDURE]
-        self._table["program"] = [True, WrapTk.PROGRAM]
-        self._table["record"] = [True, WrapTk.RECORD]
-        self._table["then"] = [True, WrapTk.THEN]
-        self._table["type"] = [True, WrapTk.TYPE]
-        self._table["var"] = [True, WrapTk.VAR]
-        self._table["while"] = [True, WrapTk.WHILE]
-        # Insertamos los identificadores estandar
-        self.insert("integer", WrapCl.STANDARD_TYPE)
-        self.insert("boolean", WrapCl.STANDARD_TYPE)
-        self.insert("false", WrapCl.CONSTANT)
-        self.insert("true", WrapCl.CONSTANT)
-        self.insert("read", WrapCl.STANDARD_PROC)
-        self.insert("write", WrapCl.STANDARD_PROC)
 
-    def insert(self, lex, kind = None, reserved = False):
+    def insert(self, lex, attr):
         """ Descripción:
-                Inserta los identificadores en la tabla de simbolos que
-                detecta el analizador lexico. Al no ser palabras reservadas,
-                por defecto se toma False para el primer elemento del valor.
-                Como indice se utiliza el valor actual de self._index, el cual
-                se incrementa para dejarlo preparado para la siguiente entrada.
-
+                Inserta los identificadores y sus atributos en la TSL, comprueba
+                que el identificador no este en la tabla para poder insertarlo,
+                en cas contrario notificara que ya estaba insertado,
             Parametros:
-                - lex: Cadena de caracteres que se inserta como identificador.
-                - reserved: Boolean que indica si el identificador es una
-                            palabra reservada o no. Por defecto, False.
-
+                - lex: Lexema del identificador que hara de clave primaria
+                - attr: diccionario de atributos variable que acompañan al
+                        identificador, los unicos atributos estaticos son el
+                        "index" y el "kind"
             Valor de retorno:
-                Ninguno
+                True : si se realizo la insercion
+                False: en caso contrario
         """
-        atributes = [reserved, self._index]
-        self._table[lex] = atributes
-        self._index += 1
+        if not self.isIn(lex)
+            self._table[lex] = attr
+            return True
+        else:
+            return False
 
     def isIn(self, lex):
-        """ Descripción:
-                Comprueba si una cadena de caracteres esta en la tabla.
-
+        """ Descripción: Determina si el identificador ya esta en la TSL.
             Parametros:
-                - lex: Cadena de caracteres que se buscara.
-
+                lex: Lexema del identificador a buscar
             Valor de retorno:
-                True si se encontro; False en caso contrario.
+                True: si se encontro;
+                False: en caso contrario.
         """
-        return lex in self._table
+        if lex in self._table
+            return True
+        else:
+            return False
 
-    def isReserved(self, lex):
-        """ Descripción:
-                Comprueba si una cadena de caracteres es palabra reservada.
 
-            Parametros:
-                - lex: Cadena de caracteres que se buscara.
 
-            Valor de retorno:
-                True si es palabra reservada; False en caso contrario.
-        """
-        try:
-            return self._table[lex][0]
-        except KeyError:
-            return None
 
-    def getIndex(self, lex):
-        """ Descripción:
-                Devuelve el indice asociado a una cadena de caracteres.
-            Parametros:
-                - lex: Cadena de caracteres que se buscara.
-
-            Valor de retorno:
-                Indice asociado a la cadena de caracteres.
-        """
-        try:
-            return self._table[lex][1]
-        except KeyError:
-            return None
-        except IndexError:
-            return None
-
-    def printTable(self):
-        """ Descripción:
-                Imprime la tabla de simbolos por pantalla a efectos de
-                comprobacion. No forma parte del proceso de compilacion.
-.
-            Parametros:
-                Ninguno.
-
-            Valor de retorno:
-                Nada.
-        """
-
-        for i in self._table:
-            print i + "\t\t",
-            for j in self._table[i]:
-                print j, "\t",
-            print ""
 
 class SymbolTable:
 
