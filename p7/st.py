@@ -66,7 +66,7 @@ class LocalSymbolTable:
     def __str__(self):
         string = ""
         for i in self._table:
-            string = string + i
+            string = string + i + " "
         return string
 
 
@@ -108,12 +108,12 @@ class SymbolTable:
         return self._blockstack.top().isIn(lex)
 
     def lookup(self, lex):
-        print "lookup con lex = ", lex, "; BL = ", self._blocklevel
+        #print "lookup con lex = ", lex, "; BL = ", self._blocklevel
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
-                return True
+                return
         print "ERROR: identificador", lex, "no encontrado"
-        return False
+        self.insert(lex, kind=WrapCl.UNDEFINED)
 
     def printTable(self):
         for i in self._blockstack:
