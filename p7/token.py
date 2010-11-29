@@ -120,12 +120,6 @@ class Token:
         """
         return WrapTk.TokLexemes[self._token - 1]
 
-    def __contains__(self, tk):
-        if self._token == tk._token:
-            return True
-        else:
-            return False
-
     def __eq__(self, token):
         """ Sobrecarga del operador de comparacion "igual que", para establecer las comparaciones con un enteros
             tambien es necesario para insertar el objeto en un set/frozenset
@@ -142,4 +136,11 @@ class Token:
         return self._token
 
     def __str__(self):
+        """ Sobrecarga del operador de representacion informal en string
+        """
+        return self.getLexeme()
+
+    def __repr__(self):
+        """ Definicion del la representacion "oficial" del objeto en tipo string
+        """
         return self.getLexeme()
