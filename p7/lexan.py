@@ -13,7 +13,6 @@ import sys
 import string
 import re
 from error import LexError
-from st import SymbolTable, st
 from token import WrapTk, Token
 
 class LexAn:
@@ -43,7 +42,7 @@ class LexAn:
         (WrapTk.SEMICOLON,       r";")
     ]
 
-    _reserved = { 
+    _reserved = {
         "and"       : WrapTk.AND,
         "array"     : WrapTk.ARRAY,
         "begin"     : WrapTk.BEGIN,

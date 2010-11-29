@@ -85,13 +85,14 @@ class SymbolTable:
         self.insert("true", kind=WrapCl.CONSTANT)
         self.insert("read", kind=WrapCl.STANDARD_PROC)
         self.insert("write", kind=WrapCl.STANDARD_PROC)
-        self.set(self._localst)
-        
-    def set(self, localst):
-        self._blockstack.push(localst)
+        self.set()
+
+    def set(self):
+        self._blockstack.push(self._localst)
         self._blocklevel += 1
 
     def reset(self):
+        print self._blockstack
         self._blockstack.pop()
         #if not self._blocktable.isEmpty():
         self._blocklevel -= 1
@@ -107,7 +108,7 @@ class SymbolTable:
         return self._localst.isIn(lex)
 
     def lookup(self, lex):
-        if not search(self, lex):
+        if not self._search(lex):
             for self._blocklevel in range(self._blocklevel, -1, -1):
                 if self._blockstack[self._blocklevel].search(lex):
                     self._blocklevel = len(self._blockstack - 1)

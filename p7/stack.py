@@ -55,6 +55,7 @@ class Stack:
         """ Sobrecarga del operador de indexado devuelve el contenido de la pila del nivel indicador por i
         """
         try:
+            print "CHIVATO:" ,i
             return self._stack[i]
         except IndexError:
             raise
@@ -69,5 +70,5 @@ class Stack:
         """
         string = ""
         for i in self._stack:
-            string = string + str(i.getLabel()) + " | "
+            string = string + " " + str(i) + " " + " | "
         return string
