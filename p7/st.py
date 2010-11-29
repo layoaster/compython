@@ -41,13 +41,15 @@ class LocalSymbolTable:
                         identificador, los unicos atributos estaticos son el
                         "index" y el "kind"
             Valor de retorno:
-                True : si se realizo la insercion
+                True : si se realizo la inercion
                 False: en caso contrario
         """
         if not self.isIn(lex):
             self._table[lex] = attr
             return True
         else:
+            if self._table[lex]["kind"] == WrapCl.FIELD:
+                return True
             return False
 
     def isIn(self, lex):
@@ -102,7 +104,7 @@ class SymbolTable:
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
         else:
-            print "ERROR: identificador", lex, "ambiguo."
+            print "ERROR: identificador", lex, "repetido."
 
     def _search(self, lex):
         return self._blockstack.top().isIn(lex)

@@ -27,6 +27,7 @@ class SynAn:
             _linerror = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
         """
         self._lookahead = None
+        self._idlist = []
         self._idtemp = None
         self._kindtemp = None
         self._scanner = None
@@ -139,8 +140,10 @@ class SynAn:
     # <ConstantDefinition> ::= id = <Constant> ;
     def _constantDefinition(self, stop):
         self._strTree += "[<ConstantDefinition>"
+        self._idlist = []
         # Tener cuidado con las autodefiniciones (a = a;)
         if self._lookahead == WrapTk.ID:
+            self._idlist.append(self._lookahead.getLexeme())
             self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CONSTANT)
         else:
             self._st.insert("NoName", kind=CONSTANT)
@@ -162,7 +165,9 @@ class SynAn:
     # <TypeDefinition> ::= id = <NewType> ;
     def _typeDefinition(self, stop):
         self._strTree += "[<TypeDefinition>"
+        self._idlist = []
         if self._lookahead == WrapTk.ID:
+            self._idlist.append(self._lookahead.getLexeme())
             self._idtemp = self._lookahead.getLexeme()
         else:
             self._idtemp = "NoName"
@@ -196,7 +201,10 @@ class SynAn:
         # Tener cuidado con las autodefiniciones, Ej:
         # pepe = array [1..10] of pepe;
         if self._lookahead == WrapTk.ID:
-            self._st.lookup(self._lookahead.getLexeme())
+            if self._lookahead.getLexeme() not in self._idlist:
+                self._st.lookup(self._lookahead.getLexeme())
+            else:
+                print "ERROR: Redefinicion de tipo array"
         self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
@@ -233,6 +241,7 @@ class SynAn:
         #           campo1, campo2 : paco;
         #        end;
         if self._lookahead == WrapTk.ID:
+            self._idlist.append(self._lookahead.getLexeme())
             self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD)
         else:
             self._st.insert("NoName", kind=WrapCl.FIELD)
@@ -240,13 +249,17 @@ class SynAn:
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
+                self._idlist.append(self._lookahead.getLexeme())
                 self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD)
             else:
                 self._st.insert("NoName", kind=WrapCl.FIELD)
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
         if self._lookahead == WrapTk.ID:
-            self._st.lookup(self._lookahead.getLexeme())
+            if self._lookahead.getLexeme() not in self._idlist:
+                self._st.lookup(self._lookahead.getLexeme())
+            else:
+                print self._scanner.getPos(), "ERROR: in type definition"
         self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
@@ -270,9 +283,9 @@ class SynAn:
     # <VariableGroup> ::= id {, id} : id
     def _variableGroup(self, stop):
         self._strTree += "[<VariableGroup>"
-        localvars = []
+        self._idlist = []
         if self._lookahead == WrapTk.ID:
-            localvars.append(self._lookahead.getLexeme())
+            self._idlist.append(self._lookahead.getLexeme())
             self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp)
         else:
             self._st.insert("NoName", kind=self._kindtemp)
@@ -280,17 +293,16 @@ class SynAn:
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
-                localvars.append(self._lookahead.getLexeme())
+                self._idlist.append(self._lookahead.getLexeme())
                 self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp)
             else:
                 self._st.insert("NoName", kind=self._kindtemp)
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
         if (self._lookahead == WrapTk.ID):
-            if (self._lookahead.getLexeme() not in localvars):
+            if (self._lookahead.getLexeme() not in self._idlist):
                 self._st.lookup(self._lookahead.getLexeme())
             else:
-                print localvars
                 print self._scanner.getPos(), "ERROR: in type definition"
 
         self._match(WrapTk.ID, stop)
@@ -566,7 +578,10 @@ class SynAn:
         if self._lookahead == WrapTk.NUMERAL:
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
-            self._st.lookup(self._lookahead.getLexeme())
+            if (self._lookahead.getLexeme() not in self._idlist):
+                self._st.lookup(self._lookahead.getLexeme())
+            else:
+                print "ERROR: Bad definition"
             self._match(WrapTk.ID, stop)
         else:
             self._syntaxError(stop, self._ff.first("constant"))
