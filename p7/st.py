@@ -75,9 +75,9 @@ class SymbolTable:
 
     def __init__(self):
         self._blockstack = Stack()
-        self._blocklevel = 0
+        self._blocklevel = -1
         self._index = 0
-        self._localst = LocalSymbolTable()
+        self.set()
         self.insert("NoName", kind=WrapCl.STANDARD_TYPE)
         self.insert("integer", kind=WrapCl.STANDARD_TYPE)
         self.insert("boolean", kind=WrapCl.STANDARD_TYPE)
@@ -85,10 +85,10 @@ class SymbolTable:
         self.insert("true", kind=WrapCl.CONSTANT)
         self.insert("read", kind=WrapCl.STANDARD_PROC)
         self.insert("write", kind=WrapCl.STANDARD_PROC)
-        self.set()
 
     def set(self):
-        self._blockstack.push(self._localst)
+        localst = LocalSymbolTable()
+        self._blockstack.push(localst)
         self._blocklevel += 1
 
     def reset(self):
@@ -99,20 +99,20 @@ class SymbolTable:
 
     def insert(self, lex, **attr):
         attr["index"] = self._index
-        if self._localst.insert(lex, attr):
-	    self._index += 1
+        if self._blockstack.top().insert(lex, attr):
+            self._index += 1
         else:
             print "ERROR: identificador", lex, "repetido."
 
     def _search(self, lex):
-        return self._localst.isIn(lex)
+        return self._blockstack.top().isIn(lex)
 
     def lookup(self, lex):
-        if not self._search(lex):
-            for self._blocklevel in range(self._blocklevel, -1, -1):
-                if self._blockstack[self._blocklevel].search(lex):
-                    self._blocklevel = len(self._blockstack - 1)
-                    return True
+        for self._blocklevel in range(self._blocklevel, -1, -1):
+            if self._blockstack[self._blocklevel].isIn(lex):
+                self._blocklevel = len(self._blockstack) - 1
+                return True
+        print "ERROR: identificador", lex, "no encontrado"
         return False
 
     def printTable(self):
