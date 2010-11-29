@@ -55,7 +55,6 @@ class Stack:
         """ Sobrecarga del operador de indexado devuelve el contenido de la pila del nivel indicador por i
         """
         try:
-            print "CHIVATO:" ,i
             return self._stack[i]
         except IndexError:
             raise

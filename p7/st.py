@@ -108,9 +108,9 @@ class SymbolTable:
         return self._blockstack.top().isIn(lex)
 
     def lookup(self, lex):
-        for self._blocklevel in range(self._blocklevel, -1, -1):
-            if self._blockstack[self._blocklevel].isIn(lex):
-                self._blocklevel = len(self._blockstack) - 1
+        print "lookup con lex = ", lex, "; BL = ", self._blocklevel
+        for i in range(self._blocklevel, -1, -1):
+            if self._blockstack[i].isIn(lex):
                 return True
         print "ERROR: identificador", lex, "no encontrado"
         return False
