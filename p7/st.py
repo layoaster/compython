@@ -102,7 +102,7 @@ class SymbolTable:
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
         else:
-            print "ERROR: identificador", lex, "repetido."
+            print "ERROR: identificador", lex, "ambiguo."
 
     def _search(self, lex):
         return self._blockstack.top().isIn(lex)

@@ -270,7 +270,9 @@ class SynAn:
     # <VariableGroup> ::= id {, id} : id
     def _variableGroup(self, stop):
         self._strTree += "[<VariableGroup>"
+        localvars = []
         if self._lookahead == WrapTk.ID:
+            localvars.append(self._lookahead.getLexeme())
             self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp)
         else:
             self._st.insert("NoName", kind=self._kindtemp)
@@ -278,13 +280,19 @@ class SynAn:
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
+                localvars.append(self._lookahead.getLexeme())
                 self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp)
             else:
                 self._st.insert("NoName", kind=self._kindtemp)
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
-        if self._lookahead == WrapTk.ID:
-            self._st.lookup(self._lookahead.getLexeme())
+        if (self._lookahead == WrapTk.ID):
+            if (self._lookahead.getLexeme() not in localvars):
+                self._st.lookup(self._lookahead.getLexeme())
+            else:
+                print localvars
+                print self._scanner.getPos(), "ERROR: in type definition"
+
         self._match(WrapTk.ID, stop)
         self._strTree += "]"
 
