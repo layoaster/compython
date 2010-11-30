@@ -109,3 +109,30 @@ class SynError(Error):
                 print "'" + Token(self.expected).getTokLexeme() + "'",
         # Si expected es None, el error vino por syntaxCheck (no mostramos expected en principio)
         print "\n",
+        
+# --------------------
+        
+class SemError(Error):
+    """ Clase hija de errores sintacticos """
+
+    # Constantes de errores semanticos
+    UNDECLARED_TYPE = 0
+    REC_DEFINITION  = 1
+    REDEFINED_ID    = 2
+    UNDECLARED_ID   = 3
+
+    _errStrings = ("Error in type definition - Undeclared type ", 
+                   "Error in type definition - Recursive array definition of type ",
+                   "Error in type definition - Redefined identifier ",
+                   "Error in type definition - Undeclared identifier ")
+
+    def __init__(self, errno, pos, found):
+        super(SemError, self).__init__(errno, pos, found)
+        self.printError()
+    
+    def printError(self):
+        print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
+        print str(str(self.pos[1]) + "C").rjust(3),
+        
+        print Colors.FAIL + "[SEM ERROR]" + Colors.ENDC \
+              + " " + self._errStrings[self.errno] + "'" + self.found.getLexeme() + "'"

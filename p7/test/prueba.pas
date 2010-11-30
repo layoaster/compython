@@ -1,8 +1,9 @@
 program prueba;
+type
+   pepe = record
+            pepe, paco : integer
+          end;
 
 begin  
-  write(x)
-  x := x + 1;
-  if x = do 
-    y := 2;
+   write(2);
 end.

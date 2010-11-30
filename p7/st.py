@@ -10,6 +10,7 @@ Description: Analizador Lexico para Pascal-.
 """
 
 from stack import *
+from error import *
 from token import WrapTk
 from idclass import WrapCl
 
@@ -94,28 +95,27 @@ class SymbolTable:
         self._blocklevel += 1
 
     def reset(self):
-        print self._blockstack
+        #print self._blockstack
         self._blockstack.pop()
-        #if not self._blocktable.isEmpty():
         self._blocklevel -= 1
 
     def insert(self, lex, **attr):
         attr["index"] = self._index
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
+            return True
         else:
-            print "ERROR: identificador", lex, "repetido."
+            return False
 
     def _search(self, lex):
         return self._blockstack.top().isIn(lex)
 
     def lookup(self, lex):
-        #print "lookup con lex = ", lex, "; BL = ", self._blocklevel
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
-                return
-        print "ERROR: identificador", lex, "no encontrado"
+                return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
+        return False
 
     def printTable(self):
         for i in self._blockstack:
