@@ -19,12 +19,15 @@ class SynAn:
         Comprueba que la secuencia de tokens de entrada sea acorde con las
         especificaciones de la gramatica de Pascal-
     """
-    def __init__(self):
+    def __init__(self, stats = False):
         """ Constructor de la clase. Atributos:
             _lookahead = token o simbolo de preanalisis
-            _scanner = instancia de la clase analizador lexico
-            _strTree = cadena que describe el arbol de analisis sintactico obtenido en notacion phpSyntaxTree
-            _linerror = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
+            _scanner   = instancia de la clase analizador lexico
+            _strTree   = cadena que describe el arbol de analisis sintactico obtenido en notacion phpSyntaxTree
+            _linerror  = almacena la linea del ultimo error mostrado (para no mostrar errores en la misma linea)
+            _ff        = conjuntos de First y Follow de la gramatica de Pascal-
+            _st        = Tabla de Simbolos
+            _stats     = Flag para imprimir las estadisticas de la Tabla de Simbolos
         """
         self._lookahead = None
         self._idlist = []
@@ -35,6 +38,7 @@ class SynAn:
         self._linerror = 0
         self._strTree = ""
         self._st = SymbolTable()
+        self._stats = stats
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -47,6 +51,8 @@ class SynAn:
             raise
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
+        if self._stats:
+            self._st.printStats()
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
@@ -246,7 +252,7 @@ class SynAn:
         # Tener cuidado con las autodefiniciones, Ej:
         # paco = record
         #           campo1, campo2 : paco;
-        #           
+        #
         #        end;
         if self._lookahead == WrapTk.ID:
             self._idlist.append(self._lookahead.getLexeme())

@@ -13,9 +13,10 @@ from stack import *
 from error import *
 from token import WrapTk
 from idclass import WrapCl
+from stats import *
 
 class LocalSymbolTable:
-    """Clase para la gestion de la tabla de simbolos"""
+    """Clase para la gestion de la tabla de simbolos Local"""
 
     def __init__(self):
         """ Descripción:
@@ -24,11 +25,7 @@ class LocalSymbolTable:
                 tabla hash haciendo uso de los diccionarios.
             Atributos de Clase:
                 _table = tabla hash
-            Parametros:
-                Ninguno
-            Valor de retorno:
-                Ninguno
-	"""
+        """
         self._table = {}
 
     def insert(self, lex, attr):
@@ -46,6 +43,7 @@ class LocalSymbolTable:
                 False: en caso contrario
         """
         if not self.isIn(lex):
+            attr["ref"] = False
             self._table[lex] = attr
             return True
         else:
@@ -66,6 +64,29 @@ class LocalSymbolTable:
         else:
             return False
 
+
+    def setAttr(self, lex, attr, value):
+        """ Añade o redefine un atributo dado un valor
+            Parametros:
+                lex: identificador del que se desea añadir o redefinir un atributo
+                attr: atributo a añadir o redefinir
+                value: valor del atributo
+        """
+        self._table[lex][attr] = value
+
+    def getAttr(self, lex, attr):
+        """ Obtiene el atributo de un identificador en la tabla
+            Parametros:
+                lex: identificador del que se desea añadir o redefinir un atributo
+                attr: atributo a obtener
+        """
+        return self._table[lex][attr]
+
+    def getIdentifiers(self):
+        """ Retorna la lista de identififcadores que contiene la tabla
+        """
+        return self._table.keys()
+
     def __str__(self):
         string = ""
         for i in self._table:
@@ -77,6 +98,7 @@ class LocalSymbolTable:
 class SymbolTable:
 
     def __init__(self):
+        self._stats = STStats()
         self._blockstack = Stack()
         self._blocklevel = -1
         self._index = 0
@@ -96,13 +118,19 @@ class SymbolTable:
 
     def reset(self):
         #print self._blockstack
-        self._blockstack.pop()
+        lst = self._blockstack.pop()
+        if self._blocklevel > 1:
+            for i in lst.getIdentifiers():
+                if not lst.getAttr(i, "ref"):
+                    print "Identificador declarado, pero nunca usado: ", i
         self._blocklevel -= 1
 
     def insert(self, lex, **attr):
         attr["index"] = self._index
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
+            self._stats.incSize()
+            self._stats.addDefined()
             return True
         else:
             return False
@@ -113,6 +141,8 @@ class SymbolTable:
     def lookup(self, lex):
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
+                self._blockstack[i].setAttr(lex, "ref", True)
+                self._stats.addReferenced()
                 return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
         return False
@@ -120,3 +150,10 @@ class SymbolTable:
     def printTable(self):
         for i in self._blockstack:
             print i
+
+    def printStats(self):
+        """ Imprime por la pantalla las estadisticas de la tabla de simbolos
+        """
+        print "Symbol Table Size:     ", self._stats.getSize()
+        print "Declared identifiers:  ", self._stats.getDefined()
+        print "Referenced identifiers:", self._stats.getReferenced()

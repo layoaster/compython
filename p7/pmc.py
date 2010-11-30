@@ -25,17 +25,17 @@ def webTree(tree):
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
-    parser = argparse.ArgumentParser(description='Realiza el Analisis Sintactico de ficheros de codigo fuente en Pascal-')
+    parser = argparse.ArgumentParser(description='Compilador (solo front-end) para Pascal-')
     parser.add_argument('fin', metavar='fich_texto.p', type=str, action='store', help='fichero de codigo fuente')
     parser.add_argument('-t', metavar='fich_tree.html', type=str, dest="tree", help='genera fichero html con el AAS del codigo fuente')
+    parser.add_argument('-s', action='store_true', dest="stats", help='imprimir estadisticas de la  tabla de simbolos del compilador')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
     if (len(sys.argv) < 2):
         parser.print_help()
     else:
         args = parser.parse_args()
-
-        parser = SynAn()
+        parser = SynAn(args.stats)
         try:
             parser.start(args.fin)
             print Colors.OKGREEN + "All OK" + Colors.ENDC
@@ -49,4 +49,4 @@ if __name__ == '__main__':
             if args.tree:
                 webTree(args.tree)
                 print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
-            
+
