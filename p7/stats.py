@@ -83,7 +83,7 @@ class STStats:
         sentences = """
 set xrange [0:*] 
 set yrange [0:*]
-set boxwidth 0.6 relative
+set boxwidth 0.6 
 set xlabel "Identifiers"
 set ylabel "References"
 set term png size 800,600
