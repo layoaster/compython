@@ -19,6 +19,7 @@ class SymbolTable:
 
     def __init__(self):
         self._stats = STStats()
+        self._maxsize = 0
         self._blockstack = Stack()
         self._blocklevel = -1
         self._index = 0
@@ -37,24 +38,33 @@ class SymbolTable:
         self._blocklevel += 1
 
     def reset(self):
-        lst = self._blockstack.pop()
+        lst = self._blockstack.top()
         # Comprobacion de indetificadores declarados pero no usados y estadisticas
         for i in lst.getIdentifiers():
-            if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") == WrapCl.VARIABLE):
-                print "Identificador declarado, pero nunca usado:", lst.getAttr(i, "pos"), i
-            if (lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") == WrapCl.VARIABLE):
-                print "Identificador referenciado:", lst.getAttr(i, "pos"), i
+            if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
+                print "[WARNING] Identificador declarado, pero nunca usado:", lst.getAttr(i, "pos"), i
+            if (lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 self._stats.addReferenced()
+
+        # Estadistica del tamaño maximo que alcanzo la tabla
+        actsize = 0
+        for i in range(self._blocklevel, -1, -1):
+            actsize += len(self._blockstack[i].getIdentifiers())
+        if actsize > self._maxsize:
+            self._maxsize = actsize
+        if self._blocklevel == 1:
+            self._stats.setSize(self._maxsize)
+
+        # Procedicimientos de Reseteo
+        self._blockstack.pop()
         self._blocklevel -= 1
 
     def insert(self, lex, **attr):
         attr["index"] = self._index
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
-            self._stats.incSize()
-            if attr["kind"] == WrapCl.VARIABLE:
+            if attr["kind"] in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                 self._stats.addDefined()
-                print "Identificador declarado:", self._blockstack.top().getAttr(lex, "pos"), lex
             return True
         else:
             return False

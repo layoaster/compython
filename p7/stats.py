@@ -16,8 +16,8 @@ class STStats:
         self._defid = 0
         self._refid = 0
 
-    def incSize(self):
-        self._stsize += 1
+    def setSize(self, size):
+        self._stsize = size
 
     def addDefined(self):
         self._defid += 1
