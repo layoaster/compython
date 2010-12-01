@@ -44,19 +44,19 @@ class STStats:
             Parametros:
                 lex: identificador a contar
         """
-        if lex not in self._totalref.keys():
-            tmp = [[scopename, 1]]
-            self._totalref[lex] = tmp
+        if scopename not in self._totalref.keys():
+            tmp = [[lex, 1]]
+            self._totalref[scopename] = tmp
         else:
             flag = False
-            tmp = self._totalref[lex]
+            tmp = self._totalref[scopename]
             for i in tmp:
-                if i[0] == scopename:
+                if i[0] == lex:
                     i[1] += 1
                     flag = True
             if not flag:
-                tmp.append([scopename, 1])
-            self._totalref[lex] = tmp
+                tmp.append([lex, 1])
+            self._totalref[scopename] = tmp
 
     def getSize(self):
         """ Obtiene el tamaño maximo de la tabla de simbolos
@@ -75,7 +75,7 @@ class STStats:
 
     def prueba(self):
         for lex in self._totalref.keys():
-            print "ID:", lex
+            print "Ambito:", lex
             for ref in self._totalref[lex]:
                 print ref[0], "-", ref[1]
 
