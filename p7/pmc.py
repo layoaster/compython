@@ -11,23 +11,22 @@ Description: Main del Analizador Sintáctico de Pascal-.
 
 import sys
 import argparse
-#import traceback
 from error import *
 from parser import SynAn
-from html import generatePHPSyntaxTree
+from html import generateWebStats
 
-def webTree(tree):
+def webStats(wstats):
     """Crea el archivo html que genera el el Árbol de Análisis Sintático correspondiente al codigo fuente parseado
     """
-    fout = open(tree, "w")
-    fout.write(generatePHPSyntaxTree(args.fin, parser.getAST()))
+    fout = open(wstats, "w")
+    fout.write(generateWebStats(args.fin, parser.getStats()[0], parser.getStats()[1], parser.getStats()[2]))
     fout.close()
 
 if __name__ == '__main__':
     # Especificacion del parseado de argumentos por linea de comandos
     parser = argparse.ArgumentParser(description='Compilador (solo front-end) para Pascal-')
     parser.add_argument('fin', metavar='fich_texto.p', type=str, action='store', help='fichero de codigo fuente')
-    parser.add_argument('-w', metavar='fich_tree.html', type=str, dest="webstats", help='genera fichero html con las estadisticas y el dumpeo de la TS')
+    parser.add_argument('-w', metavar='fich_stats.html', type=str, dest="wstats", help='genera fichero html con las estadisticas y el dumpeo de la TS')
     parser.add_argument('-s', action='store_true', dest="stats", help='imprimir estadisticas de la tabla de simbolos del compilador')
 
     # Parametros insuficientes -> mostrar por pantalla el modo de uso
@@ -45,9 +44,9 @@ if __name__ == '__main__':
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
         finally:
-            if args.webstats:
-                parser.dumpGnuPlot()
-                #webTree(args.tree)
-                #print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.tree + "'"
+            if args.wstats:
+                #parser.dumpGnuPlot()
+                webStats(args.wstats)
+                print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.wstats + "'"
 
 

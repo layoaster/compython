@@ -42,6 +42,12 @@ class SynAn:
         """ Retorna el contenido en cada momento de cada subtabla """
         return self._st.getTrace()
 
+    def getSize(self):
+        return self._st.getSize()
+
+    def getStats(self):
+        return self._st.getStats()[0], self._st.getStats()[1], self._st.getStats()[2]
+
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
             fichero y recoger el primer token de entrada para comenzar el analisis

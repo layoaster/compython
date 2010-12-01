@@ -122,6 +122,9 @@ class SymbolTable:
         print "Declared identifiers:  ", self._stats.getDefined()
         print "Referenced identifiers:", self._stats.getReferenced()
 
+    def getStats(self):
+        return self._stats.getSize(), self._stats.getDefined(), self._stats.getReferenced()
+
 
 class LocalSymbolTable:
     """Clase para la gestion de la tabla de simbolos Local"""
