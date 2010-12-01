@@ -38,10 +38,13 @@ class SymbolTable:
 
     def reset(self):
         lst = self._blockstack.pop()
-        # Comprobacion de indetificadores declarados pero no usados
+        # Comprobacion de indetificadores declarados pero no usados y estadisticas
         for i in lst.getIdentifiers():
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") == WrapCl.VARIABLE):
                 print "Identificador declarado, pero nunca usado:", lst.getAttr(i, "pos"), i
+            if (lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") == WrapCl.VARIABLE):
+                print "Identificador referenciado:", lst.getAttr(i, "pos"), i
+                self._stats.addReferenced()
         self._blocklevel -= 1
 
     def insert(self, lex, **attr):
@@ -49,7 +52,9 @@ class SymbolTable:
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
             self._stats.incSize()
-            self._stats.addDefined()
+            if attr["kind"] == WrapCl.VARIABLE:
+                self._stats.addDefined()
+                print "Identificador declarado:", self._blockstack.top().getAttr(lex, "pos"), lex
             return True
         else:
             return False
@@ -61,7 +66,6 @@ class SymbolTable:
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
                 self._blockstack[i].setAttr(lex, "ref", True)
-                self._stats.addReferenced()
                 return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
         return False
