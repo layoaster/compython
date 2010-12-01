@@ -108,16 +108,16 @@ def generateWebStats(code ,size, defined, referenced):
 
     <body>
         <p align="center">
-        <h1>Symbol Table stats</h1>
-        <br>
+        <font size=6><strong>Symbol Table stats</strong></font>
+        <br><br>
         <em>Source code:</em> <u>''' + code + '''</u><br><br>
         <img src="img.png"><br>
         <table border=0>
           <tr>
             <td>
-              <strong>Size:</strong> ''' + str(size) + '''<br>
-              <strong>Defined:</strong> ''' + str(defined) + '''<br>
-              <strong>Referenced:</strong> ''' + str(referenced) + '''
+              <strong>Maximun Size:</strong> ''' + str(size) + '''<br>
+              <strong>Defined variables:</strong> ''' + str(defined) + '''<br>
+              <strong>Referenced variables:</strong> ''' + str(referenced) + '''
     '''
     
     output += tail()
