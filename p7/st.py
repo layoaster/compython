@@ -20,6 +20,8 @@ class SymbolTable:
     def __init__(self):
         self._stats = STStats()
         self._maxsize = 0
+        self._scopenames = Stack()
+        self._procname = "standarblock"
         self._blockstack = Stack()
         self._blocklevel = -1
         self._index = 0
@@ -36,6 +38,14 @@ class SymbolTable:
         localst = LocalSymbolTable()
         self._blockstack.push(localst)
         self._blocklevel += 1
+        ## Aumentando el nivel para las estadisticas
+        #self._stats.incLevel()
+
+        # Apilando nombre de ambito a crear
+        if self._blocklevel == 1:
+            self._procname = "program"
+        self._scopenames.push(self._procname)
+
 
     def reset(self):
         lst = self._blockstack.top()
@@ -55,9 +65,16 @@ class SymbolTable:
         if self._blocklevel == 1:
             self._stats.setSize(self._maxsize)
 
+        ## Decrementando el nivel para las estadisticas
+        #self._stats.decLevel()
+
+        # Desapilando nombre de ambito a borrar
+        self._scopenames.pop()
+
         # Procedicimientos de Reseteo
         self._blockstack.pop()
         self._blocklevel -= 1
+
 
     def insert(self, lex, **attr):
         attr["index"] = self._index
@@ -65,6 +82,9 @@ class SymbolTable:
             self._index += 1
             if attr["kind"] in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                 self._stats.addDefined()
+            # Seteando el nombre de procedimiento para poder apilarlo
+            if (attr["kind"] == WrapCl.PROCEDURE):
+                self._procname = lex
             return True
         else:
             return False
@@ -76,6 +96,8 @@ class SymbolTable:
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
                 self._blockstack[i].setAttr(lex, "ref", True)
+                if self._blockstack[i].getAttr(lex, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
+                    self._stats.addIdReference(lex, self._scopenames.top())
                 return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
         return False
