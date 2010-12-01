@@ -33,6 +33,7 @@ class SymbolTable:
         self.insert("true", kind=WrapCl.CONSTANT)
         self.insert("read", kind=WrapCl.STANDARD_PROC)
         self.insert("write", kind=WrapCl.STANDARD_PROC)
+        self._trace = ""
 
     def set(self):
         localst = LocalSymbolTable()
@@ -105,6 +106,14 @@ class SymbolTable:
     def printTable(self):
         for i in self._blockstack:
             print i
+
+    def buildTrace(self):
+        for i in self._blockstack:
+            self._trace += str(i)
+        self._trace += "\n"
+
+    def getTrace(self):
+        return self._trace
 
     def printStats(self):
         """ Imprime por la pantalla las estadisticas de la tabla de simbolos
@@ -191,4 +200,5 @@ class LocalSymbolTable:
         string = ""
         for i in self._table:
             string = string + i + " "
+        string += "|"
         return string
