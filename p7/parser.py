@@ -108,7 +108,7 @@ class SynAn:
         self._strTree += "[<Program>"
         self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("blockBody")))
         if self._lookahead == WrapTk.ID:
-            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.VARIABLE):
+            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.VARIABLE, pos=self._scanner.getPos(),ref=True):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             if not self._st.insert("NoName", kind=WrapCl.VARIABLE):
@@ -152,7 +152,7 @@ class SynAn:
         # Tener cuidado con las autodefiniciones (a = a;)
         if self._lookahead == WrapTk.ID:
             self._idlist.append(self._lookahead.getLexeme())
-            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CONSTANT):
+            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CONSTANT, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             if not self._st.insert("NoName", kind=CONSTANT):
@@ -191,11 +191,11 @@ class SynAn:
     def _newType(self, stop):
         self._strTree += "[<NewType>"
         if self._lookahead == WrapTk.ARRAY:
-            if not self._st.insert(self._idtemp, kind=WrapCl.ARRAY_TYPE):
+            if not self._st.insert(self._idtemp, kind=WrapCl.ARRAY_TYPE, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             self._newArrayType(stop)
         elif self._lookahead == WrapTk.RECORD:
-            if not self._st.insert(self._idtemp, kind=WrapCl.RECORD_TYPE):
+            if not self._st.insert(self._idtemp, kind=WrapCl.RECORD_TYPE, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             self._newRecordType(stop)
         else:
@@ -256,7 +256,7 @@ class SynAn:
         #        end;
         if self._lookahead == WrapTk.ID:
             self._idlist.append(self._lookahead.getLexeme())
-            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD):
+            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             if not self._st.insert("NoName", kind=WrapCl.FIELD):
@@ -266,7 +266,7 @@ class SynAn:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
                 self._idlist.append(self._lookahead.getLexeme())
-                if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD):
+                if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             else:
                 if not self._st.insert("NoName", kind=WrapCl.FIELD):
@@ -305,7 +305,7 @@ class SynAn:
         self._idlist = []
         if self._lookahead == WrapTk.ID:
             self._idlist.append(self._lookahead.getLexeme())
-            if not self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp):
+            if not self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             if not self._st.insert("NoName", kind=self._kindtemp):
@@ -315,7 +315,7 @@ class SynAn:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
                 self._idlist.append(self._lookahead.getLexeme())
-                if not self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp):
+                if not self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             else:
                 if not self._st.insert("NoName", kind=self._kindtemp):
@@ -337,7 +337,7 @@ class SynAn:
         self._strTree += "[<ProcedureDefinition>"
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
         if self._lookahead == WrapTk.ID:
-            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.PROCEDURE):
+            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             if not self._st.insert("NoName", kind=WrapCl.PROCEDURE):

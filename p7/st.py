@@ -15,6 +15,69 @@ from token import WrapTk
 from idclass import WrapCl
 from stats import *
 
+class SymbolTable:
+
+    def __init__(self):
+        self._stats = STStats()
+        self._blockstack = Stack()
+        self._blocklevel = -1
+        self._index = 0
+        self.set()
+        self.insert("NoName", kind=WrapCl.STANDARD_TYPE)
+        self.insert("integer", kind=WrapCl.STANDARD_TYPE)
+        self.insert("boolean", kind=WrapCl.STANDARD_TYPE)
+        self.insert("false", kind=WrapCl.CONSTANT)
+        self.insert("true", kind=WrapCl.CONSTANT)
+        self.insert("read", kind=WrapCl.STANDARD_PROC)
+        self.insert("write", kind=WrapCl.STANDARD_PROC)
+
+    def set(self):
+        localst = LocalSymbolTable()
+        self._blockstack.push(localst)
+        self._blocklevel += 1
+
+    def reset(self):
+        lst = self._blockstack.pop()
+        # Comprobacion de indetificadores declarados pero no usados
+        for i in lst.getIdentifiers():
+            if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") == WrapCl.VARIABLE):
+                print "Identificador declarado, pero nunca usado:", lst.getAttr(i, "pos"), i
+        self._blocklevel -= 1
+
+    def insert(self, lex, **attr):
+        attr["index"] = self._index
+        if self._blockstack.top().insert(lex, attr):
+            self._index += 1
+            self._stats.incSize()
+            self._stats.addDefined()
+            return True
+        else:
+            return False
+
+    def _search(self, lex):
+        return self._blockstack.top().isIn(lex)
+
+    def lookup(self, lex):
+        for i in range(self._blocklevel, -1, -1):
+            if self._blockstack[i].isIn(lex):
+                self._blockstack[i].setAttr(lex, "ref", True)
+                self._stats.addReferenced()
+                return True
+        self.insert(lex, kind=WrapCl.UNDEFINED)
+        return False
+
+    def printTable(self):
+        for i in self._blockstack:
+            print i
+
+    def printStats(self):
+        """ Imprime por la pantalla las estadisticas de la tabla de simbolos
+        """
+        print "Symbol Table Size:     ", self._stats.getSize()
+        print "Declared identifiers:  ", self._stats.getDefined()
+        print "Referenced identifiers:", self._stats.getReferenced()
+
+
 class LocalSymbolTable:
     """Clase para la gestion de la tabla de simbolos Local"""
 
@@ -43,7 +106,8 @@ class LocalSymbolTable:
                 False: en caso contrario
         """
         if not self.isIn(lex):
-            attr["ref"] = False
+            if "ref" not in attr.keys():
+                attr["ref"] = False
             self._table[lex] = attr
             return True
         else:
@@ -92,68 +156,3 @@ class LocalSymbolTable:
         for i in self._table:
             string = string + i + " "
         return string
-
-
-
-class SymbolTable:
-
-    def __init__(self):
-        self._stats = STStats()
-        self._blockstack = Stack()
-        self._blocklevel = -1
-        self._index = 0
-        self.set()
-        self.insert("NoName", kind=WrapCl.STANDARD_TYPE)
-        self.insert("integer", kind=WrapCl.STANDARD_TYPE)
-        self.insert("boolean", kind=WrapCl.STANDARD_TYPE)
-        self.insert("false", kind=WrapCl.CONSTANT)
-        self.insert("true", kind=WrapCl.CONSTANT)
-        self.insert("read", kind=WrapCl.STANDARD_PROC)
-        self.insert("write", kind=WrapCl.STANDARD_PROC)
-
-    def set(self):
-        localst = LocalSymbolTable()
-        self._blockstack.push(localst)
-        self._blocklevel += 1
-
-    def reset(self):
-        #print self._blockstack
-        lst = self._blockstack.pop()
-        if self._blocklevel > 1:
-            for i in lst.getIdentifiers():
-                if not lst.getAttr(i, "ref"):
-                    print "Identificador declarado, pero nunca usado: ", i
-        self._blocklevel -= 1
-
-    def insert(self, lex, **attr):
-        attr["index"] = self._index
-        if self._blockstack.top().insert(lex, attr):
-            self._index += 1
-            self._stats.incSize()
-            self._stats.addDefined()
-            return True
-        else:
-            return False
-
-    def _search(self, lex):
-        return self._blockstack.top().isIn(lex)
-
-    def lookup(self, lex):
-        for i in range(self._blocklevel, -1, -1):
-            if self._blockstack[i].isIn(lex):
-                self._blockstack[i].setAttr(lex, "ref", True)
-                self._stats.addReferenced()
-                return True
-        self.insert(lex, kind=WrapCl.UNDEFINED)
-        return False
-
-    def printTable(self):
-        for i in self._blockstack:
-            print i
-
-    def printStats(self):
-        """ Imprime por la pantalla las estadisticas de la tabla de simbolos
-        """
-        print "Symbol Table Size:     ", self._stats.getSize()
-        print "Declared identifiers:  ", self._stats.getDefined()
-        print "Referenced identifiers:", self._stats.getReferenced()
