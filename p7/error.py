@@ -116,17 +116,22 @@ class SemError(Error):
     """ Clase hija de errores sintacticos """
 
     # Constantes de errores semanticos
-    UNDECLARED_TYPE = 0
-    REC_DEFINITION  = 1
-    REDEFINED_ID    = 2
-    UNDECLARED_ID   = 3
+    UNDECLARED_TYPE  = 0
+    REC_DEFINITION   = 1
+    REDEFINED_ID     = 2
+    UNDECLARED_ID    = 3
+    MAX_LVL_ACHIEVED = 4
+    WARN_UNUSED_ID   = 5
 
-    _errStrings = ("Error in type definition - Undeclared type ", 
-                   "Error in type definition - Recursive array definition of type ",
-                   "Error in type definition - Redefined identifier ",
-                   "Error in type definition - Undeclared identifier ")
+    # Cadenas de texto que describen cada uno de los posibles errores semanticos encontrados
+    _errStrings = ("Error in type definition - Undeclared type", 
+                   "Error in type definition - Recursive array definition of type",
+                   "Error in type definition - Redefined identifier",
+                   "Error in type definition - Undeclared identifier",
+                   "Internal compiler error  - Maximum scope nesting level achieved",
+                   "Identifier declared but never used")
 
-    def __init__(self, errno, pos, found):
+    def __init__(self, errno, pos, found=None):
         super(SemError, self).__init__(errno, pos, found)
         self.printError()
     
@@ -134,5 +139,17 @@ class SemError(Error):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
         print str(str(self.pos[1]) + "C").rjust(3),
         
-        print Colors.FAIL + "[SEM ERROR]" + Colors.ENDC \
-              + " " + self._errStrings[self.errno] + "'" + self.found.getLexeme() + "'"
+        if self.errno != self.WARN_UNUSED_ID:
+            print Colors.FAIL + "[SEM ERROR]" + Colors.ENDC \
+                + " " + self._errStrings[self.errno],
+        else:
+            print Colors.HEADER + " [WARNING] " + Colors.ENDC \
+                + " " + self._errStrings[self.errno],
+              
+        if self.found is not None:
+            if isinstance(self.found, Token):
+                print "'" + self.found.getLexeme() + "'"
+            else:
+                print "'" + self.found + "'"
+        else:
+            print "\n",

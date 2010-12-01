@@ -42,11 +42,11 @@ class SynAn:
         """ Retorna el contenido en cada momento de cada subtabla """
         return self._st.getTrace()
 
-    def getSize(self):
-        return self._st.getSize()
-
     def getStats(self):
         return self._st.getStats()[0], self._st.getStats()[1], self._st.getStats()[2]
+
+    def dumpGnuPlot(self, basedir='./stats/', outimg='img.png', plotfile='symbols.plot'):
+        self._st.dumpGnuPlot(basedir, outimg, plotfile)
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el

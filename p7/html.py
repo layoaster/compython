@@ -115,7 +115,7 @@ def generateWebStats(code ,size, defined, referenced):
         <table border=0>
           <tr>
             <td>
-              <strong>Maximun Size:</strong> ''' + str(size) + '''<br>
+              <strong>Maximum size:</strong> ''' + str(size) + '''<br>
               <strong>Defined variables:</strong> ''' + str(defined) + '''<br>
               <strong>Referenced variables:</strong> ''' + str(referenced) + '''
     '''

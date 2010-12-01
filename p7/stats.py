@@ -73,6 +73,49 @@ class STStats:
         """
         return self._refid
 
+    def dumpGnuPlot(self, basedir='./stats/', outimg='img.png', plotfile='symbols.plot'):
+        """ Genera un fichero de sentencias en formato GNUPlot para crear un fichero svg con la informacion
+            de los identificadores del programa, con estadisticas sobre el numero de referencias que tiene
+            cada uno, diferenciando ademas los distintos ambitos en los que se producen dichas referencias
+        """
+#""" + str(self._defid) + """]
+        count = 1
+        sentences = """
+set xrange [0:*] 
+set yrange [0:*]
+set boxwidth 0.6 relative
+set xlabel "Identifiers"
+set ylabel "References"
+set term png size 800,600
+set out '""" + str(outimg) + """'
+set xtics rotate by -45
+set xtics ("""
+        for ambito in self._totalref.keys():
+            try:
+                file = open(basedir + ambito + ".data", "w")
+                for id in self._totalref[ambito]:
+                    sentences += "\"" + id[0] + "\"" + "  " + str(count) + ","
+                    file.write(str(count) + "  " + str(id[1]) + "\n")
+                    count += 1
+                file.close()
+            except IOError:
+                raise
+
+        count = 1
+        sentences = sentences[:-1]  # Quitar ultima coma de los xtics
+        sentences += """)
+plot """
+        for ambito in self._totalref.keys():
+            sentences += "'" + basedir + ambito + ".data" + """' using 1:2 with boxes fs solid 0.6 title '""" + ambito + """' lt """ + str(count) + ","
+            count += 1
+
+        sentences = sentences[:-1] # Quitar ultima coma del plot
+        try:
+            file = open(plotfile, "w")
+            file.write(sentences)
+        except IOError:
+            raise
+
     def prueba(self):
         for lex in self._totalref.keys():
             print "Ambito:", lex

@@ -10,6 +10,7 @@ Description: Main del Analizador Sintáctico de Pascal-.
 """
 
 import sys
+import os
 import argparse
 from error import *
 from parser import SynAn
@@ -38,15 +39,15 @@ if __name__ == '__main__':
         try:
             parser.start(args.fin)
             print Colors.OKGREEN + "All OK" + Colors.ENDC
+            if args.wstats:
+                parser.dumpGnuPlot()
+                os.system("rm -f img.png && gnuplot symbols.plot")        
+                webStats(args.wstats)
+                print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.wstats + "'"
         except Error as e:
             e.printError()
         except IOError as e:
             print Colors.WARNING + e.filename + Colors.FAIL + " [I/O ERROR] " + Colors.ENDC + e.strerror
             exit(2)
-        finally:
-            if args.wstats:
-                #parser.dumpGnuPlot()
-                webStats(args.wstats)
-                print "\n" + Colors.OKBLUE + "[INFO]" + Colors.ENDC + " WebAST written to '" + args.wstats + "'"
 
-
+        

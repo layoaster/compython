@@ -53,7 +53,8 @@ class SymbolTable:
         # Comprobacion de indetificadores declarados pero no usados y estadisticas
         for i in lst.getIdentifiers():
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
-                print "[WARNING] Identificador declarado, pero nunca usado:", lst.getAttr(i, "pos"), i
+                SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
+                #print "[WARNING] Identificador declarado, pero nunca usado:", lst.getAttr(i, "pos"), i
             if (lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 self._stats.addReferenced()
 
@@ -114,6 +115,9 @@ class SymbolTable:
 
     def getTrace(self):
         return self._trace
+    
+    def dumpGnuPlot(self, basedir, outimg, plotfile):
+        self._stats.dumpGnuPlot(basedir, outimg, plotfile)
 
     def printStats(self):
         """ Imprime por la pantalla las estadisticas de la tabla de simbolos
