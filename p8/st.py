@@ -82,14 +82,13 @@ class SymbolTable:
         self.insert(lex, kind=WrapCl.UNDEFINED)
         return False
 
-    def setAttr(self, lex, attr, value):
+    def setAttr(self, lex, **attr):
         """ Añade o redefine un atributo dado un valor
             Parametros:
                 lex: identificador del que se desea añadir o redefinir un atributo
-                attr: atributo a añadir o redefinir
-                value: valor del atributo
+                attr: atributos a añadir o redefinir
         """
-        self._blockstack.top().setAttr(lex, attr, value)
+        self._blockstack.top().setAttr(lex, attr)
 
      def getAttr(self, lex, attr):
         """ Obtiene el atributo de un identificador en la tabla actual
@@ -154,14 +153,13 @@ class LocalSymbolTable:
             return False
 
 
-    def setAttr(self, lex, attr, value):
-        """ Añade o redefine un atributo dado un valor
+    def setAttr(self, lex, attr):
+        """ Añade o redefine atributos de un identificador
             Parametros:
                 lex: identificador del que se desea añadir o redefinir un atributo
-                attr: atributo a añadir o redefinir
-                value: valor del atributo
+                attr: diccionario de atributos que se añadiran
         """
-        self._table[lex][attr] = value
+        self._table[lex].update(attr)
 
     def getAttr(self, lex, attr):
         """ Obtiene el atributo de un identificador en la tabla
