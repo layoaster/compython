@@ -36,17 +36,6 @@ class SynAn:
         self._ff = FFSets()
         self._linerror = 0
         self._st = SymbolTable()
-        self._stats = stats
-
-    def getTrace(self):
-        """ Retorna el contenido en cada momento de cada subtabla """
-        return self._st.getTrace()
-
-    def getStats(self):
-        return self._st.getStats()[0], self._st.getStats()[1], self._st.getStats()[2]
-
-    def dumpGnuPlot(self, basedir='./stats/', outimg='img.png', plotfile='symbols.plot'):
-        self._st.dumpGnuPlot(basedir, outimg, plotfile)
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -59,8 +48,6 @@ class SynAn:
             raise
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
-        if self._stats:
-            self._st.printStats()
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
@@ -113,7 +100,6 @@ class SynAn:
         self._blockBody(stop)
         self._match(WrapTk.PERIOD, stop)
         #self._match(WrapTk.ENDTEXT, stop)
-        self._st.buildTrace()
         self._st.reset()
 
     # <BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>}
@@ -321,7 +307,6 @@ class SynAn:
             self._match(WrapTk.RIGHTPARENTHESIS, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
-        self._st.buildTrace()
         self._st.reset()
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
