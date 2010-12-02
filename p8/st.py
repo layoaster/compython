@@ -13,13 +13,10 @@ from stack import *
 from error import *
 from token import WrapTk
 from idclass import WrapCl
-from stats import *
 
 class SymbolTable:
 
     def __init__(self):
-        self._stats = STStats()
-        self._maxsize = 0
         self._scopenames = Stack()
         self._procname = "standarblock"
         self._blockstack = Stack()
@@ -33,14 +30,11 @@ class SymbolTable:
         self.insert("true", kind=WrapCl.CONSTANT)
         self.insert("read", kind=WrapCl.STANDARD_PROC)
         self.insert("write", kind=WrapCl.STANDARD_PROC)
-        self._trace = ""
 
     def set(self):
         localst = LocalSymbolTable()
         self._blockstack.push(localst)
         self._blocklevel += 1
-        ## Aumentando el nivel para las estadisticas
-        #self._stats.incLevel()
 
         # Apilando nombre de ambito a crear
         if self._blocklevel == 1:
@@ -54,21 +48,6 @@ class SymbolTable:
         for i in lst.getIdentifiers():
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
-                #print "[WARNING] Identificador declarado, pero nunca usado:", lst.getAttr(i, "pos"), i
-            if (lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
-                self._stats.addReferenced()
-
-        # Estadistica del tamaño maximo que alcanzo la tabla
-        actsize = 0
-        for i in range(self._blocklevel, -1, -1):
-            actsize += len(self._blockstack[i].getIdentifiers())
-        if actsize > self._maxsize:
-            self._maxsize = actsize
-        if self._blocklevel == 1:
-            self._stats.setSize(self._maxsize)
-
-        ## Decrementando el nivel para las estadisticas
-        #self._stats.decLevel()
 
         # Desapilando nombre de ambito a borrar
         self._scopenames.pop()
@@ -82,8 +61,6 @@ class SymbolTable:
         attr["index"] = self._index
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
-            if attr["kind"] in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
-                self._stats.addDefined()
             # Seteando el nombre de procedimiento para poder apilarlo
             if (attr["kind"] == WrapCl.PROCEDURE):
                 self._procname = lex
@@ -98,8 +75,6 @@ class SymbolTable:
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
                 self._blockstack[i].setAttr(lex, "ref", True)
-                if self._blockstack[i].getAttr(lex, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
-                    self._stats.addIdReference(lex, self._scopenames.top())
                 return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
         return False
@@ -107,28 +82,6 @@ class SymbolTable:
     def printTable(self):
         for i in self._blockstack:
             print i
-
-    def buildTrace(self):
-        for i in self._blockstack:
-            self._trace += str(i)
-        self._trace += "\n"
-
-    def getTrace(self):
-        return self._trace
-    
-    def dumpGnuPlot(self, basedir, outimg, plotfile):
-        self._stats.dumpGnuPlot(basedir, outimg, plotfile)
-
-    def printStats(self):
-        """ Imprime por la pantalla las estadisticas de la tabla de simbolos
-        """
-        print "Symbol Table Size:     ", self._stats.getSize()
-        print "Declared identifiers:  ", self._stats.getDefined()
-        print "Referenced identifiers:", self._stats.getReferenced()
-
-    def getStats(self):
-        return self._stats.getSize(), self._stats.getDefined(), self._stats.getReferenced()
-
 
 class LocalSymbolTable:
     """Clase para la gestion de la tabla de simbolos Local"""
