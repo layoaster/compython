@@ -36,7 +36,8 @@ class ThompsonConstruction:
                 lastpair2 = nodes.pop()
                 lastpair1 = nodes.pop()
                 self._concatenation(lastpair1, lastpair2)
-                nodes.push((lastpair1[0], lastpair2[1]))
+
+                nodes.push((lastpair1[0], lastpair2[0]))
                 self._count -= 1
             else: # Disjunction, Kleene closure or symbol
                 newpair = (self._count, self._count + 1)
@@ -65,28 +66,25 @@ class ThompsonConstruction:
         self._jflapstart = lastpair[0]
 
     def _positiveClosure(self, topair):
-        print topair
         self._graph.add_edge(topair[1], topair[0], label = self._EPSILON)
-
     def _zeroOrOne(self, topair):
         self._graph.add_edge(topair[0], topair[1], label = self._EPSILON)
 
     def _concatenation(self, lastpair1, lastpair2):
-        self._graph.add_edge(lastpair1[1], lastpair2[0], label = self._EPSILON)
         # Obteniendo nodos predecesores del nodo que se elimina, y asignando sus transiciones al nodo inicial del segundo subgrafo
-        #for n in self._graph.predecessors(lastpair2[1]):
-            #label = self._graph.get_edge(n, lastpair2[1]).attr["label"]
-            #color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
-            #self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
-            #self._graph.delete_edge(n, lastpair2[1])
+        for n in self._graph.predecessors(lastpair2[1]):
+            label = self._graph.get_edge(n, lastpair2[1]).attr["label"]
+            color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
+            self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
+            self._graph.delete_edge(n, lastpair2[1])
         # Obteniendo nodos sucesores del nodo que se preserva, y asignando sus transiciones al nodo final del primer subgrafo
-        #for n in self._graph.successors(lastpair2[0]):
-            #label = self._graph.get_edge(lastpair2[0], n).attr["label"]
-            #color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
-            #self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
-            #self._graph.delete_edge(lastpair2[0], n)
+        for n in self._graph.successors(lastpair2[0]):
+            label = self._graph.get_edge(lastpair2[0], n).attr["label"]
+            color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
+            self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
+            self._graph.delete_edge(lastpair2[0], n)
         # Eliminando el nodo sobrante
-        #self._graph.delete_node(lastpair2[1])
+        self._graph.delete_node(lastpair2[1])
 
     def _kClosure(self, newpair, lastpair):
         self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
@@ -106,33 +104,33 @@ class ThompsonConstruction:
     def writeJFLAP(self, filename = "graph.jff"):
         jffheader = '''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <structure>
-	<type>fa</type>
-	<automaton>'''
+        <type>fa</type>
+        <automaton>'''
         jfftail = '''
-	</automaton>
+        </automaton>
 </structure>'''
         fout = open(filename, "w")
         # Header
         fout.write(jffheader)
         # List of states
         jffstate ='''
-		<!--The list of states.-->'''
+                <!--The list of states.-->'''
         for node in self._graph.nodes():
             if node != str(self._start):
                 jffstate = '''
-		<state id="''' + str(int(node) - 1) + '''" name="q''' + self._graph.get_node(node)  + '''">'''
+                <state id="''' + str(node) + '''" name="q''' + self._graph.get_node(node)  + '''">'''
                 if node == str(self._jflapstart):
                     jffstate += '''
-			<initial/>'''
+                        <initial/>'''
                 if node == str(self._end):
                     jffstate += '''
-			<final/>'''
+                        <final/>'''
                 jffstate += '''
-		</state>'''
+                </state>'''
                 fout.write(jffstate)
         # List of transitions
         jfftrans ='''
-		<!--The list of transitions.-->'''
+                <!--The list of transitions.-->'''
         for edge in self._graph.edges_iter():
             if edge[0] != "0":
                 jfftrans +='''
@@ -157,3 +155,5 @@ class ThompsonConstruction:
 
     def drawGraph(self, filename = "graph.svg"):
         self._graph.draw(filename, format = filename.partition('.')[2], prog = 'dot')
+
+
