@@ -190,6 +190,7 @@ class SynAn:
 
     # <IndexRange> ::= <Constant> .. <Constant>
     def _indexRange(self, stop):
+        self._idlist = []
         self._constant(stop.union([WrapTk.DOUBLEDOT], self._ff.first("constant")))
         self._match(WrapTk.DOUBLEDOT, stop.union(self._ff.first("constant")))
         self._constant(stop)
@@ -513,10 +514,24 @@ class SynAn:
     # <Constant> ::= numeral | id
     def _constant(self, stop):
         if self._lookahead == WrapTk.NUMERAL:
+            # Comprobamos que nos hayan llamado de la definicion de una constante y no del indice de un array
+            if len(self._idlist) != 0:
+                # Relleno tabla de simbolos de la constante de tipo integer
+                self._st.setAttr(self._idlist[-1], consttype="integer", constvalue=self._lookahead.getValue())
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
             if (self._lookahead.getLexeme() not in self._idlist):
-                if not self._st.lookup(self._lookahead.getLexeme()):
+                if self._st.lookup(self._lookahead.getLexeme()):
+                    # Comprobamos que nos hayan llamado de la definicion de una constante y no del indice de un array
+                    if len(self._idlist) != 0:
+                        # Comprobamos que se asigna el id de una constante y no de otro tipo
+                        if self._st.getAttr(self._lookahead.getLexeme(), "kind") == WrapCl.CONSTANT:
+                            idtype = self._st.getAttr(self._lookahead.getLexeme(), "consttype")
+                            idvalue = self._st.getAttr(self._lookahead.getLexeme(), "constvalue")
+                            self._st.setAttr(self._idlist[-1], consttype=idtype, constvalue=idvalue)
+                        elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
+                            print "Invalid identifier kind"
+                else:
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
