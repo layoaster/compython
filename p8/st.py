@@ -29,8 +29,8 @@ class SymbolTable:
         self.insert("NoName", kind=WrapCl.STANDARD_TYPE)
         self.insert("integer", kind=WrapCl.STANDARD_TYPE)
         self.insert("boolean", kind=WrapCl.STANDARD_TYPE)
-        self.insert("false", kind=WrapCl.CONSTANT)
-        self.insert("true", kind=WrapCl.CONSTANT)
+        self.insert("false", kind=WrapCl.CONSTANT, consttype="boolean", constvalue=0)
+        self.insert("true", kind=WrapCl.CONSTANT, consttype="boolean", constvalue=1)
         self.insert("read", kind=WrapCl.STANDARD_PROC)
         self.insert("write", kind=WrapCl.STANDARD_PROC)
 
