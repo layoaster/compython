@@ -22,6 +22,9 @@ class SymbolTable:
         self._blockstack = Stack()
         self._blocklevel = -1
         self._index = 0
+        self._standardBlock()
+
+    def _standardBlock(self):
         self.set()
         self.insert("NoName", kind=WrapCl.STANDARD_TYPE)
         self.insert("integer", kind=WrapCl.STANDARD_TYPE)
