@@ -1,0 +1,9 @@
+A continuacion pasa a detallar alguna diferencia entre el compilador de dos,
+y el de UNIX:
+
+	1) En DOS se permiten definir un tipo de un array como un registro,
+		en UNIX, da problema al acceder a un elemento del array, el punto para 
+		acceder al campo del registro parece no reconocerlo.
+	2) Si se declara un array cuya longitud supera la de la memoria disponible, 
+		no indica un mensaje de error de memoria, sino de Stack Overflow, que si 
+		se posee alguna rutina recursiva puede dar algun dolor de cabeza
