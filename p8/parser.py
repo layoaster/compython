@@ -131,7 +131,7 @@ class SynAn:
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CONSTANT, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            if not self._st.insert("NoName", kind=CONSTANT):
+            if not self._st.insert("NoName", kind=WrapCl.CONSTANT):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("constant")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
