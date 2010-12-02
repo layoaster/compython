@@ -1,8 +1,0 @@
-#!/bin/csh
-foreach file ( *.p )
-  echo $file >> salida.txt
-  ./p $file >> salida.txt
-  echo "==========================" >> salida.txt
-  ./asinr $file >> salida.txt
-  echo "XXXXXXXXXXXXXXXXXXXXXXXXXX" >> salida.txt
-end
