@@ -18,7 +18,7 @@ class SymbolTable:
 
     def __init__(self):
         self._scopenames = Stack()
-        self._procname = "standarblock"
+        self._procname = "standardblock"
         self._blockstack = Stack()
         self._blocklevel = -1
         self._index = 0
@@ -77,7 +77,7 @@ class SymbolTable:
     def lookup(self, lex):
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
-                self._blockstack[i].setAttr(lex, "ref", True)
+                self._blockstack[i].setAttr(lex, {"ref" : True })
                 return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
         return False
@@ -90,7 +90,7 @@ class SymbolTable:
         """
         self._blockstack.top().setAttr(lex, attr)
 
-     def getAttr(self, lex, attr):
+    def getAttr(self, lex, attr):
         """ Obtiene el atributo de un identificador en la tabla actual
             Parametros:
                 lex: identificador del que se desea añadir o redefinir un atributo
