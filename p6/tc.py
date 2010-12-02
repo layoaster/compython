@@ -36,8 +36,7 @@ class ThompsonConstruction:
                 lastpair2 = nodes.pop()
                 lastpair1 = nodes.pop()
                 self._concatenation(lastpair1, lastpair2)
-
-                nodes.push((lastpair1[0], lastpair2[0]))
+                nodes.push((lastpair1[0], lastpair2[1]))
                 self._count -= 1
             else: # Disjunction, Kleene closure or symbol
                 newpair = (self._count, self._count + 1)
@@ -66,25 +65,28 @@ class ThompsonConstruction:
         self._jflapstart = lastpair[0]
 
     def _positiveClosure(self, topair):
+        print topair
         self._graph.add_edge(topair[1], topair[0], label = self._EPSILON)
+
     def _zeroOrOne(self, topair):
         self._graph.add_edge(topair[0], topair[1], label = self._EPSILON)
 
     def _concatenation(self, lastpair1, lastpair2):
+        self._graph.add_edge(lastpair1[1], lastpair2[0], label = self._EPSILON)
         # Obteniendo nodos predecesores del nodo que se elimina, y asignando sus transiciones al nodo inicial del segundo subgrafo
-        for n in self._graph.predecessors(lastpair2[1]):
-            label = self._graph.get_edge(n, lastpair2[1]).attr["label"]
-            color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
-            self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
-            self._graph.delete_edge(n, lastpair2[1])
+        #for n in self._graph.predecessors(lastpair2[1]):
+            #label = self._graph.get_edge(n, lastpair2[1]).attr["label"]
+            #color = self._graph.get_edge(n, lastpair2[1]).attr["fontcolor"]
+            #self._graph.add_edge(n, lastpair2[0], label = label, fontcolor = color)
+            #self._graph.delete_edge(n, lastpair2[1])
         # Obteniendo nodos sucesores del nodo que se preserva, y asignando sus transiciones al nodo final del primer subgrafo
-        for n in self._graph.successors(lastpair2[0]):
-            label = self._graph.get_edge(lastpair2[0], n).attr["label"]
-            color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
-            self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
-            self._graph.delete_edge(lastpair2[0], n)
+        #for n in self._graph.successors(lastpair2[0]):
+            #label = self._graph.get_edge(lastpair2[0], n).attr["label"]
+            #color = self._graph.get_edge(lastpair2[0], n).attr["fontcolor"]
+            #self._graph.add_edge(lastpair1[1], n, label = label, fontcolor = color)
+            #self._graph.delete_edge(lastpair2[0], n)
         # Eliminando el nodo sobrante
-        self._graph.delete_node(lastpair2[1])
+        #self._graph.delete_node(lastpair2[1])
 
     def _kClosure(self, newpair, lastpair):
         self._graph.add_edge(newpair[0], lastpair[0], label = self._EPSILON)
@@ -118,7 +120,7 @@ class ThompsonConstruction:
         for node in self._graph.nodes():
             if node != str(self._start):
                 jffstate = '''
-		<state id="''' + str(node) + '''" name="q''' + self._graph.get_node(node)  + '''">'''
+		<state id="''' + str(int(node) - 1) + '''" name="q''' + self._graph.get_node(node)  + '''">'''
                 if node == str(self._jflapstart):
                     jffstate += '''
 			<initial/>'''
