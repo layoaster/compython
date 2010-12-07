@@ -164,7 +164,6 @@ class SynAn:
 
     # <TypeDefinition> ::= id = <NewType> ;
     def _typeDefinition(self, stop):
-        self._tokenstack.clear()
         if self._lookahead == WrapTk.ID:
             self._tokenstack.push(self._lookahead)
         else:
@@ -173,7 +172,7 @@ class SynAn:
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("newType")))
         self._newType(stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
-        #self._tokenstack.clear()
+        self._tokenstack.clear()
 
     # <NewType> ::= <NewArrayType> | <NewRecordType>
     def _newType(self, stop):
