@@ -130,30 +130,32 @@ class SynAn:
             self._tokenstack.push(self._lookahead)
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CONSTANT, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-            idlex = self._lookahead.getLexeme()
         else:
             self._st.insert("NoName", kind=WrapCl.CONSTANT)
             #SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-            idlex = "NoName"
+            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, "NoName"))
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("constant")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
         self._constant(stop.union([WrapTk.SEMICOLON]))
 
         # Comprobacion de tipos y rellenado de informacion para las constantes
         tkvalue = self._tokenstack.pop()
-        if tkvalue != None:
-            if tkvalue == WrapTk.NUMERAL:
-                self._st.setAttr(idlex, consttype="integer", constvalue=tkvalue.getValue())
-            elif tkvalue == WrapTk.ID:
-                #Verificamos que el identificador sea una constante
-                if self._st.getAttr(tkvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
-                    idtype = self._st.getAttr(tkvalue.getLexeme(), "consttype")
-                    idvalue = self._st.getAttr(tkvalue.getLexeme(), "constvalue")
-                    self._st.setAttr(idlex, consttype=idtype, constvalue=idvalue)
-                elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
-                    print "Invalid identifier kind"
+        idlex = self._tokenstack.pop().getLexeme()
+        if idlex != "NoName":
+            if tkvalue != None:
+                if tkvalue == WrapTk.NUMERAL:
+                    self._st.setAttr(idlex, consttype="integer", constvalue=tkvalue.getValue())
+                elif tkvalue == WrapTk.ID:
+                    #Verificamos que el identificador sea una constante
+                    if self._st.getAttr(tkvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
+                        idtype = self._st.getAttr(tkvalue.getLexeme(), "consttype")
+                        idvalue = self._st.getAttr(tkvalue.getLexeme(), "constvalue")
+                        self._st.setAttr(idlex, consttype=idtype, constvalue=idvalue)
+                    elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
+                        print "Invalid identifier kind"
+            else:
+                self._st.setAttr(idlex, consttype="NoName", constvalue=0)
         self._match(WrapTk.SEMICOLON, stop)
-        self._tokenstack.clear()
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
     def _typeDefinitionPart(self, stop):
