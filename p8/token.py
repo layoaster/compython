@@ -150,10 +150,3 @@ class Token:
         """ Definicion del la representacion "oficial" del objeto en tipo string
         """
         return self.getLexeme()
-
-prueba = [Token(WrapTk.NUMERAL, 4), Token(WrapTk.NUMERAL, 6), 4]
-
-if Token(WrapTk.NUMERAL, 6) in prueba:
-    print "listo"
-else:
-    print "nada"
