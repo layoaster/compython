@@ -74,7 +74,7 @@ class SynAn:
 
     def _match(self, tok, stop):
         """ Trata de emparejar el token leido con el token que espera encontrar en cada momento. Si el matching
-            tuvo exito, se lee el siguiente token.
+            tuvo exito, se lee el siguiente token.elf._kindtemp = None
             En caso contrario, se llama al metodo syntaxError que se encargara de la gestion del error. Ademas,
             comprueba si el analizador lexico ha obtenido algun error durante la obtencion del token y, en tal caso,
             eleva la excepcion que este ultimo genera hacia el modulo 'pmc'.
@@ -101,7 +101,7 @@ class SynAn:
         self._match(WrapTk.ID, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
-        self._match(WrapTk.PERIOD, stop)
+        self._match(WrapTk.PERIOD, stop)elf._kindtemp = None
         #self._match(WrapTk.ENDTEXT, stop)
         self._st.reset()
 
@@ -138,6 +138,20 @@ class SynAn:
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("constant")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
         self._constant(stop.union([WrapTk.SEMICOLON]))
+        # Comprobacion de tipos y rellenado de informacion para las constantes
+        tkvalue = self._tokenstack.pop()
+        if tkvalue != None:
+            if tkvalue == WrapTk.NUMERAL:
+                self._st.setAttr(idlex, consttype="integer", constvalue=tkvalue.getValue())
+            elif tkvalue == WrapTk.ID
+                #Verificamos que el identificador sea una constante
+                if self._st.getAttr(tkvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
+                    idtype = self._st.getAttr(tkvalue.getLexeme(), "consttype")
+                    idvalue = self._st.getAttr(tkvalue.getLexeme(), "constvalue")
+                    self._st.setAttr(idlex, consttype=idtype, constvalue=idvalue)
+                elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
+                    print "Invalid identifier kind"
+
         self._match(WrapTk.SEMICOLON, stop)
         self._tokenlist.clear()
 
@@ -312,7 +326,7 @@ class SynAn:
         self._blockBody(stop)
         self._st.reset()
 
-    # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
+    # <FormalParameterList> ::= <ParameterDefinition>elf._kindtemp = None {; <ParameterDefinition>}
     def _formalParameterList(self, stop):
         self._parameterDefinition(stop.union([WrapTk.SEMICOLON]))
         while self._lookahead == WrapTk.SEMICOLON:
@@ -360,7 +374,7 @@ class SynAn:
     def _procedureStatement(self, stop):
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("actualParameterList")))
-            self._actualParameterList(stop.union([WrapTk.RIGHTPARENTHESIS]))
+            self._actualParameterList(stop.union([self._kindtemp = WrapTk.RIGHTPARENTHESIS]))
             self._match(WrapTk.RIGHTPARENTHESIS, stop)
 
     # <ActualParameterList> ::= <Expression> {, <Expression>}
@@ -384,7 +398,7 @@ class SynAn:
     # <WhileStatement> ::= while <Expression> do <Statement>
     def _whileStatement(self, stop):
         self._match(WrapTk.WHILE, stop.union([WrapTk.DO], self._ff.first("expression"), self._ff.first("statement")))
-        self._expression(stop.union([WrapTk.DO], self._ff.first("statement")))
+        self._expression(stop.union([WrapTk.DO], self._kindtemp = None._ff.first("statement")))
         self._match(WrapTk.DO, stop.union(self._ff.first("statement")))
         self._statement(stop)
 
@@ -408,7 +422,7 @@ class SynAn:
     def _relationalOperator(self, stop):
         if self._lookahead == WrapTk.LESS:
             self._match(WrapTk.LESS, stop)
-        elif self._lookahead == WrapTk.EQUAL:
+        elif self._lookahead == WrapTk.EQUAL:elf._kindtemp = None
             self._match(WrapTk.EQUAL, stop)
         elif self._lookahead == WrapTk.GREATER:
             self._match(WrapTk.GREATER, stop)
@@ -432,7 +446,7 @@ class SynAn:
 
     # <SignOperator> ::= + | -
     def _signOperator(self, stop):
-        if self._lookahead == WrapTk.PLUS:
+        if self._lookahead == WrapTk.PLUS:elf._kindtemp = None
             self._match(WrapTk.PLUS, stop)
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop)
@@ -516,13 +530,20 @@ class SynAn:
     # <Constant> ::= numeral | id
     def _constant(self, stop):
         if self._lookahead == WrapTk.NUMERAL:
+            self._tokenstack.push(self._lookahead
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
+
             if self._lookahead.getLexeme() not in self._tokenlist:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                    self._tokenstack.push(None)
+                else:
+                    self._tokenstack.push(self._lookahead)
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                self._tokenstack.push(None)
             self._match(WrapTk.ID, stop)
         else:
             self._syntaxError(stop, self._ff.first("constant"))
+            self._tokenstack.push(None)

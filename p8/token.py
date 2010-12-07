@@ -124,10 +124,16 @@ class Token:
         """ Sobrecarga del operador de comparacion "igual que", para establecer las comparaciones con un enteros
             tambien es necesario para insertar el objeto en un set/frozenset
         """
-        if self._token == token:
-            return True
+        if isinstance(token, int):
+            if self._token == token:
+                return True
+            else:
+                return False
         else:
-            return False
+            if self._token == token.getToken():
+                return True
+            else:
+                return False
 
     def __hash__ (self):
         """ Sobrecarga de la funcion hash (identificando el objeto token de manera unica) necesaria para insertar

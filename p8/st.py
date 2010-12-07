@@ -96,7 +96,11 @@ class SymbolTable:
                 lex: identificador del que se desea añadir o redefinir un atributo
                 attr: atributo a obtener
         """
-        return self._blockstack.top().getAttr(lex, attr)
+        for i in range(self._blocklevel, -1, -1):
+            if self._blockstack[i].isIn(lex):
+                return self._blockstack[i].getAttr(lex, attr)
+
+
 
     def printTable(self):
         for i in self._blockstack:

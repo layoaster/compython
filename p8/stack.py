@@ -69,6 +69,12 @@ class Stack:
         """
         return len(self._stack)
 
+    def __contains__(self, item):
+        if item in  self._stack:
+            return True
+        else:
+            return False
+
     def __str__(self):
         """ Representacion string del objeto pila (util en trazas)
         """
