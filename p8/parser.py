@@ -28,14 +28,17 @@ class SynAn:
             _st        = Tabla de Simbolos
             _stats     = Flag para imprimir las estadisticas de la Tabla de Simbolos
         """
+        # Tools
+        self._scanner = None
+        self._st = SymbolTable()
+        self._tokenlist = Stack()
+        # Data
+        self._ff = FFSets()
+        # Variables
         self._lookahead = None
-        self._idlist = []
         self._idtemp = None
         self._kindtemp = None
-        self._scanner = None
-        self._ff = FFSets()
         self._linerror = 0
-        self._st = SymbolTable()
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -124,10 +127,9 @@ class SynAn:
 
     # <ConstantDefinition> ::= id = <Constant> ;
     def _constantDefinition(self, stop):
-        self._idlist = []
         # Tener cuidado con las autodefiniciones (a = a;)
         if self._lookahead == WrapTk.ID:
-            self._idlist.append(self._lookahead.getLexeme())
+            self._tokenlist.push(self._lookahead.getLexeme())
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CONSTANT, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
@@ -137,6 +139,7 @@ class SynAn:
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
         self._constant(stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
+        self._tokenlist.clear()
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
     def _typeDefinitionPart(self, stop):
@@ -147,9 +150,8 @@ class SynAn:
 
     # <TypeDefinition> ::= id = <NewType> ;
     def _typeDefinition(self, stop):
-        self._idlist = []
         if self._lookahead == WrapTk.ID:
-            self._idlist.append(self._lookahead.getLexeme())
+            self._tokenlist.push(self._lookahead.getLexeme())
             self._idtemp = self._lookahead.getLexeme()
         else:
             self._idtemp = "NoName"
@@ -157,6 +159,7 @@ class SynAn:
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("newType")))
         self._newType(stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
+        self._tokenlist.clear()
 
     # <NewType> ::= <NewArrayType> | <NewRecordType>
     def _newType(self, stop):
@@ -181,7 +184,7 @@ class SynAn:
         # Tener cuidado con las autodefiniciones, Ej:
         # pepe = array [1..10] of pepe;
         if self._lookahead == WrapTk.ID:
-            if self._lookahead.getLexeme() not in self._idlist:
+            if self._lookahead.getLexeme() not in self._tokenlist:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
             else:
@@ -190,7 +193,6 @@ class SynAn:
 
     # <IndexRange> ::= <Constant> .. <Constant>
     def _indexRange(self, stop):
-        self._idlist = []
         self._constant(stop.union([WrapTk.DOUBLEDOT], self._ff.first("constant")))
         self._match(WrapTk.DOUBLEDOT, stop.union(self._ff.first("constant")))
         self._constant(stop)
@@ -216,7 +218,7 @@ class SynAn:
         #
         #        end;
         if self._lookahead == WrapTk.ID:
-            self._idlist.append(self._lookahead.getLexeme())
+            self._tokenlist.push(self._lookahead.getLexeme())
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
@@ -226,7 +228,7 @@ class SynAn:
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
-                self._idlist.append(self._lookahead.getLexeme())
+                self._tokenlist.push(self._lookahead.getLexeme())
                 if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             else:
@@ -235,7 +237,7 @@ class SynAn:
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
         if self._lookahead == WrapTk.ID:
-            if self._lookahead.getLexeme() not in self._idlist:
+            if self._lookahead.getLexeme() not in self._tokenlist:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
             else:
@@ -257,9 +259,8 @@ class SynAn:
 
     # <VariableGroup> ::= id {, id} : id
     def _variableGroup(self, stop):
-        self._idlist = []
         if self._lookahead == WrapTk.ID:
-            self._idlist.append(self._lookahead.getLexeme())
+            self._tokenlist.push(self._lookahead.getLexeme())
             if not self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
@@ -269,7 +270,7 @@ class SynAn:
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
-                self._idlist.append(self._lookahead.getLexeme())
+                self._tokenlist.push(self._lookahead.getLexeme())
                 if not self._st.insert(self._lookahead.getLexeme(), kind=self._kindtemp, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             else:
@@ -278,13 +279,14 @@ class SynAn:
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
         if (self._lookahead == WrapTk.ID):
-            if (self._lookahead.getLexeme() not in self._idlist):
+            if self._lookahead.getLexeme() not in self._tokenlist:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
 
         self._match(WrapTk.ID, stop)
+        self._tokenlist.clear()
 
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):
@@ -514,24 +516,10 @@ class SynAn:
     # <Constant> ::= numeral | id
     def _constant(self, stop):
         if self._lookahead == WrapTk.NUMERAL:
-            # Comprobamos que nos hayan llamado de la definicion de una constante y no del indice de un array
-            if len(self._idlist) != 0:
-                # Relleno tabla de simbolos de la constante de tipo integer
-                self._st.setAttr(self._idlist[-1], consttype="integer", constvalue=self._lookahead.getValue())
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
-            if (self._lookahead.getLexeme() not in self._idlist):
-                if self._st.lookup(self._lookahead.getLexeme()):
-                    # Comprobamos que nos hayan llamado de la definicion de una constante y no del indice de un array
-                    if len(self._idlist) != 0:
-                        # Comprobamos que se asigna el id de una constante y no de otro tipo
-                        if self._st.getAttr(self._lookahead.getLexeme(), "kind") == WrapCl.CONSTANT:
-                            idtype = self._st.getAttr(self._lookahead.getLexeme(), "consttype")
-                            idvalue = self._st.getAttr(self._lookahead.getLexeme(), "constvalue")
-                            self._st.setAttr(self._idlist[-1], consttype=idtype, constvalue=idvalue)
-                        elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
-                            print "Invalid identifier kind"
-                else:
+            if self._lookahead.getLexeme() not in self._tokenlist:
+                if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)

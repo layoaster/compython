@@ -39,6 +39,11 @@ class Stack:
         """
         return (len(self._stack) == 0)
 
+    def clear(self):
+        """ Vacia la pila
+        """
+        self._stack = []
+
     def printStack(self):
         """ Imprime el contenido de la pila (util en trazas)
         """
