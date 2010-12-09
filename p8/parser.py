@@ -214,26 +214,41 @@ class SynAn:
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
             else:
                 SemError(SemError.REC_DEFINITION, self._scanner.getPos(), self._lookahead)
+        # Insertamos los datos del array en la tabla de simbolos
+        ub = self._tokenstack.pop()
+        lb = self._tokenstack.pop()
+        type = self._lookahead.getValue()
+        if self._st.getAttr(type, "kind") in (WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE, WrapCl.STANDARD_TYPE):
+            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.ARRAY_TYPE, lowerbound=lb, upperbound=ub, type=type)
+        else:
+            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.UNDEFINED, lowerbound=lb, upperbound=ub, type=type)
         self._match(WrapTk.ID, stop)
-
+    
     # <IndexRange> ::= <Constant> .. <Constant>
     def _indexRange(self, stop):
         self._constant(stop.union([WrapTk.DOUBLEDOT], self._ff.first("constant")))
         self._match(WrapTk.DOUBLEDOT, stop.union(self._ff.first("constant")))
         self._constant(stop)
-        if self._tokenstack.top() == WrapTk.NUMERAL:        # Si el upperbound es un numeral
-            upperbound = self._tokenstack.pop()             # tenemos dos posibilidades:
-            if self._tokenstack.top() == WrapTk.NUMERAL:    # a) Si el lowerbound tambien es un numeral
-                if self._tokenstack.top().getValue() <= upperbound.getValue():  # y es <= que upperbound
-                    self._tokenstack.push(upperbound)                           # todo va bien y vuelve a la pila
-                else:                                                           # pero si es > que upperbound
-                    print "ArrayError: Invalid range"                           # el rango no es valido
-                    upperbound.setValue(self._tokenstack.top().getValue())      # asi que se iguala al lowerbound
-                    self._tokenstack.push(upperbound)                           # y vuelve a la pila
-            else:                                           # b) Si el lowerbound no es un numeral
-                print "lowerbound no es numeral"
+        # Extraemos los indices de la pila para comprobar que el rango es valido
+        upperbound = self._tokenstack.pop()
+        lowerbound = self._tokenstack.pop()
+        # Si alguno de los indices es erroneo, se considera el rango [0..0] por defecto
+        if upperbound == WrapTk.TOKEN_ERROR or lowerbound == WrapTk.TOKEN_ERROR:
+            self._tokenstack.push(Token(WrapTk.NUMERAL, 0))
+            self._tokenstack.push(Token(WrapTk.NUMERAL, 0))
         else:
-            print "upperbound no es numeral"
+            # Si alguno de los indices es una constante ya definida, se busca su valor 
+            if upperbound == WrapTk.ID and self._st.getAttr(upperbound.getValue(), "kind") == WrapCl.CONSTANT:
+                upperbound = Token(WrapTk.NUMERAL, self._st.getAttr(upperbound.getValue(), "value"))
+            if lowerbound == WrapTk.ID and self._st.getAttr(lowerbound.getValue(), "kind") == WrapCl.CONSTANT:
+                lowerbound = Token(WrapTk.NUMERAL, self._st.getAttr(lowerbound.getValue(), "value"))
+            # Comprobamos si el rango es valido. Si no, el menor toma el valor del mayor
+            if upperbound.getValue() < lowerbound.getValue():
+                print "ArrayError: Invalid range."
+                upperbound.setValue(lowerbound.getValue())
+            # Devolvemos los indices a la pila
+            self._tokenstack.push(lowerbound)
+            self._tokenstack.push(upperbound)
 
     # <NewRecordType> ::= record <FieldList> end
     def _newRecordType(self, stop):
@@ -572,13 +587,13 @@ class SynAn:
             if self._lookahead not in self._tokenstack:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
-                    self._tokenstack.push(None)
+                    self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, None))
                 else:
                     self._tokenstack.push(self._lookahead)
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-                self._tokenstack.push(None)
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, None))
             self._match(WrapTk.ID, stop)
         else:
             self._syntaxError(stop, self._ff.first("constant"))
-            self._tokenstack.push(None)
+            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, None))
