@@ -51,13 +51,13 @@ class SynAn:
         self._program(frozenset([WrapTk.ENDTEXT]))
 
     def _checkTypes(self, *idents):
-        """ Comprueba que los identificadores tengan todos del mismo tipo (atributo consttype)
+        """ Comprueba que los identificadores tengan todos del mismo tipo (atributo type)
             Parametros:
                 idents: identificadores a comprobar
         """
-        idtype = self._st.getAttr(idents[0].getLexeme(), "consttype")
+        idtype = self._st.getAttr(idents[0].getLexeme(), "type")
         for i in idents[1:]:
-            if self._st.getAttr(i.getLexeme(), "consttype") != idtype:
+            if self._st.getAttr(i.getLexeme(), "type") != idtype:
                 return False
         return True
 
@@ -154,17 +154,17 @@ class SynAn:
         if lvalue.getValue() != "NoName":
             if rvalue != None:
                 if rvalue == WrapTk.NUMERAL:
-                    self._st.setAttr(lvalue.getLexeme(), consttype="integer", constvalue=rvalue.getValue())
+                    self._st.setAttr(lvalue.getLexeme(), type="integer", value=rvalue.getValue())
                 elif rvalue == WrapTk.ID:
                     #Verificamos que el identificador sea una constante
                     if self._st.getAttr(rvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
-                        idtype = self._st.getAttr(rvalue.getLexeme(), "consttype")
-                        idvalue = self._st.getAttr(rvalue.getLexeme(), "constvalue")
-                        self._st.setAttr(lvalue.getLexeme(), consttype=idtype, constvalue=idvalue)
+                        idtype = self._st.getAttr(rvalue.getLexeme(), "type")
+                        idvalue = self._st.getAttr(rvalue.getLexeme(), "value")
+                        self._st.setAttr(lvalue.getLexeme(), type=idtype, value=idvalue)
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
-                        print "Invalid identifier kind"
+                        print "Invalid identifier kind", self._scanner.getPos()
             else:
-                self._st.setAttr(lvalue.getLexeme(), consttype="NoName", constvalue=0)
+                self._st.setAttr(lvalue.getLexeme(), type="NoName", value=0)
         self._match(WrapTk.SEMICOLON, stop)
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
