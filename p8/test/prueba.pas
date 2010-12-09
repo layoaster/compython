@@ -1,6 +1,5 @@
 program prueba;
-const a = 4;
-      b = a; 
+const a = prueba;
 type
    pepe = record
             pepe, paco : integer

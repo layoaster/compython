@@ -148,25 +148,24 @@ class SynAn:
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("constant")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
         self._constant(stop.union([WrapTk.SEMICOLON]))
-
         # Comprobacion de tipos y rellenado de informacion para las constantes
-        tkvalue = self._tokenstack.pop()
-        idlex = self._tokenstack.pop().getLexeme()
-        if idlex != "NoName":
-            if tkvalue != None:
-                if tkvalue == WrapTk.NUMERAL:
-                    self._st.setAttr(idlex, consttype="integer", constvalue=tkvalue.getValue())
-                elif tkvalue == WrapTk.ID:
+        rvalue = self._tokenstack.pop()
+        lvalue = self._tokenstack.pop()
+        if lvalue.getValue() != "NoName":
+            if rvalue != None:
+                if rvalue == WrapTk.NUMERAL:
+                    self._st.setAttr(lvalue.getLexeme(), consttype="integer", constvalue=rvalue.getValue())
+                elif rvalue == WrapTk.ID:
                     #Verificamos que el identificador sea una constante
-                    if self._checkTypes(Token(WrapTk.ID, idlex), tkvalue):
+                    if self._checkTypes(lvalue, rvalue):
                     #if self._st.getAttr(tkvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
-                        idtype = self._st.getAttr(tkvalue.getLexeme(), "consttype")
-                        idvalue = self._st.getAttr(tkvalue.getLexeme(), "constvalue")
-                        self._st.setAttr(idlex, consttype=idtype, constvalue=idvalue)
+                        idtype = self._st.getAttr(rvalue.getLexeme(), "consttype")
+                        idvalue = self._st.getAttr(rvalue.getLexeme(), "constvalue")
+                        self._st.setAttr(lvalue.getLexeme(), consttype=idtype, constvalue=idvalue)
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
                         print "Invalid identifier kind"
             else:
-                self._st.setAttr(idlex, consttype="NoName", constvalue=0)
+                self._st.setAttr(lvalue.getLexeme(), consttype="NoName", constvalue=0)
         self._match(WrapTk.SEMICOLON, stop)
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
