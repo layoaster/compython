@@ -15,13 +15,14 @@ class WrapCl:
     CONSTANT        = 1
     FIELD           = 2
     PROCEDURE       = 3
-    RECORD_TYPE     = 4
-    STANDARD_PROC   = 5
-    STANDARD_TYPE   = 6
-    VALUE_PARAMETER = 7
-    VAR_PARAMETER   = 8
-    VARIABLE        = 9
-    UNDEFINED       = 10
+    PROGRAM_NAME    = 4
+    RECORD_TYPE     = 5
+    STANDARD_PROC   = 6
+    STANDARD_TYPE   = 7
+    VALUE_PARAMETER = 8
+    VAR_PARAMETER   = 9
+    VARIABLE        = 10
+    UNDEFINED       = 11
 
 class IdClass:
 

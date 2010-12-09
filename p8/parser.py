@@ -221,6 +221,19 @@ class SynAn:
         self._constant(stop.union([WrapTk.DOUBLEDOT], self._ff.first("constant")))
         self._match(WrapTk.DOUBLEDOT, stop.union(self._ff.first("constant")))
         self._constant(stop)
+        if self._tokenstack.top() == WrapTk.NUMERAL:        # Si el upperbound es un numeral
+            upperbound = self._tokenstack.pop()             # tenemos dos posibilidades:
+            if self._tokenstack.top() == WrapTk.NUMERAL:    # a) Si el lowerbound tambien es un numeral
+                if self._tokenstack.top().getValue() <= upperbound.getValue():  # y es <= que upperbound
+                    self._tokenstack.push(upperbound)                           # todo va bien y vuelve a la pila
+                else:                                                           # pero si es > que upperbound
+                    print "ArrayError: Invalid range"                           # el rango no es valido
+                    upperbound.setValue(self._tokenstack.top().getValue())      # asi que se iguala al lowerbound
+                    self._tokenstack.push(upperbound)                           # y vuelve a la pila
+            else:                                           # b) Si el lowerbound no es un numeral
+                print "lowerbound no es numeral"
+        else:
+            print "upperbound no es numeral"
 
     # <NewRecordType> ::= record <FieldList> end
     def _newRecordType(self, stop):
