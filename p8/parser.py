@@ -260,8 +260,7 @@ class SynAn:
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            if not self._st.insert("NoName", kind=WrapCl.FIELD):
-                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+            SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
@@ -270,8 +269,7 @@ class SynAn:
                 if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             else:
-                if not self._st.insert("NoName", kind=WrapCl.FIELD):
-                    SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
         if self._lookahead == WrapTk.ID:
@@ -329,7 +327,9 @@ class SynAn:
         # Añadiendo tipos a los identificadores declarados
         while len(self._tokenstack) > 1:
             if self._tokenstack.top() != None:
-                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
+                self._st.setAttr(self._tokenstack.pop().getLexeme(), kind=kind, type=idtype)
+            else:
+                self._tokenstack.pop()
         # Seteamos el tipo del ultimo identificador de la pila y lo guardamos los procedimientos
         self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
         lastvar = self._tokenstack.pop().getLexeme()
