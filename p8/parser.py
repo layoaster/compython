@@ -50,6 +50,17 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
 
+    def _checkTypes(self, *idents):
+        """ Comprueba que los identificadores tengan todos del mismo tipo
+            Parametros:
+                idents: identificadores a comprobar
+        """
+        idtype = self._st.getAttr(idents[0].getLexeme(), "kind")
+        for i in idents[1:]:
+            if self._st.getAttr(i.getLexeme(), "kind") != idtype:
+                return False
+        return True
+
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
@@ -147,7 +158,8 @@ class SynAn:
                     self._st.setAttr(idlex, consttype="integer", constvalue=tkvalue.getValue())
                 elif tkvalue == WrapTk.ID:
                     #Verificamos que el identificador sea una constante
-                    if self._st.getAttr(tkvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
+                    if self._checkTypes(Token(WrapTk.ID, idlex), tkvalue):
+                    #if self._st.getAttr(tkvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
                         idtype = self._st.getAttr(tkvalue.getLexeme(), "consttype")
                         idvalue = self._st.getAttr(tkvalue.getLexeme(), "constvalue")
                         self._st.setAttr(idlex, consttype=idtype, constvalue=idvalue)
