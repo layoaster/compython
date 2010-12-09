@@ -4,8 +4,12 @@ const a = 4;
       c = prueba;
 type
    pepe = record
-            pepe, paco : integer
+            pepito, paco : integer
           end;
+procedure prueba2(u:integer; var v:integer);
+var x,y: boolean;
+begin
+end;
 
 begin  
    write(2);

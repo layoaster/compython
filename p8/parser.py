@@ -301,8 +301,9 @@ class SynAn:
             if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            if not self._st.insert("NoName", kind=kind):
-                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+            SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+            self._tokenstack.push(None)
+
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
@@ -311,16 +312,27 @@ class SynAn:
                 if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             else:
-                if not self._st.insert("NoName", kind=kind):
-                    SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                self._tokenstack.push(None)
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
+        idtype = "NoName"
         if (self._lookahead == WrapTk.ID):
             if self._lookahead not in self._tokenstack:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                # Comprobamos que el id del tipo sea de una clase valida
+                if self._st.getAttr(self._lookahead.getLexeme(), "kind") in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
+                    idtype = self._lookahead.getLexeme()
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+        # Añadiendo tipos a los identificadores declarados
+        while len(self._tokenstack) > 1:
+            if self._tokenstack.top() != None:
+                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
+        # Seteamos el tipo del ultimo identificador de la pila y lo guardamos los procedimientos
+        self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
+        lastvar = self._tokenstack.pop().getLexeme()
 
         self._match(WrapTk.ID, stop)
         self._tokenstack.clear()
