@@ -51,13 +51,13 @@ class SynAn:
         self._program(frozenset([WrapTk.ENDTEXT]))
 
     def _checkTypes(self, *idents):
-        """ Comprueba que los identificadores tengan todos del mismo tipo
+        """ Comprueba que los identificadores tengan todos del mismo tipo (atributo consttype)
             Parametros:
                 idents: identificadores a comprobar
         """
-        idtype = self._st.getAttr(idents[0].getLexeme(), "kind")
+        idtype = self._st.getAttr(idents[0].getLexeme(), "consttype")
         for i in idents[1:]:
-            if self._st.getAttr(i.getLexeme(), "kind") != idtype:
+            if self._st.getAttr(i.getLexeme(), "consttype") != idtype:
                 return False
         return True
 
@@ -157,8 +157,7 @@ class SynAn:
                     self._st.setAttr(lvalue.getLexeme(), consttype="integer", constvalue=rvalue.getValue())
                 elif rvalue == WrapTk.ID:
                     #Verificamos que el identificador sea una constante
-                    if self._checkTypes(lvalue, rvalue):
-                    #if self._st.getAttr(tkvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
+                    if self._st.getAttr(rvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
                         idtype = self._st.getAttr(rvalue.getLexeme(), "consttype")
                         idvalue = self._st.getAttr(rvalue.getLexeme(), "constvalue")
                         self._st.setAttr(lvalue.getLexeme(), consttype=idtype, constvalue=idvalue)
