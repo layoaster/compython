@@ -82,13 +82,21 @@ class SymbolTable:
         self.insert(lex, kind=WrapCl.UNDEFINED)
         return False
 
+    def top(self):
+        """ Devuelve la tabla de simbolos local que esta en el tope de la pila (es decir,
+            la tabla actual), necesario para asignarle a un record la lista (tabla) de sus campos
+        """
+        return self._blockstack.top()
+
     def setAttr(self, lex, **attr):
         """ Añade o redefine un atributo dado un valor
             Parametros:
                 lex: identificador del que se desea añadir o redefinir un atributo
                 attr: atributos a añadir o redefinir
         """
-        self._blockstack.top().setAttr(lex, attr)
+        for i in range(self._blocklevel, -1, -1):
+            if self._blockstack[i].isIn(lex):
+                self._blockstack[i].setAttr(lex, attr)
 
     def getAttr(self, lex, attr):
         """ Obtiene el atributo de un identificador en la tabla actual

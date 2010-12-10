@@ -272,6 +272,9 @@ class SynAn:
             self._match(WrapTk.SEMICOLON, stop.union([WrapTk.SEMICOLON], self._ff.first("recordSection")))
             self._recordSection(recordid, stop.union([WrapTk.SEMICOLON]))
 
+        # Asignamos al recordid el atributo que contiene la lista de campos declarados (LST actual)
+        self._st.setAttr(recordid, fieldlist=self._st.top())
+
     # <RecordSection> ::= id {, id} : id
     def _recordSection(self, recordid, stop):
         # Tener cuidado con las autodefiniciones, Ej:
@@ -311,12 +314,9 @@ class SynAn:
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores de campo declarados
-        lastfield = None
         while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                # guardamos en lastfield el identificador del ultimo campo definido
-                lastfield = self._tokenstack.pop()
-                self._st.setAttr(lastfield.getLexeme(), type=idtype)
+                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
             else:
                 self._tokenstack.pop()
         self._match(WrapTk.ID, stop)
