@@ -301,7 +301,7 @@ class SynAn:
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
         idtype = "NoName"
         if self._lookahead == WrapTk.ID:
-            if self._lookahead != recordid:
+            if (self._lookahead != recordid) and (self._lookahead not in self._tokenstack):
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                 else:
