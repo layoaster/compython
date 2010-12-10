@@ -139,8 +139,8 @@ class LocalSymbolTable:
             self._table[lex] = attr
             return True
         else:
-            if self._table[lex]["kind"] == WrapCl.FIELD:
-                return True
+            #if self._table[lex]["kind"] == WrapCl.FIELD:
+                #return True
             return False
 
     def isIn(self, lex):

@@ -182,6 +182,8 @@ class SynAn:
     def _typeDefinition(self, stop):
         if self._lookahead == WrapTk.ID:
             self._tokenstack.push(self._lookahead)
+            if not self._st.insert(self._tokenstack.top().getLexeme(), pos=self._scanner.getPos()):
+                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, "NoName"))
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("newType")))
@@ -193,12 +195,11 @@ class SynAn:
     # <NewType> ::= <NewArrayType> | <NewRecordType>
     def _newType(self, stop):
         if self._lookahead == WrapTk.ARRAY:
-            if not self._st.insert(self._tokenstack.top().getLexeme(), kind=WrapCl.ARRAY_TYPE, pos=self._scanner.getPos()):
-                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+            # Seteamos la clase tipo del identificador que insertamos
+            self._st.setAttr(self._tokenstack.top().getLexeme(), kind=WrapCl.ARRAY_TYPE)
             self._newArrayType(stop)
         elif self._lookahead == WrapTk.RECORD:
-            if not self._st.insert(self._tokenstack.top().getLexeme(), kind=WrapCl.RECORD_TYPE, pos=self._scanner.getPos()):
-                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+            self._st.setAttr(self._tokenstack.top().getLexeme(), kind=WrapCl.RECORD_TYPE)
             self._newRecordType(stop)
         else:
             self._syntaxError(stop, self._ff.first("newType"))
@@ -256,19 +257,23 @@ class SynAn:
 
     # <NewRecordType> ::= record <FieldList> end
     def _newRecordType(self, stop):
+        self._st.set()
         self._match(WrapTk.RECORD, stop.union([WrapTk.END], self._ff.first("fieldList")))
         self._fieldList(stop.union([WrapTk.END]))
         self._match(WrapTk.END, stop)
+        self._st.reset()
 
     # <FieldList> ::= <RecordSection> {; <RecordSection>}
     def _fieldList(self, stop):
-        self._recordSection(stop.union([WrapTk.SEMICOLON]))
+        # Sacamos el nombre del record de la pila para comprobaciones
+        recordid = self._tokenstack.pop()
+        self._recordSection(recordid, stop.union([WrapTk.SEMICOLON]))
         while self._lookahead == WrapTk.SEMICOLON:
             self._match(WrapTk.SEMICOLON, stop.union([WrapTk.SEMICOLON], self._ff.first("recordSection")))
-            self._recordSection(stop.union([WrapTk.SEMICOLON]))
+            self._recordSection(recordid, stop.union([WrapTk.SEMICOLON]))
 
     # <RecordSection> ::= id {, id} : id
-    def _recordSection(self, stop):
+    def _recordSection(self, recordid, stop):
         # Tener cuidado con las autodefiniciones, Ej:
         # paco = record
         #           campo1, campo2 : paco;
@@ -279,7 +284,8 @@ class SynAn:
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+            self._st.insert("NoName", kind=WrapCl.FIELD)
+            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         while self._lookahead == WrapTk.COMMA:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
@@ -287,16 +293,32 @@ class SynAn:
                 self._tokenstack.push(self._lookahead)
                 if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                    self._tokenstack.pop()
             else:
-                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                self._st.insert("NoName", kind=WrapCl.FIELD)
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
+        idtype = "NoName"
         if self._lookahead == WrapTk.ID:
-            if self._lookahead not in self._tokenstack:
+            if self._lookahead != recordid:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                else:
+                    # Comprobamos que el id del tipo sea de una clase valida
+                    if self._st.getAttr(self._lookahead.getLexeme(), "kind") in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
+                        idtype = self._lookahead.getLexeme()
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+        # Añadiendo tipos a los identificadores de campo declarados
+        while len(self._tokenstack) > 1:
+            if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
+                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
+            else:
+                self._tokenstack.pop()
+        # Seteamos el tipo del ultimo identificador de campo de la pila y lo guardamos los procedimientos
+        self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
+        lastfield = self._tokenstack.pop().getLexeme()
         self._match(WrapTk.ID, stop)
 
     # <VariableDefinitionPart> ::= var <VariableDefinition> {<VariableDefinition>}
@@ -328,6 +350,7 @@ class SynAn:
                 self._tokenstack.push(self._lookahead)
                 if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                    self._tokenstack.pop()
             else:
                 self._st.insert("NoName", kind=kind)
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
@@ -338,15 +361,16 @@ class SynAn:
             if self._lookahead not in self._tokenstack:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
-                # Comprobamos que el id del tipo sea de una clase valida
-                if self._st.getAttr(self._lookahead.getLexeme(), "kind") in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
-                    idtype = self._lookahead.getLexeme()
+                else:
+                    # Comprobamos que el id del tipo sea de una clase valida
+                    if self._st.getAttr(self._lookahead.getLexeme(), "kind") in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
+                        idtype = self._lookahead.getLexeme()
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores declarados
         while len(self._tokenstack) > 1:
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                self._st.setAttr(self._tokenstack.pop().getLexeme(), kind=kind, type=idtype)
+                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
             else:
                 self._tokenstack.pop()
         # Seteamos el tipo del ultimo identificador de la pila y lo guardamos los procedimientos
