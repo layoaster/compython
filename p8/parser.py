@@ -420,8 +420,11 @@ class SynAn:
     # <Statement> ::= id <StatementGroup> | <IfStatement> | <WhileStatement> | <CompoundStatement> | ~
     def _statement(self, stop):
         if self._lookahead == WrapTk.ID:
-            if not self._st.lookup(self._lookahead.getLexeme()):
+            if not self._st.lookup(self._lookahead.getLexeme()) or self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.VARIABLE, WrapCl.PROCEDURE):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+            else:
+                print "variable", self._lookahead.getValue()
+                self._tokenstack.push(self._lookahead)
             self._match(WrapTk.ID, stop.union(self._ff.first("statementGroup")))
             self._statementGroup(stop)
         elif self._lookahead == WrapTk.IF:
@@ -582,6 +585,12 @@ class SynAn:
     # <Selector> ::= <IndexSelector> | <FieldSelector>
     def _selector(self, stop):
         if self._lookahead == WrapTk.LEFTBRACKET:
+            if (self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind") != WrapCl.ARRAY_TYPE:
+                print "ERROR:", self._tokenstack.top().getValue(), "no es de tipo array, sino de tipo", self._st.getAttr(self._tokenstack.top().getValue(), "type"),
+                print "- clase de", self._st.getAttr(self._tokenstack.top().getValue(), "type"), ":",
+                print self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind")
+            else:
+                print "ERROR:", self._tokenstack.top().getValue(), "sí es de tipo array"
             self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
             self._fieldSelector(stop)
