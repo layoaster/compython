@@ -13,9 +13,10 @@ type
 
 procedure prueba2(u, prueba2 : integer; v : pepa);
 var 
-   x, y: boolean;
+   a : integer;
 
 begin
+    a := true + 3
 end;
 
 begin  

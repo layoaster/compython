@@ -407,7 +407,7 @@ class SynAn:
             paramlist = self._tokenstack.pop()  # Esto es una lista con todos los parametros que recibe el procedimiento (puede estar vacia -> [])
             if procid != "NoName":
                 # Si no paso nada extraño con el ID, le añadimos la lista de parametros como atributo del ID del procedimiento
-                self._st.setAttr(procid, paramlist=paramlist)    
+                self._st.setAttr(procid, paramlist=paramlist)
             self._match(WrapTk.RIGHTPARENTHESIS, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
@@ -420,7 +420,7 @@ class SynAn:
             previouslist = self._tokenstack.pop()
             self._match(WrapTk.SEMICOLON, stop.union([WrapTk.SEMICOLON], self._ff.first("parameterDefinition")))
             self._parameterDefinition(stop.union([WrapTk.SEMICOLON]))
-            self._tokenstack.push(previouslist.append(self._tokenstack.pop())) 
+            self._tokenstack.push(previouslist.append(self._tokenstack.pop()))
 
     # <ParameterDefinition> ::= [var] <VariableGroup>
     def _parameterDefinition(self, stop):
@@ -506,9 +506,18 @@ class SynAn:
     # <Expression> ::= <SimpleExpression> [<RelationalOperator> <SimpleExpression>]
     def _expression(self, stop):
         self._simpleExpression(stop.union(self._ff.first("relationalOperator")))
+        #Extraemos el tipo para la expresion de la izquierda del operador
+        ltype = self._exptypes.pop()
         if self._lookahead in [WrapTk.LESS, WrapTk.EQUAL, WrapTk.GREATER, WrapTk.NOTGREATER, WrapTk.NOTEQUAL, WrapTk.NOTLESS]:
             self._relationalOperator(stop.union(self._ff.first("simpleExpression")))
             self._simpleExpression(stop)
+            #Extraemos el tipo para la expresion de la derecha del operador
+            rtype = self._exptypes.pop()
+            if ltype != rtype:
+                ltype = "NoName"
+        # Devolvemos el tipo resultante de las expresion completa
+        self._exptypes.push(ltype)
+
 
     # <RelationalOperator> ::= < | = | > | <= | <> | >=
     def _relationalOperator(self, stop):
@@ -529,12 +538,44 @@ class SynAn:
 
     # <SimpleExpression> ::= [<SignOperator>] <Term> {<AdditiveOperator> <Term>}
     def _simpleExpression(self, stop):
+        #Flag para determinar si se requerira un tipo integer al primer termino
+        sign = False
         if self._lookahead in [WrapTk.PLUS, WrapTk.MINUS]:
             self._signOperator(stop.union(self._ff.first("term"), self._ff.first("additiveOperator")))
+            sign = True
         self._term(stop.union(self._ff.first("additiveOperator")))
+        #Extraemos el tipo para la primera expresion
+        ltype = self._exptypes.pop()
+        if sign:
+            if (ltype != "integer") and (ltype != "NoName"):
+                print "Invalid type"
+                ltype = "NoName"
         while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
             self._additiveOperator(stop.union(self._ff.first("additiveOperator"), self._ff.first("term")))
+            # Obtenemos el tipo esperado segun el operador
+            expectedtype = self._exptypes.pop()
             self._term(stop.union(self._ff.first("additiveOperator")))
+            # Obtenemos el tipo de la expresion a la derecha del operador
+            rtype = self._exptypes.pop()
+            # Comprobamos que el tipo esperado no sea NoName
+            if expectedtype != "NoName":
+                # Comprobamos que no halla tipos erroneos
+                if (ltype != "NoName") and (rtype != "NoName"):
+                    #Si los 2 operandos tiene distinto tipo se produce un error
+                    if ltype != rtype:
+                        print "Invalid type"
+                        ltype = "NoName"
+                    # Sino se comprueba que sean del tipo esperado por el operador
+                    elif ltype != expectedtype:
+                        print "Invalid type"
+                        ltype = "NoName"
+                #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
+                else:
+                    ltype = "NoName"
+            else:
+                ltype = "NoName"
+        # Devolvemos el tipo resultante del termino
+        self._exptypes.push(ltype)
 
     # <SignOperator> ::= + | -
     def _signOperator(self, stop):
@@ -568,11 +609,13 @@ class SynAn:
         ltype = self._exptypes.pop()
         while self._lookahead in [WrapTk.ASTERISK, WrapTk.DIV, WrapTk.MOD, WrapTk.AND]:
             self._multiplyingOperator(stop.union(self._ff.first("multiplyingOperator"), self._ff.first("factor")))
+            # Obtenemos el tipo esperado segun el operador
             expectedtype = self._exptypes.pop()
             self._factor(stop.union(self._ff.first("multiplyingOperator")))
+            # Obtenemos el tipo de la expresion a la derecha del operador
             rtype = self._exptypes.pop()
             # Comprobamos que el tipo esperado no sea NoName
-            if expectedtype != "NoName"
+            if expectedtype != "NoName":
                 # Comprobamos que no halla tipos erroneos
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #Si los 2 operandos tiene distinto tipo se produce un error
@@ -580,13 +623,13 @@ class SynAn:
                         print "Invalid type"
                         ltype = "NoName"
                     # Sino se comprueba que sean del tipo esperado por el operador
-                    elif ltype != expectedtype
+                    elif ltype != expectedtype:
                         print "Invalid type"
                         ltype = "NoName"
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
                     ltype = "NoName"
-            else
+            else:
                 ltype = "NoName"
         # Devolvemos el tipo resultante del termino
         self._exptypes.push(ltype)
@@ -634,8 +677,8 @@ class SynAn:
             self._match(WrapTk.NOT, stop.union(self._ff.first("factor")))
             self._factor(stop)
             #Comprobamos que se reciba un tipo boolean
-            if self._exptypes.top() != "NoName"
-                if self._exptypes.top() != "boolean"
+            if self._exptypes.top() != "NoName":
+                if self._exptypes.top() != "boolean":
                     print "Invalid type"
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
