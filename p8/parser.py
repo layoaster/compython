@@ -368,34 +368,45 @@ class SynAn:
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores declarados
-        lastvar = None
+        varlist = []
         while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                # guardamos en lastvar el identificador de la ultima variable/argumento definido
-                lastvar = self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
+                self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
+                varlist.append(self._tokenstack.pop())
+                print "Appendeando! varlist -> ", varlist
             else:
                 self._tokenstack.pop()
         self._match(WrapTk.ID, stop)
+        if kind in (WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
+            print "asdas!"
+            self._tokenstack.push(varlist)
 
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
         if self._lookahead == WrapTk.ID:
-            if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos()):
+            if not self._st.insert(self._lookahead.getValue(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+                procid = "NoName"
+            else:
+                procid = self._lookahead.getValue()
         else:
-            if not self._st.insert("NoName", kind=WrapCl.PROCEDURE):
-                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
+            self._st.insert("NoName", kind=WrapCl.PROCEDURE)
+            procid = "NoName"
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
-        self._procedureBlock(stop.union([WrapTk.SEMICOLON]))
+        self._procedureBlock(procid, stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
 
     # <ProcedureBlock> ::= [( <FormalParameterList> )] ; <BlockBody>
-    def _procedureBlock(self, stop):
+    def _procedureBlock(self, procid, stop):
         self._st.set()
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("formalParameterList"), self._ff.first("blockBody")))
             self._formalParameterList(stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("blockBody")))
+            paramlist = self._tokenstack.pop()  # Esto es una lista con todos los parametros que recibe el procedimiento (puede estar vacia -> [])
+            if procid != "NoName":
+                # Si no paso nada extraño con el ID, le añadimos la lista de parametros como atributo del ID del procedimiento
+                self._st.setAttr(procid, paramlist=paramlist)    
             self._match(WrapTk.RIGHTPARENTHESIS, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
@@ -405,8 +416,10 @@ class SynAn:
     def _formalParameterList(self, stop):
         self._parameterDefinition(stop.union([WrapTk.SEMICOLON]))
         while self._lookahead == WrapTk.SEMICOLON:
+            previouslist = self._tokenstack.pop()
             self._match(WrapTk.SEMICOLON, stop.union([WrapTk.SEMICOLON], self._ff.first("parameterDefinition")))
             self._parameterDefinition(stop.union([WrapTk.SEMICOLON]))
+            self._tokenstack.push(previouslist.append(self._tokenstack.pop())) 
 
     # <ParameterDefinition> ::= [var] <VariableGroup>
     def _parameterDefinition(self, stop):
