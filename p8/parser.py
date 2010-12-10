@@ -182,7 +182,7 @@ class SynAn:
     def _typeDefinition(self, stop):
         if self._lookahead == WrapTk.ID:
             self._tokenstack.push(self._lookahead)
-            if not self._st.insert(self._tokenstack.top().getLexeme(), pos=self._scanner.getPos()):
+            if not self._st.insert(self._tokenstack.top().getLexeme(), kind=WrapCl.UNDEFINED, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, "NoName"))
@@ -311,14 +311,14 @@ class SynAn:
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores de campo declarados
-        while len(self._tokenstack) > 1:
+        lastfield = None
+        while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
+                # guardamos en lastfield el identificador del ultimo campo definido
+                lastfield = self._tokenstack.pop()
+                self._st.setAttr(lastfield.getLexeme(), type=idtype)
             else:
                 self._tokenstack.pop()
-        # Seteamos el tipo del ultimo identificador de campo de la pila y lo guardamos los procedimientos
-        self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
-        lastfield = self._tokenstack.pop().getLexeme()
         self._match(WrapTk.ID, stop)
 
     # <VariableDefinitionPart> ::= var <VariableDefinition> {<VariableDefinition>}
@@ -368,17 +368,14 @@ class SynAn:
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores declarados
-        while len(self._tokenstack) > 1:
+        lastvar = None
+        while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
+                # guardamos en lastvar el identificador de la ultima variable/argumento definido
+                lastvar = self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
             else:
                 self._tokenstack.pop()
-        # Seteamos el tipo del ultimo identificador de la pila y lo guardamos los procedimientos
-        self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
-        lastvar = self._tokenstack.pop().getLexeme()
-
         self._match(WrapTk.ID, stop)
-        self._tokenstack.clear()
 
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):

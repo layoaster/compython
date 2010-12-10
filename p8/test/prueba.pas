@@ -4,7 +4,7 @@ const a = 4;
       c = 4;
 type
    pepe = record
-            pepe, paco : pepe
+            pepe, paco : pepe;
           end;
    pepa = array[12..15] of integer;
 procedure prueba2(u:integer; var v:integer);
