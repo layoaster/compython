@@ -32,6 +32,7 @@ class SynAn:
         self._scanner = None
         self._st = SymbolTable()
         self._tokenstack = Stack()
+        self._exptypes = Stack()
         # Data
         self._ff = FFSets()
         # Variables
@@ -546,45 +547,85 @@ class SynAn:
 
     # <AdditiveOperator> ::= + | - | or
     def _additiveOperator(self, stop):
+        # En cada caso inserto el tipo que es esperado en la expresion que se ubica al lado izquierdo del operador
         if self._lookahead == WrapTk.PLUS:
             self._match(WrapTk.PLUS, stop)
+            self._exptypes.push("integer")
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop)
+            self._exptypes.push("integer")
         elif self._lookahead == WrapTk.OR:
             self._match(WrapTk.OR, stop)
+            self._exptypes.push("boolean")
         else:
             self._syntaxError(stop, self._ff.first("additiveOperator"))
+            self._exptypes.push("NoName")
 
     # <Term> ::= <Factor> {<MultiplyingOperator> <Factor>}
     def _term(self, stop):
         self._factor(stop.union(self._ff.first("multiplyingOperator")))
+        #Extraemos el tipo para la primera expresion
+        ltype = self._exptypes.pop()
         while self._lookahead in [WrapTk.ASTERISK, WrapTk.DIV, WrapTk.MOD, WrapTk.AND]:
-           self._multiplyingOperator(stop.union(self._ff.first("multiplyingOperator"), self._ff.first("factor")))
-           self._factor(stop.union(self._ff.first("multiplyingOperator")))
+            self._multiplyingOperator(stop.union(self._ff.first("multiplyingOperator"), self._ff.first("factor")))
+            expectedtype = self._exptypes.pop()
+            self._factor(stop.union(self._ff.first("multiplyingOperator")))
+            rtype = self._exptypes.pop()
+            # Comprobamos que el tipo esperado no sea NoName
+            if expectedtype != "NoName"
+                # Comprobamos que no halla tipos erroneos
+                if (ltype != "NoName") and (rtype != "NoName"):
+                    #Si los 2 operandos tiene distinto tipo se produce un error
+                    if ltype != rtype:
+                        print "Invalid type"
+                        ltype = "NoName"
+                    # Sino se comprueba que sean del tipo esperado por el operador
+                    elif ltype != expectedtype
+                        print "Invalid type"
+                        ltype = "NoName"
+                #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
+                else:
+                    ltype = "NoName"
+            else
+                ltype = "NoName"
+        # Devolvemos el tipo resultante del termino
+        self._exptypes.push(ltype)
 
     # <MultiplyingOperator> ::= * | div | mod | and
     def _multiplyingOperator(self, stop):
+        # En cada caso inserto el tipo que es esperado en la expresion que se ubica al lado izquierdo del operador
         if self._lookahead == WrapTk.ASTERISK:
             self._match(WrapTk.ASTERISK, stop)
+            self._exptypes.push("integer")
         elif self._lookahead == WrapTk.DIV:
             self._match(WrapTk.DIV, stop)
+            self._exptypes.push("integer")
         elif self._lookahead == WrapTk.MOD:
             self._match(WrapTk.MOD, stop)
+            self._exptypes.push("integer")
         elif self._lookahead == WrapTk.AND:
             self._match(WrapTk.AND, stop)
+            self._exptypes.push("boolean")
         else:
             self._syntaxError(stop, self._ff.first("multiplyingOperator"))
+            self._exptypes.push("NoName")
 
     # <Factor> ::= numeral | id {<Selector>} | ( <Expression> ) | not <Factor>
     def _factor(self, stop):
         if self._lookahead == WrapTk.NUMERAL:
+            self._exptypes.push("integer")
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
+            idtype = None
             if not self._st.lookup(self._lookahead.getLexeme()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                idtype = "NoName"
             self._match(WrapTk.ID, stop.union(self._ff.first("selector")))
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union(self._ff.first("selector")))
+                idtype = self._exptypes.pop()
+            # Metemos el tipo resultante de la variable
+            self._exptypes.push(idtype)
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expression")))
             self._expression(stop.union([WrapTk.RIGHTPARENTHESIS]))
@@ -592,8 +633,15 @@ class SynAn:
         elif self._lookahead == WrapTk.NOT:
             self._match(WrapTk.NOT, stop.union(self._ff.first("factor")))
             self._factor(stop)
+            #Comprobamos que se reciba un tipo boolean
+            if self._exptypes.top() != "NoName"
+                if self._exptypes.top() != "boolean"
+                    print "Invalid type"
+                    self._exptypes.pop()
+                    self._exptypes.push("NoName")
         else:
             self._syntaxError(stop, self._ff.first("factor"))
+            self._exptypes.push("NoName")
 
     # <Selector> ::= <IndexSelector> | <FieldSelector>
     def _selector(self, stop):
