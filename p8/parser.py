@@ -50,16 +50,22 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
 
-    def _checkTypes(self, *idents):
+    def _checkTypes(self, type, *idents):
         """ Comprueba que los identificadores tengan todos del mismo tipo (atributo type)
             Parametros:
                 idents: identificadores a comprobar
         """
-        idtype = self._st.getAttr(idents[0].getLexeme(), "type")
-        for i in idents[1:]:
-            if self._st.getAttr(i.getLexeme(), "type") != idtype:
-                return False
-        return True
+        if type:
+            for i in idents:
+                if self._st.getAttr(i.getValue(), "type") != type:
+                    return False
+            return True
+        else:
+            idtype = self._st.getAttr(idents[0].getValue(), "type")
+            for i in idents[1:]:
+                if self._st.getAttr(i.getValue(), "type") != idtype:
+                    return False
+            return True
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
