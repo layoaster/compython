@@ -121,8 +121,8 @@ class Token:
         return WrapTk.TokLexemes[self._token - 1]
 
     def __eq__(self, token):
-        """ Sobrecarga del operador de comparacion "igual que", para establecer las comparaciones con un enteros
-            tambien es necesario para insertar el objeto en un set/frozenset
+        """ Sobrecarga del operador de comparacion "igual que", para establecer las comparaciones con enteros
+            y con objetos de tipo Token, tambien es necesario para insertar el objeto en un set/frozenset
         """
         if isinstance(token, int):
             if self._token == token:
@@ -131,6 +131,21 @@ class Token:
                 return False
         else:
             if self._value == token.getValue():
+                return True
+            else:
+                return False
+
+    def __ne__(self, token):
+        """ Sobrecarga del operador de comparacion "distinto de", para establecer las comparaciones con enteros
+            y con objetos de tipo Token,
+        """
+        if isinstance(token, int):
+            if self._token != token:
+                return True
+            else:
+                return False
+        else:
+            if self._value != token.getValue():
                 return True
             else:
                 return False

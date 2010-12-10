@@ -47,7 +47,7 @@ class SymbolTable:
 
     def reset(self):
         lst = self._blockstack.top()
-        # Comprobacion de indetificadores declarados pero no usados y estadisticas
+        # Comprobacion de indetificadores declarados pero no usados
         for i in lst.getIdentifiers():
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
@@ -176,7 +176,12 @@ class LocalSymbolTable:
     def getIdentifiers(self):
         """ Retorna la lista de identififcadores que contiene la tabla
         """
-        return self._table.keys()
+        if "NoName" in self._table.keys():
+            temp = self._table.keys()
+            temp.remove("NoName")
+            return temp
+        else:
+            return self._table.keys()
 
     def __str__(self):
         string = ""

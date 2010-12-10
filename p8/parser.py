@@ -144,15 +144,15 @@ class SynAn:
         else:
             self._st.insert("NoName", kind=WrapCl.CONSTANT)
             #SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, "NoName"))
+            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("constant")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
         self._constant(stop.union([WrapTk.SEMICOLON]))
         # Comprobacion de tipos y rellenado de informacion para las constantes
         rvalue = self._tokenstack.pop()
         lvalue = self._tokenstack.pop()
-        if lvalue.getValue() != "NoName":
-            if rvalue != None:
+        if lvalue != WrapTk.TOKEN_ERROR:
+            if rvalue != WrapTk.TOKEN_ERROR:
                 if rvalue == WrapTk.NUMERAL:
                     self._st.setAttr(lvalue.getLexeme(), type="integer", value=rvalue.getValue())
                 elif rvalue == WrapTk.ID:
@@ -163,8 +163,6 @@ class SynAn:
                         self._st.setAttr(lvalue.getLexeme(), type=idtype, value=idvalue)
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
                         print "Invalid identifier kind", self._scanner.getPos()
-            else:
-                self._st.setAttr(lvalue.getLexeme(), type="NoName", value=0)
         self._match(WrapTk.SEMICOLON, stop)
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
@@ -223,7 +221,7 @@ class SynAn:
         else:
             self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.UNDEFINED, lowerbound=lb, upperbound=ub, type=type)
         self._match(WrapTk.ID, stop)
-    
+
     # <IndexRange> ::= <Constant> .. <Constant>
     def _indexRange(self, stop):
         self._constant(stop.union([WrapTk.DOUBLEDOT], self._ff.first("constant")))
@@ -237,7 +235,7 @@ class SynAn:
             self._tokenstack.push(Token(WrapTk.NUMERAL, 0))
             self._tokenstack.push(Token(WrapTk.NUMERAL, 0))
         else:
-            # Si alguno de los indices es una constante ya definida, se busca su valor 
+            # Si alguno de los indices es una constante ya definida, se busca su valor
             if upperbound == WrapTk.ID and self._st.getAttr(upperbound.getValue(), "kind") == WrapCl.CONSTANT:
                 upperbound = Token(WrapTk.NUMERAL, self._st.getAttr(upperbound.getValue(), "value"))
             if lowerbound == WrapTk.ID and self._st.getAttr(lowerbound.getValue(), "kind") == WrapCl.CONSTANT:
@@ -314,8 +312,8 @@ class SynAn:
             if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-            self._tokenstack.push(None)
+            self._st.insert("NoName", kind=kind)
+            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
 
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         while self._lookahead == WrapTk.COMMA:
@@ -325,8 +323,8 @@ class SynAn:
                 if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             else:
-                SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-                self._tokenstack.push(None)
+                self._st.insert("NoName", kind=kind)
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
         idtype = "NoName"
@@ -341,7 +339,7 @@ class SynAn:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores declarados
         while len(self._tokenstack) > 1:
-            if self._tokenstack.top() != None:
+            if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
                 self._st.setAttr(self._tokenstack.pop().getLexeme(), kind=kind, type=idtype)
             else:
                 self._tokenstack.pop()
@@ -587,13 +585,13 @@ class SynAn:
             if self._lookahead not in self._tokenstack:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
-                    self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, None))
+                    self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                 else:
                     self._tokenstack.push(self._lookahead)
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, None))
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             self._match(WrapTk.ID, stop)
         else:
             self._syntaxError(stop, self._ff.first("constant"))
-            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, None))
+            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
