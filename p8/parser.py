@@ -434,10 +434,10 @@ class SynAn:
     # <Statement> ::= id <StatementGroup> | <IfStatement> | <WhileStatement> | <CompoundStatement> | ~
     def _statement(self, stop):
         if self._lookahead == WrapTk.ID:
-            if not self._st.lookup(self._lookahead.getLexeme()) or self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.VARIABLE, WrapCl.PROCEDURE):
+            if not self._st.lookup(self._lookahead.getLexeme()) or self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.VARIABLE, WrapCl.PROCEDURE, WrapCl.STANDARD_PROC):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:
-                print "variable", self._lookahead.getValue()
                 self._tokenstack.push(self._lookahead)
             self._match(WrapTk.ID, stop.union(self._ff.first("statementGroup")))
             self._statementGroup(stop)
@@ -453,10 +453,28 @@ class SynAn:
     # <StatementGroup> ::= {<Selector>} := <Expression> | <ProcedureStatement>
     def _statementGroup(self, stop):
         if self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD, WrapTk.BECOMES]:
+            ltype = None
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
+                ltype = self._exptypes.pop()
             self._match(WrapTk.BECOMES, stop.union(self._ff.first("expression")))
             self._expression(stop)
+            rtype = self._exptypes.pop()
+            # Comprobando los tipos de una sentencia de asignacion
+            # Verificamos que se haya puesto un ID
+            if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
+                if (ltype != "NoName") and (rtype != "NoName"):
+                    #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
+                    if ltype == None:
+                        ltype = self._st.getAttr(self._tokenstack.pop().getValue(), "type")
+                    # IMPORTANTE: la funcion selector no debe quitar el ID de la pila, ya que si se llama varias veces necesitara el ID
+                    else:
+                        self._tokenstack.pop()
+                    # Si los tipos son distintos damos el error
+                    if ltype != rtype:
+                        print "Invalid type", self._scanner.getPos()
+            else:
+               self._tokenstack.pop()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
         else:
@@ -471,15 +489,72 @@ class SynAn:
 
     # <ActualParameterList> ::= <Expression> {, <Expression>}
     def _actualParameterList(self, stop):
-        self._expression(stop.union([WrapTk.COMMA]))
-        while self._lookahead == WrapTk.COMMA:
-            self._match(WrapTk.COMMA, stop.union([WrapTk.COMMA], self._ff.first("expression")))
+        # Nombre del procedimiento
+        procid = self._tokenstack.pop().getValue()
+        #Identificamos si se trata de un procedimiento definido por el usuario
+        if self._st.getAttr(procid, "kind") == WrapCl.PROCEDURE:
             self._expression(stop.union([WrapTk.COMMA]))
+            # Creando lista de tipos de los parametros actuales
+            paramtypes = [self._exptypes.pop()]
+            while self._lookahead == WrapTk.COMMA:
+                self._match(WrapTk.COMMA, stop.union([WrapTk.COMMA], self._ff.first("expression")))
+                self._expression(stop.union([WrapTk.COMMA]))
+                paramtypes.append(self._exptypes.pop())
+            # Obtenemos lista de parametros formales
+            paramlist = self._st.getAttr(procid, "paramlist")
+            # Comprobamos que el numero de parametros coincida
+            if len(paramlist) != len(paramtypes):
+                print "Invalid number of parameters specified for call to", procid, self._scanner.getPos()
+            else:
+                # Comprobamos los tipos de los parametros
+                for i in range(0, len(paramlist)):
+                    formaltype = self._st.getAttr(paramlist[i], "type")
+                    if paramtypes[i] != "NoName":
+                        # Su el parametro actual tiene un tipo distinto del parametro formal
+                        if paramtypes[i] != formaltype:
+                            print "Invalid type for argument no.", i + 1, "got", paramtypes[i], " but expected", formaltype, self._scanner.getPos()
+                            break
+        # sino se tratara de un procedimiento estandar
+        else:
+            self._ioStatement(procid, stop)
+
+    def _ioStatement(self, procid, stop):
+        if procid == "read":
+            if self._lookahead != WrapTk.ID:
+                print "Integer variable expected as parameter", self._scanner.getPos()
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+            else:
+                self._tokenstack.push(self._lookahead)
+            self._match(WrapTk.ID, stop.union(self._ff.first([WrapTk.END])))
+            idtype = None
+            while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
+                self._selector(stop.union((WrapTk.BECOMES, WrapTk.END), self._ff.first("selector"), self._ff.first("expression")))
+                idtype = self._exptypes.pop()
+            # Comprobamos el tipo del identificador
+            # Verificamos que se haya puesto un ID
+            if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
+                #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
+                if idtype == None:
+                    idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "type")
+                if idtype != "integer":
+                    print "Integer variable expected as parameter", self._scanner.getPos()
+            else:
+                self._tokenstack.pop()
+        # write
+        else:
+            self._expression(stop.union([WrapTk.END]))
+            exptype = self._exptypes.pop()
+            if (exptype != "integer") and (exptype != "NoName"):
+                print "Integer variable expected as parameter", self._scanner.getPos()
+
 
     # <IfStatement> ::= if <Expression> then <Statement> [else <Statement>]
     def _ifStatement(self, stop):
         self._match(WrapTk.IF, stop.union((WrapTk.THEN, WrapTk.ELSE), self._ff.first("expression"), self._ff.first("statement")))
         self._expression(stop.union((WrapTk.THEN, WrapTk.ELSE), self._ff.first("statement")))
+        exptype = self._exptypes.pop()
+        if (exptype != "boolean"):# and (exptype != "NoName"):
+            print "Boolean expression expected, but got", exptype, self._scanner.getPos()
         self._match(WrapTk.THEN, stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._statement(stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._syntaxCheck(stop.union([WrapTk.ELSE]))
@@ -491,6 +566,9 @@ class SynAn:
     def _whileStatement(self, stop):
         self._match(WrapTk.WHILE, stop.union([WrapTk.DO], self._ff.first("expression"), self._ff.first("statement")))
         self._expression(stop.union([WrapTk.DO], self._ff.first("statement")))
+        exptype = self._exptypes.pop()
+        if (exptype != "boolean"):# and (exptype != "NoName"):
+            print "Boolean expression expected, but got", exptype, self._scanner.getPos()
         self._match(WrapTk.DO, stop.union(self._ff.first("statement")))
         self._statement(stop)
 
@@ -513,7 +591,14 @@ class SynAn:
             self._simpleExpression(stop)
             #Extraemos el tipo para la expresion de la derecha del operador
             rtype = self._exptypes.pop()
-            if ltype != rtype:
+            if (ltype != "NoName") and (rtype != "NoName"):
+                if ltype != rtype:
+                    print "Invalid type", self._scanner.getPos()
+                    ltype = "NoName"
+                # si todo va bien el tipo resultante sera un boolean
+                else:
+                    ltype = "boolean"
+            else:
                 ltype = "NoName"
         # Devolvemos el tipo resultante de las expresion completa
         self._exptypes.push(ltype)
@@ -548,7 +633,7 @@ class SynAn:
         ltype = self._exptypes.pop()
         if sign:
             if (ltype != "integer") and (ltype != "NoName"):
-                print "Invalid type"
+                print "Invalid type", self._scanner.getPos()
                 ltype = "NoName"
         while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
             self._additiveOperator(stop.union(self._ff.first("additiveOperator"), self._ff.first("term")))
@@ -563,11 +648,11 @@ class SynAn:
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #Si los 2 operandos tiene distinto tipo se produce un error
                     if ltype != rtype:
-                        print "Invalid type"
+                        print "Invalid type", self._scanner.getPos()
                         ltype = "NoName"
                     # Sino se comprueba que sean del tipo esperado por el operador
                     elif ltype != expectedtype:
-                        print "Invalid type"
+                        print "Invalid type", self._scanner.getPos()
                         ltype = "NoName"
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
@@ -620,11 +705,11 @@ class SynAn:
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #Si los 2 operandos tiene distinto tipo se produce un error
                     if ltype != rtype:
-                        print "Invalid type"
+                        print "Invalid type", self._scanner.getPos()
                         ltype = "NoName"
                     # Sino se comprueba que sean del tipo esperado por el operador
                     elif ltype != expectedtype:
-                        print "Invalid type"
+                        print "Invalid type", self._scanner.getPos()
                         ltype = "NoName"
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
@@ -662,12 +747,20 @@ class SynAn:
             idtype = None
             if not self._st.lookup(self._lookahead.getLexeme()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                 idtype = "NoName"
+            else:
+                self._tokenstack.push(self._lookahead)
             self._match(WrapTk.ID, stop.union(self._ff.first("selector")))
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union(self._ff.first("selector")))
                 idtype = self._exptypes.pop()
             # Metemos el tipo resultante de la variable
+            #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
+            if idtype == None:
+                idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "type")
+            else:
+                self._tokenstack.pop()
             self._exptypes.push(idtype)
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expression")))
@@ -679,7 +772,7 @@ class SynAn:
             #Comprobamos que se reciba un tipo boolean
             if self._exptypes.top() != "NoName":
                 if self._exptypes.top() != "boolean":
-                    print "Invalid type"
+                    print "Invalid type", self._scanner.getPos()
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
         else:

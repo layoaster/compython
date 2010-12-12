@@ -11,14 +11,16 @@ type
           end;
    pepa = array[12..15] of integer;
 
-procedure prueba2(u, prueba2 : integer; v : pepa);
+procedure prueba2(u, prueba2 : integer);
 var 
    a : integer;
 
 begin
-    a := true + 3
+    a := 3 + 3
 end;
 
 begin  
-   write(2);
+    prueba2(a, a);
+    if  a < 6 then
+        write(2);
 end.
