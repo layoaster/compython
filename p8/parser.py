@@ -509,7 +509,7 @@ class SynAn:
             else:
                 # Comprobamos los tipos de los parametros
                 for i in range(0, len(paramlist)):
-                    formaltype = self._st.getAttr(paramlist[i], "type")
+                    formaltype = paramlist[i][1]
                     if paramtypes[i] != "NoName":
                         # Su el parametro actual tiene un tipo distinto del parametro formal
                         if paramtypes[i] != formaltype:
