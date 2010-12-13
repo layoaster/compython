@@ -272,9 +272,8 @@ class SynAn:
         while self._lookahead == WrapTk.SEMICOLON:
             self._match(WrapTk.SEMICOLON, stop.union([WrapTk.SEMICOLON], self._ff.first("recordSection")))
             self._recordSection(recordid, stop.union([WrapTk.SEMICOLON]))
-
         # Asignamos al recordid el atributo que contiene la lista de campos declarados (LST actual)
-        self._st.setAttr(recordid, fieldlist=self._st.top())
+        self._st.setAttr(recordid.getLexeme(), fieldlist=self._st.top())
 
     # <RecordSection> ::= id {, id} : id
     def _recordSection(self, recordid, stop):
@@ -499,20 +498,22 @@ class SynAn:
                 self._match(WrapTk.COMMA, stop.union([WrapTk.COMMA], self._ff.first("expression")))
                 self._expression(stop.union([WrapTk.COMMA]))
                 paramtypes.append(self._exptypes.pop())
-            # Obtenemos lista de parametros formales
-            paramlist = self._st.getAttr(procid, "paramlist")
-            # Comprobamos que el numero de parametros coincida
-            if len(paramlist) != len(paramtypes):
-                print "Invalid number of parameters specified for call to", procid, self._scanner.getPos()
-            else:
-                # Comprobamos los tipos de los parametros
-                for i in range(0, len(paramlist)):
-                    formaltype = paramlist[i][1]
-                    if paramtypes[i] != "NoName":
-                        # Su el parametro actual tiene un tipo distinto del parametro formal
-                        if paramtypes[i] != formaltype:
-                            print "Invalid type for argument no.", i + 1, "got", paramtypes[i], " but expected", formaltype, self._scanner.getPos()
-                            break
+            # Comprobamos que no sea una ID de procedimiento no declarados (TOKEN_ERROR)
+            if procid != None:
+                # Obtenemos lista de parametros formales
+                paramlist = self._st.getAttr(procid, "paramlist")
+                # Comprobamos que el numero de parametros coincida
+                if len(paramlist) != len(paramtypes):
+                    print "Invalid number of parameters specified for call to", procid, self._scanner.getPos()
+                else:
+                    # Comprobamos los tipos de los parametros
+                    for i in range(0, len(paramlist)):
+                        formaltype = paramlist[i][1]
+                        if paramtypes[i] != "NoName":
+                            # Su el parametro actual tiene un tipo distinto del parametro formal
+                            if paramtypes[i] != formaltype:
+                                print "Invalid type for argument no.", i + 1, "got", paramtypes[i], " but expected", formaltype, self._scanner.getPos()
+                                break
         # sino se tratara de un procedimiento estandar
         else:
             self._ioStatement(procid, stop)
@@ -601,7 +602,6 @@ class SynAn:
                 ltype = "NoName"
         # Devolvemos el tipo resultante de las expresion completa
         self._exptypes.push(ltype)
-
 
     # <RelationalOperator> ::= < | = | > | <= | <> | >=
     def _relationalOperator(self, stop):
@@ -803,8 +803,14 @@ class SynAn:
     def _fieldSelector(self, stop):
         self._match(WrapTk.PERIOD, stop.union([WrapTk.ID]))
         if self._lookahead == WrapTk.ID:
-            if not self._st.lookup(self._lookahead.getLexeme()):
+            recordtype = self._st.getAttr(self._tokenstack.top().getLexeme(), "type")
+            fieldlist = self._st.getAttr(recordtype, "fieldlist")
+            if not fieldlist.isIn(self._lookahead.getLexeme()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                self._exptypes.push("NoName")
+            else:
+                print fieldlist.getAttr(self._lookahead.getLexeme(), "type")
+                self._exptypes.push(self._lookahead)
         self._match(WrapTk.ID, stop)
 
     # <Constant> ::= numeral | id
