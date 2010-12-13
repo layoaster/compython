@@ -51,20 +51,20 @@ class SynAn:
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
 
-    def _checkTypes(self, type, *idents):
-        """ Comprueba que los identificadores tengan todos del mismo tipo (atributo type)
+    def _checkTypes(self, datatype, *idents):
+        """ Comprueba que los identificadores tengan todos del mismo tipo (atributo datatype)
             Parametros:
                 idents: identificadores a comprobar
         """
-        if type:
+        if datatype:
             for i in idents:
-                if self._st.getAttr(i.getValue(), "type") != type:
+                if self._st.getAttr(i.getValue(), "datatype") != datatype:
                     return False
             return True
         else:
-            idtype = self._st.getAttr(idents[0].getValue(), "type")
+            idtype = self._st.getAttr(idents[0].getValue(), "datatype")
             for i in idents[1:]:
-                if self._st.getAttr(i.getValue(), "type") != idtype:
+                if self._st.getAttr(i.getValue(), "datatype") != idtype:
                     return False
             return True
 
@@ -161,18 +161,18 @@ class SynAn:
         if lvalue != WrapTk.TOKEN_ERROR:
             if rvalue != WrapTk.TOKEN_ERROR:
                 if rvalue == WrapTk.NUMERAL:
-                    self._st.setAttr(lvalue.getLexeme(), type="integer", value=rvalue.getValue())
+                    self._st.setAttr(lvalue.getLexeme(), datatype="integer", value=rvalue.getValue())
                 elif rvalue == WrapTk.ID:
                     #Verificamos que el identificador sea una constante
                     if self._st.getAttr(rvalue.getLexeme(), "kind") == WrapCl.CONSTANT:
-                        idtype = self._st.getAttr(rvalue.getLexeme(), "type")
+                        idtype = self._st.getAttr(rvalue.getLexeme(), "datatype")
                         idvalue = self._st.getAttr(rvalue.getLexeme(), "value")
-                        self._st.setAttr(lvalue.getLexeme(), type=idtype, value=idvalue)
+                        self._st.setAttr(lvalue.getLexeme(), datatype=idtype, value=idvalue)
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
                         print "Invalid identifier kind", self._scanner.getPos()
         self._match(WrapTk.SEMICOLON, stop)
 
-    # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
+    # <TypeDefinitionPart> ::= datatype <TypeDefinition> {<TypeDefinition>}
     def _typeDefinitionPart(self, stop):
         self._match(WrapTk.TYPE, stop.union(self._ff.first("typeDefinition")))
         self._typeDefinition(stop.union(self._ff.first("typeDefinition")))
@@ -223,11 +223,11 @@ class SynAn:
         # Insertamos los datos del array en la tabla de simbolos
         ub = self._tokenstack.pop()
         lb = self._tokenstack.pop()
-        type = self._lookahead.getValue()
-        if self._st.getAttr(type, "kind") in (WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE, WrapCl.STANDARD_TYPE):
-            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.ARRAY_TYPE, lowerbound=lb, upperbound=ub, type=type)
+        arraytype = self._lookahead.getValue()
+        if self._st.getAttr(arraytype, "kind") in (WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE, WrapCl.STANDARD_TYPE):
+            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.ARRAY_TYPE, lowerbound=lb, upperbound=ub, datatype=arraytype)
         else:
-            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.UNDEFINED, lowerbound=lb, upperbound=ub, type=type)
+            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.UNDEFINED, lowerbound=lb, upperbound=ub, datatype=arraytype)
         self._match(WrapTk.ID, stop)
 
     # <IndexRange> ::= <Constant> .. <Constant>
@@ -316,7 +316,7 @@ class SynAn:
         # Añadiendo tipos a los identificadores de campo declarados
         while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                self._st.setAttr(self._tokenstack.pop().getLexeme(), type=idtype)
+                self._st.setAttr(self._tokenstack.pop().getLexeme(), datatype=idtype)
             else:
                 self._tokenstack.pop()
         self._match(WrapTk.ID, stop)
@@ -371,7 +371,7 @@ class SynAn:
         varlist = []
         while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
+                self._st.setAttr(self._tokenstack.top().getLexeme(), datatype=idtype)
                 # Se inserta en la lista una tupla con el lexema del parametro y su tipo
                 varlist.append((self._tokenstack.pop(), idtype))
             else:
@@ -464,13 +464,13 @@ class SynAn:
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
                     if ltype == None:
-                        ltype = self._st.getAttr(self._tokenstack.pop().getValue(), "type")
+                        ltype = self._st.getAttr(self._tokenstack.pop().getValue(), "datatype")
                     # IMPORTANTE: la funcion selector no debe quitar el ID de la pila, ya que si se llama varias veces necesitara el ID
                     else:
                         self._tokenstack.pop()
                     # Si los tipos son distintos damos el error
                     if ltype != rtype:
-                        print "Invalid type", self._scanner.getPos()
+                        print "Invalid datatype", self._scanner.getPos()
             else:
                self._tokenstack.pop()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
@@ -512,7 +512,7 @@ class SynAn:
                         if paramtypes[i] != "NoName":
                             # Su el parametro actual tiene un tipo distinto del parametro formal
                             if paramtypes[i] != formaltype:
-                                print "Invalid type for argument no.", i + 1, "got", paramtypes[i], " but expected", formaltype, self._scanner.getPos()
+                                print "Invalid datatype for argument no.", i + 1, "got", paramtypes[i], " but expected", formaltype, self._scanner.getPos()
                                 break
         # sino se tratara de un procedimiento estandar
         else:
@@ -535,7 +535,7 @@ class SynAn:
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
                 #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
                 if idtype == None:
-                    idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "type")
+                    idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "datatype")
                 if idtype != "integer":
                     print "Integer variable expected as parameter", self._scanner.getPos()
             else:
@@ -593,7 +593,7 @@ class SynAn:
             rtype = self._exptypes.pop()
             if (ltype != "NoName") and (rtype != "NoName"):
                 if ltype != rtype:
-                    print "Invalid type", self._scanner.getPos()
+                    print "Invalid datatype", self._scanner.getPos()
                     ltype = "NoName"
                 # si todo va bien el tipo resultante sera un boolean
                 else:
@@ -632,7 +632,7 @@ class SynAn:
         ltype = self._exptypes.pop()
         if sign:
             if (ltype != "integer") and (ltype != "NoName"):
-                print "Invalid type", self._scanner.getPos()
+                print "Invalid datatype", self._scanner.getPos()
                 ltype = "NoName"
         while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
             self._additiveOperator(stop.union(self._ff.first("additiveOperator"), self._ff.first("term")))
@@ -647,11 +647,11 @@ class SynAn:
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #Si los 2 operandos tiene distinto tipo se produce un error
                     if ltype != rtype:
-                        print "Invalid type", self._scanner.getPos()
+                        print "Invalid datatype", self._scanner.getPos()
                         ltype = "NoName"
                     # Sino se comprueba que sean del tipo esperado por el operador
                     elif ltype != expectedtype:
-                        print "Invalid type", self._scanner.getPos()
+                        print "Invalid datatype", self._scanner.getPos()
                         ltype = "NoName"
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
@@ -660,6 +660,7 @@ class SynAn:
                 ltype = "NoName"
         # Devolvemos el tipo resultante del termino
         self._exptypes.push(ltype)
+type
 
     # <SignOperator> ::= + | -
     def _signOperator(self, stop):
@@ -704,11 +705,11 @@ class SynAn:
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #Si los 2 operandos tiene distinto tipo se produce un error
                     if ltype != rtype:
-                        print "Invalid type", self._scanner.getPos()
+                        print "Invalid datatype", self._scanner.getPos()
                         ltype = "NoName"
                     # Sino se comprueba que sean del tipo esperado por el operador
                     elif ltype != expectedtype:
-                        print "Invalid type", self._scanner.getPos()
+                        print "Invalid datatype", self._scanner.getPos()
                         ltype = "NoName"
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
@@ -757,7 +758,7 @@ class SynAn:
             # Metemos el tipo resultante de la variable
             #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
             if idtype == None:
-                idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "type")
+                idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "datatype")
             else:
                 self._tokenstack.pop()
             self._exptypes.push(idtype)
@@ -771,7 +772,7 @@ class SynAn:
             #Comprobamos que se reciba un tipo boolean
             if self._exptypes.top() != "NoName":
                 if self._exptypes.top() != "boolean":
-                    print "Invalid type", self._scanner.getPos()
+                    print "Invalid datatype", self._scanner.getPos()
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
         else:
@@ -781,12 +782,13 @@ class SynAn:
     # <Selector> ::= <IndexSelector> | <FieldSelector>
     def _selector(self, stop):
         if self._lookahead == WrapTk.LEFTBRACKET:
-            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind") != WrapCl.ARRAY_TYPE:
-                print "ERROR:", self._tokenstack.top().getValue(), "is not an array type"
+            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"), "kind") != WrapCl.ARRAY_TYPE:
+                print "ERROR:", self._tokenstack.top().getValue(), "is not an array datatype"
+                print "tipo de", self._tokenstack.top(), ":", self._st.getAttr(self._tokenstack.top().getValue(), "datatype")
             self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
-            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind") != WrapCl.RECORD_TYPE:
-                print "ERROR:", self._tokenstack.top().getValue(), "is not a record type"
+            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"), "kind") != WrapCl.RECORD_TYPE:
+                print "ERROR:", self._tokenstack.top().getValue(), "is not a record datatype"
             self._fieldSelector(stop)
         else:
             self._syntaxError(stop, self._ff.first("selector"))
@@ -803,7 +805,7 @@ class SynAn:
     def _fieldSelector(self, stop):
         self._match(WrapTk.PERIOD, stop.union([WrapTk.ID]))
         if self._lookahead == WrapTk.ID:
-            recordtype = self._st.getAttr(self._tokenstack.top().getLexeme(), "type")
+            recordtype = self._st.getAttr(self._tokenstack.top().getLexeme(), "datatype")
             fieldlist = self._st.getAttr(recordtype, "fieldlist")
             if not fieldlist.isIn(self._lookahead.getLexeme()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
@@ -811,7 +813,7 @@ class SynAn:
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:
                 print
-                self._exptypes.push(fieldlist.getAttr(self._lookahead.getLexeme(), "type"))
+                self._exptypes.push(fieldlist.getAttr(self._lookahead.getLexeme(), "datatype"))
                 self._tokenstack.push(self._lookahead)
         self._match(WrapTk.ID, stop)
 
