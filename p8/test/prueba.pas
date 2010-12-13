@@ -11,10 +11,11 @@ type
           end;
    pepa = array[12..15] of integer;
 
-procedure prueba2(u, prueba2 : integer);
+procedure prueba2(var prueba2, pepe, boolean : pepa; u, prueba2 : integer);
 var 
    a : integer;
-
+   pepa : pepa;
+   u : ;
 begin
     a := 3 + 3
 end;
