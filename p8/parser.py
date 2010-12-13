@@ -172,7 +172,7 @@ class SynAn:
                         print "Invalid identifier kind", self._scanner.getPos()
         self._match(WrapTk.SEMICOLON, stop)
 
-    # <TypeDefinitionPart> ::= datatype <TypeDefinition> {<TypeDefinition>}
+    # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
     def _typeDefinitionPart(self, stop):
         self._match(WrapTk.TYPE, stop.union(self._ff.first("typeDefinition")))
         self._typeDefinition(stop.union(self._ff.first("typeDefinition")))
@@ -660,7 +660,6 @@ class SynAn:
                 ltype = "NoName"
         # Devolvemos el tipo resultante del termino
         self._exptypes.push(ltype)
-type
 
     # <SignOperator> ::= + | -
     def _signOperator(self, stop):
@@ -783,7 +782,7 @@ type
     def _selector(self, stop):
         if self._lookahead == WrapTk.LEFTBRACKET:
             if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"), "kind") != WrapCl.ARRAY_TYPE:
-                print "ERROR:", self._tokenstack.top().getValue(), "is not an array datatype"
+                print "ERROR:", self._tokenstack.pop().getValue(), "is not an array datatype"
                 print "tipo de", self._tokenstack.top(), ":", self._st.getAttr(self._tokenstack.top().getValue(), "datatype")
             self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
