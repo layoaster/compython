@@ -18,6 +18,7 @@ type
 var
    x, y, z : pepa;
    v : integer;
+   w : paco;
 
 procedure prueba2(var prueba2, pepe, boolean : pepa; u : integer);
 var 
@@ -32,6 +33,7 @@ end;
 
 begin  
     prueba2(x, y, z, v);
+    w.a := 6;
     if  a < 6 then
         write(2);
 end.
