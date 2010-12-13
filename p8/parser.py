@@ -781,14 +781,12 @@ class SynAn:
     # <Selector> ::= <IndexSelector> | <FieldSelector>
     def _selector(self, stop):
         if self._lookahead == WrapTk.LEFTBRACKET:
-            if (self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind") != WrapCl.ARRAY_TYPE:
-                print "ERROR:", self._tokenstack.top().getValue(), "no es de tipo array, sino de tipo", self._st.getAttr(self._tokenstack.top().getValue(), "type"),
-                print "- clase de", self._st.getAttr(self._tokenstack.top().getValue(), "type"), ":",
-                print self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind")
-            else:
-                print "ERROR:", self._tokenstack.top().getValue(), "sí es de tipo array"
+            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind") != WrapCl.ARRAY_TYPE:
+                print "ERROR:", self._tokenstack.top().getValue(), "is not an array type"
             self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
+            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "type"), "kind") != WrapCl.RECORD_TYPE:
+                print "ERROR:", self._tokenstack.top().getValue(), "is not a record type"
             self._fieldSelector(stop)
         else:
             self._syntaxError(stop, self._ff.first("selector"))
@@ -797,6 +795,8 @@ class SynAn:
     def _indexSelector(self, stop):
         self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
         self._expression(stop.union([WrapTk.RIGHTBRACKET]))
+        if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.STANDARD_TYPE:
+            print "ERROR: Illegal value in selector."
         self._match(WrapTk.RIGHTBRACKET, stop)
 
     # <FieldSelector> ::= . id
