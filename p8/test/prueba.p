@@ -1,7 +1,7 @@
 program prueba;
 const a = 4;
       b = a;
-      c = 4;
+      c = true;
 type
    pepe = record
             pepe, paco : boolean
@@ -36,4 +36,5 @@ begin
     w.a := 6;
     if  a < 6 then
         write(2);
+  h := c;
 end.

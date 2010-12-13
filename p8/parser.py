@@ -808,9 +808,11 @@ class SynAn:
             if not fieldlist.isIn(self._lookahead.getLexeme()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                 self._exptypes.push("NoName")
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:
-                print fieldlist.getAttr(self._lookahead.getLexeme(), "type")
-                self._exptypes.push(self._lookahead)
+                print
+                self._exptypes.push(fieldlist.getAttr(self._lookahead.getLexeme(), "type"))
+                self._tokenstack.push(self._lookahead)
         self._match(WrapTk.ID, stop)
 
     # <Constant> ::= numeral | id
