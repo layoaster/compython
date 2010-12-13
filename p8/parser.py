@@ -373,7 +373,8 @@ class SynAn:
         while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
                 self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
-                varlist.append(self._tokenstack.pop())
+                # Se inserta en la lista una tupla con el lexema del parametro y su tipo
+                varlist.append((self._tokenstack.pop(), idtype))
                 print "Appendeando! varlist -> ", varlist
             else:
                 self._tokenstack.pop()
