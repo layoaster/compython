@@ -375,12 +375,10 @@ class SynAn:
                 self._st.setAttr(self._tokenstack.top().getLexeme(), type=idtype)
                 # Se inserta en la lista una tupla con el lexema del parametro y su tipo
                 varlist.append((self._tokenstack.pop(), idtype))
-                print "Appendeando! varlist -> ", varlist
             else:
                 self._tokenstack.pop()
         self._match(WrapTk.ID, stop)
         if kind in (WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
-            print "asdas!"
             self._tokenstack.push(varlist)
 
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
@@ -421,7 +419,7 @@ class SynAn:
             previouslist = self._tokenstack.pop()
             self._match(WrapTk.SEMICOLON, stop.union([WrapTk.SEMICOLON], self._ff.first("parameterDefinition")))
             self._parameterDefinition(stop.union([WrapTk.SEMICOLON]))
-            self._tokenstack.push(previouslist.append(self._tokenstack.pop()))
+            self._tokenstack.push(previouslist + self._tokenstack.pop())
 
     # <ParameterDefinition> ::= [var] <VariableGroup>
     def _parameterDefinition(self, stop):
