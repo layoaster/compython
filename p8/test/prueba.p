@@ -29,7 +29,7 @@ var
    v : cosa;
    z : otro;
 begin
-    {a := 3 + 3;}
+    a := 3 + 3;
     z[2].unrecord.pepe := true;
     v.unarray[11] := 6;
     v.unrecord.paco := false;
