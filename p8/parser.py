@@ -451,7 +451,13 @@ class SynAn:
     # <StatementGroup> ::= {<Selector>} := <Expression> | <ProcedureStatement>
     def _statementGroup(self, stop):
         if self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD, WrapTk.BECOMES]:
-            ltype = None
+            # Pasamos el tipo de id raiz a la funcion selector
+            if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
+                self._exptypes.push(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"))
+            else
+                self._exptypes.push("NoName")
+            # En caso de que no se acceda a selector ya tenemos el tipo
+            ltype = self._exptypes.top()
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
                 ltype = self._exptypes.pop()
@@ -459,20 +465,10 @@ class SynAn:
             self._expression(stop)
             rtype = self._exptypes.pop()
             # Comprobando los tipos de una sentencia de asignacion
-            # Verificamos que se haya puesto un ID
-            if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                if (ltype != "NoName") and (rtype != "NoName"):
-                    #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
-                    if ltype == None:
-                        ltype = self._st.getAttr(self._tokenstack.pop().getValue(), "datatype")
-                    # IMPORTANTE: la funcion selector no debe quitar el ID de la pila, ya que si se llama varias veces necesitara el ID
-                    else:
-                        self._tokenstack.pop()
-                    # Si los tipos son distintos damos el error
-                    if ltype != rtype:
-                        print "Invalid datatype", self._scanner.getPos()
-            else:
-               self._tokenstack.pop()
+            if (ltype != "NoName") and (rtype != "NoName"):
+                # Si los tipos son distintos damos el error
+                if ltype != rtype:
+                    print "Invalid datatype", self._scanner.getPos()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
         else:
