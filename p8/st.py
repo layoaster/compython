@@ -52,14 +52,16 @@ class SymbolTable:
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
 
-        # Desapilando nombre de ambito a borrar
-        print
-        print "AMBITO:", self._scopenames.pop()
-        print "------"
+        #print
+        #print "AMBITO:", self._scopenames.top()
+        #print "------"
 
+        # Desapilando nombre de ambito a borrar
+        self._scopenames.pop()
+
+        #print self._blockstack.top()
+        #print
         # Procedicimientos de Reseteo
-        print self._blockstack.top()
-        print
         self._blockstack.pop()
         self._blocklevel -= 1
 

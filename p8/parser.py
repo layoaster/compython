@@ -410,7 +410,6 @@ class SynAn:
     # <ProcedureBlock> ::= [( <FormalParameterList> )] ; <BlockBody>
     def _procedureBlock(self, procid, stop):
         self._st.set()
-        paramlist = []
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("formalParameterList"), self._ff.first("blockBody")))
             self._formalParameterList(stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("blockBody")))
@@ -422,13 +421,6 @@ class SynAn:
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
         self._st.reset()
-        # La lista de parametros se asignan aqui y no justo despues de la llamada a formalParameterList
-        # para asignarselo al ambito de fuera del procedimiento,y asi estar seguros que se le asigna al id
-        # del procedimiento y no a un parametro que tenga mismo id que el del procedimiento
-        # Si no paso nada extraño con el ID, le añadimos la lista de parametros como atributo del ID del procedimiento
-        #if procid != "NoName":
-        #    print "PARAMLIST FORMAL = ", paramlist, "; del PROCID", procid, "; en linea ", self._scanner.getPos()
-        #    self._st.setAttr(procid, paramlist=paramlist)
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
     def _formalParameterList(self, stop):
@@ -495,7 +487,9 @@ class SynAn:
                     print "Invalid datatype", self._scanner.getPos()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
+        # En este caso se llamo a un procedimiento sin parametros por lo que se ha de limpiar la pila para quitar el nombre de procedimiento
         else:
+            self._tokenstack.pop()
             self._syntaxCheck(stop)
 
     # <ProcedureStatement> ::= [( <ActualParameterList> )]
@@ -546,12 +540,17 @@ class SynAn:
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                 self._exptypes.push("NoName")
             else:
-                self._tokenstack.push(self._lookahead)
-                #Comprobamos que sea del tipo variable o constante
-                if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
-                    self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
+                if self._st.lookup(self._lookahead.getValue()):
+                    self._tokenstack.push(self._lookahead)
+                    #Comprobamos que sea del tipo variable o constante
+                    if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
+                        self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
+                    else:
+                        print "ERROR: Type identifier not allowed here", self._lookahead.getLexeme()," ", self._scanner.getPos()
+                        self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+                        self._exptypes.push("NoName")
                 else:
-                    print "ERROR: Type identifier not allowed here", self._lookahead.getLexeme()," ", self._scanner.getPos()
+                    SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                     self._exptypes.push("NoName")
             self._match(WrapTk.ID, stop.union((WrapTk.PERIOD, WrapTk.LEFTBRACKET)))
