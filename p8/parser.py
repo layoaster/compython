@@ -783,7 +783,7 @@ class SynAn:
                 if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.ARRAY_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
-                    print "ERROR:", self._tokenstack.pop().getValue(), "is not an array type"
+                    print "ERROR:", self._tokenstack.top().getValue(), "is not an array type"
                 # Si es un array, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "datatype"))
@@ -818,13 +818,18 @@ class SynAn:
         self._match(WrapTk.PERIOD, stop.union([WrapTk.ID]))
         if self._lookahead == WrapTk.ID:
             fieldlist = self._exptypes.pop()
-            if not fieldlist.isIn(self._lookahead.getValue()):
-                SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
-                self._exptypes.push("NoName")
-                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+            if fieldlist != "NoName":
+                print "fieldlist:", fieldlist
+                if not fieldlist.isIn(self._lookahead.getValue()):
+                    SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                    self._exptypes.push("NoName")
+                    self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+                else:
+                    self._exptypes.push(fieldlist.getAttr(self._lookahead.getValue(), "datatype"))
+                    self._tokenstack.push(self._lookahead)
             else:
-                self._exptypes.push(fieldlist.getAttr(self._lookahead.getValue(), "datatype"))
-                self._tokenstack.push(self._lookahead)
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+                self._exptypes.push("NoName")                
         self._match(WrapTk.ID, stop)
 
     # <Constant> ::= numeral | id
