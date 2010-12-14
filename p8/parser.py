@@ -411,6 +411,8 @@ class SynAn:
             self._formalParameterList(stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("blockBody")))
             # Esto es una lista con todos los parametros que recibe el procedimiento (puede estar vacia -> [])
             paramlist = self._tokenstack.pop()
+            if procid != "NoName":
+                self._st.setAttr(procid, paramlist=paramlist)
             self._match(WrapTk.RIGHTPARENTHESIS, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
@@ -419,8 +421,9 @@ class SynAn:
         # para asignarselo al ambito de fuera del procedimiento,y asi estar seguros que se le asigna al id
         # del procedimiento y no a un parametro que tenga mismo id que el del procedimiento
         # Si no paso nada extraño con el ID, le añadimos la lista de parametros como atributo del ID del procedimiento
-        if procid != "NoName":
-            self._st.setAttr(procid, paramlist=paramlist)
+        #if procid != "NoName":
+        #    print "PARAMLIST FORMAL = ", paramlist, "; del PROCID", procid, "; en linea ", self._scanner.getPos()
+        #    self._st.setAttr(procid, paramlist=paramlist)
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
     def _formalParameterList(self, stop):
@@ -443,7 +446,7 @@ class SynAn:
     # <Statement> ::= id <StatementGroup> | <IfStatement> | <WhileStatement> | <CompoundStatement> | ~
     def _statement(self, stop):
         if self._lookahead == WrapTk.ID:
-            if not self._st.lookup(self._lookahead.getLexeme()) or self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.VARIABLE, WrapCl.PROCEDURE, WrapCl.STANDARD_PROC):
+            if (not self._st.lookup(self._lookahead.getValue())) or (self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.VARIABLE, WrapCl.PROCEDURE, WrapCl.STANDARD_PROC, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:

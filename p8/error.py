@@ -136,6 +136,7 @@ class SemError(Error):
     NOT_ARRAY_TYPE   = 15
     NOT_RECORD_TYPE  = 16
     ILLEGAL_INDEX    = 17
+    TYPE_NOT_ALLOWED = 18
     
     # Cadenas de texto que describen cada uno de los posibles errores semanticos encontrados
     _errStrings = ("Undeclared type", 
@@ -155,8 +156,9 @@ class SemError(Error):
                    "Boolean expression expected, but got",
                    "Conflicting types while evaluating expression",
                    "Not an array type",
-                   "Not a record type"
-                   "Illegal indexing value")
+                   "Not a record type",
+                   "Illegal indexing value",
+                   "Type identifier not allowed here")
 
     def __init__(self, errno, pos, found=None):
         super(SemError, self).__init__(errno, pos, found)
