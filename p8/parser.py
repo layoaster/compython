@@ -214,20 +214,25 @@ class SynAn:
         self._match(WrapTk.OF, stop.union([WrapTk.ID]))
         # Tener cuidado con las autodefiniciones, Ej:
         # pepe = array [1..10] of pepe;
+        arraytype = "NoName"
         if self._lookahead == WrapTk.ID:
             if self._lookahead not in self._tokenstack:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                else:
+                    arraytype = self._lookahead.getValue()
             else:
                 SemError(SemError.REC_DEFINITION, self._scanner.getPos(), self._lookahead)
+                arraytype = self._lookahead.getValue()
         # Insertamos los datos del array en la tabla de simbolos
         ub = self._tokenstack.pop()
         lb = self._tokenstack.pop()
-        arraytype = self._lookahead.getValue()
+
+        #Comprobamos que el id de tipo
         if self._st.getAttr(arraytype, "kind") in (WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE, WrapCl.STANDARD_TYPE):
             self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.ARRAY_TYPE, lowerbound=lb, upperbound=ub, datatype=arraytype)
         else:
-            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.UNDEFINED, lowerbound=lb, upperbound=ub, datatype=arraytype)
+            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.UNDEFINED, datatype=arraytype, lowerbound=lb, upperbound=ub)
         self._match(WrapTk.ID, stop)
 
     # <IndexRange> ::= <Constant> .. <Constant>
@@ -535,26 +540,37 @@ class SynAn:
 
     def _ioStatement(self, procid, stop):
         if procid == "read":
+            # Verificamos que se haya puesto un ID
             if self._lookahead != WrapTk.ID:
                 print "Integer variable expected as parameter", self._scanner.getPos()
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+                self._exptypes.push("NoName")
             else:
                 self._tokenstack.push(self._lookahead)
-            self._match(WrapTk.ID, stop.union([WrapTk.END]))
-            idtype = None
+                #Comprobamos que sea del tipo variable o constante
+                if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT):
+                    self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
+                else:
+                    print "ERROR: Type identifier not allowed here", self._lookahead.getLexeme()," ", self._scanner.getPos()
+                    self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+                    self._exptypes.push("NoName")
+            self._match(WrapTk.ID, stop.union([WrapTk.PERIOD]))
+            # En caso de que no se acceda a selector ya tenemos el tipo
+            idtype = self._exptypes.top()
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union((WrapTk.BECOMES, WrapTk.END), self._ff.first("selector"), self._ff.first("expression")))
-                idtype = self._exptypes.pop()
+                idtype = self._exptypes.top()
+
+            #vaciamos la pila de expresiones en cualquier caso
+            self._exptypes.pop()
+            #vaciamos pila de tokens del ultimo selector
+            self._tokenstack.pop()
+
             # Comprobamos el tipo del identificador
-            # Verificamos que se haya puesto un ID
-            if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-                #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
-                if idtype == None:
-                    idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "datatype")
+            if idtype != "Noname":
+
                 if idtype != "integer":
                     print "Integer variable expected as parameter", self._scanner.getPos()
-            else:
-                self._tokenstack.pop()
         # write
         else:
             self._expression(stop.union([WrapTk.END]))
