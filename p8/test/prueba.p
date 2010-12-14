@@ -14,19 +14,23 @@ type
             unarray : pepa;
             unrecord : pepe
           end;
+    otro = array[1..4] of cosa;
 
 var
    x, y, z : pepa;
    v : integer;
    w : paco;
+   h : boolean;
 
 procedure prueba2(var prueba2, pepe, boolean : pepa; u : integer);
 var 
    a : integer;
    pepi : pepa;
    v : cosa;
+   z : otro;
 begin
-    a := 3 + 3;
+    {a := 3 + 3;}
+    z[2].unrecord.paco := true;
     v.unarray[11] := 6;
     v.unrecord.pepe := false;
 end;
