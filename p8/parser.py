@@ -175,9 +175,9 @@ class SynAn:
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
     def _typeDefinitionPart(self, stop):
         self._match(WrapTk.TYPE, stop.union(self._ff.first("typeDefinition")))
-        self._typeDefinition(stop.union(self._ff.first("typeDefinition")))
+        self._typeDefinition(stop)
         while self._lookahead == WrapTk.ID:
-            self._typeDefinition(stop.union(self._ff.first("typeDefinition")))
+            self._typeDefinition(stop)
 
     # <TypeDefinition> ::= id = <NewType> ;
     def _typeDefinition(self, stop):
