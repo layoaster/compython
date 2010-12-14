@@ -53,9 +53,13 @@ class SymbolTable:
                 SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
 
         # Desapilando nombre de ambito a borrar
-        self._scopenames.pop()
+        print
+        print "AMBITO:", self._scopenames.pop()
+        print "------"
 
         # Procedicimientos de Reseteo
+        print self._blockstack.top()
+        print
         self._blockstack.pop()
         self._blocklevel -= 1
 
@@ -202,7 +206,10 @@ class LocalSymbolTable:
 
     def __str__(self):
         string = ""
+        identifiers = []
         for i in self._table:
-            string = string + i + " "
-        string += "|"
+            try:
+                string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"] - 1].rjust(20) + str(self._table[i]["datatype"]).rjust(20) + "\n"
+            except KeyError:
+                string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"] - 1].rjust(20) + "\n"
         return string

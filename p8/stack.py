@@ -48,7 +48,7 @@ class Stack:
         """ Imprime el contenido de la pila (util en trazas)
         """
         for i in self._stack:
-            print i, " | ",
+            print i,
         print ""
 
     def return3Last(self):
@@ -80,5 +80,5 @@ class Stack:
         """
         string = ""
         for i in self._stack:
-            string = string + " " + str(i) + " " + " | "
+            string = string + " " + str(i) + " "
         return string

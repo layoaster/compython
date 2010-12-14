@@ -25,7 +25,7 @@ var x : T;
                    f : T;
                    g : write
 	end;
-     T = array[a..10] of NoName;
+             T = array[a..10] of NoName;
 
 	var x : T;
     	    y : S;
@@ -48,7 +48,7 @@ begin
     i.g[9999][9999] := -0;
     i.f[-1] := 9999;
     k.g[][-0] := 0;
-    k.f[not true].g[1][1] := 43;
-    k.f[1].f[1] := 12;
-    k.f[1].g[0][0] := v.f[1].f[1]
+    k.f[not W].g[1][1] := 43;
+    k.f[1]. := 12;
+    k.f[1].g[0][0] := k.f[1].f[1]
 end.
