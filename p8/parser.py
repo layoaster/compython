@@ -765,7 +765,7 @@ class SynAn:
             else:
                 self._tokenstack.push(self._lookahead)
                 #Comprobamos que sea del tipo variable o constante
-                if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT):
+                if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
                 else:
                     print "ERROR: Type identifier not allowed here", self._lookahead.getLexeme()," ", self._scanner.getPos()
