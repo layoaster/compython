@@ -554,21 +554,20 @@ class SynAn:
                     print "ERROR: Type identifier not allowed here", self._lookahead.getLexeme()," ", self._scanner.getPos()
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                     self._exptypes.push("NoName")
-            self._match(WrapTk.ID, stop.union([WrapTk.PERIOD]))
+            self._match(WrapTk.ID, stop.union((WrapTk.PERIOD, WrapTk.LEFTBRACKET)))
             # En caso de que no se acceda a selector ya tenemos el tipo
             idtype = self._exptypes.top()
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union((WrapTk.BECOMES, WrapTk.END), self._ff.first("selector"), self._ff.first("expression")))
                 idtype = self._exptypes.top()
-
             #vaciamos la pila de expresiones en cualquier caso
             self._exptypes.pop()
             #vaciamos pila de tokens del ultimo selector
             self._tokenstack.pop()
-
             # Comprobamos el tipo del identificador
-            if idtype != "Noname":
-
+            if idtype != "NoName":
+                while self._st.getAttr(idtype, "kind") != WrapCl.STANDAR_TYPE:
+                    idtype = self._st.getAttr(idtype, "datatype")
                 if idtype != "integer":
                     print "Integer variable expected as parameter", self._scanner.getPos()
         # write
@@ -842,7 +841,7 @@ class SynAn:
     def _indexSelector(self, stop):
         self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
         self._expression(stop.union([WrapTk.RIGHTBRACKET]))
-        if self._st.getAttr(self._exptypes.pop(), "kind") != WrapCl.STANDARD_TYPE:
+        if self._st.getAttr(self._exptypes.pop(), "kind", WrapCl.STANDARD_TYPE) != WrapCl.STANDARD_TYPE:
             print "ERROR: Illegal value in selector.", self._scanner.getPos()
         self._match(WrapTk.RIGHTBRACKET, stop)
 
