@@ -25,7 +25,7 @@ var x : T;
                    f : T;
                    g : write
 	end;
-     {T = array[a..10] of NoName;}
+     T = array[a..10] of NoName;
 
 	var x : T;
     	    y : S;

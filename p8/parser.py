@@ -315,6 +315,8 @@ class SynAn:
                     # Comprobamos que el id del tipo sea de una clase valida
                     if self._st.getAttr(self._lookahead.getLexeme(), "kind") in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
                         idtype = self._lookahead.getLexeme()
+                    else:
+                        print "ERROR: in type definition, \"" + self._lookahead.getLexeme() + "\" not allowed here", self._scanner.getPos()
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores de campo declarados
@@ -759,7 +761,7 @@ class SynAn:
                 self._exptypes.push("NoName")
             else:
                 self._tokenstack.push(self._lookahead)
-                #Comprobamos que sea del tipo variable
+                #Comprobamos que sea del tipo variable o constante
                 if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
                 else:
