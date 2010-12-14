@@ -186,11 +186,11 @@ class SynAn:
             if not self._st.insert(self._tokenstack.top().getLexeme(), kind=WrapCl.UNDEFINED, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR, "NoName"))
+            self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("newType")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("newType")))
         self._newType(stop.union([WrapTk.SEMICOLON]))
-        self._match(WrapTk.SEMICOLON, stop)
+        self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("typeDefinition")))
         self._tokenstack.clear()
 
     # <NewType> ::= <NewArrayType> | <NewRecordType>
