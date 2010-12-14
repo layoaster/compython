@@ -456,14 +456,20 @@ class SynAn:
                 self._exptypes.push(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"))
             else:
                 self._exptypes.push("NoName")
+            print "PILA INICAL DE TOKENS", self._tokenstack
             # En caso de que no se acceda a selector ya tenemos el tipo
             ltype = self._exptypes.top()
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
                 ltype = self._exptypes.top()
+            #vaciamos la pila de expresiones en cualquier caso
+            self._exptypes.pop()
+            #vaciamos pila de tokens del ultimo selector
+            self._tokenstack.pop()
             self._match(WrapTk.BECOMES, stop.union(self._ff.first("expression")))
             self._expression(stop)
             rtype = self._exptypes.pop()
+            print "PILA DE TOKENS", self._tokenstack
             # Comprobando los tipos de una sentencia de asignacion
             if (ltype != "NoName") and (rtype != "NoName"):
                 # Si los tipos son distintos damos el error
@@ -489,11 +495,14 @@ class SynAn:
         if self._st.getAttr(procid, "kind") == WrapCl.PROCEDURE:
             self._expression(stop.union([WrapTk.COMMA]))
             # Creando lista de tipos de los parametros actuales
+            print "LISTA DE TIPOS", self._exptypes
             paramtypes = [self._exptypes.pop()]
             while self._lookahead == WrapTk.COMMA:
                 self._match(WrapTk.COMMA, stop.union([WrapTk.COMMA], self._ff.first("expression")))
                 self._expression(stop.union([WrapTk.COMMA]))
                 paramtypes.append(self._exptypes.pop())
+            print "LISTA DE TIPOS FINAL", paramtypes
+            print "ST", self._st.getAttr("v", "datatype")
             # Comprobamos que no sea una ID de procedimiento no declarados (TOKEN_ERROR)
             if procid != None:
                 # Obtenemos lista de parametros formales
@@ -800,11 +809,13 @@ class SynAn:
                 # Si es un record, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist", WrapCl.RECORD_TYPE))
+                    self._tokenstack.pop()
                 print "tipo2:", self._exptypes.top()
             self._fieldSelector(stop)
         else:
+            self._exptypes.push("NoName")
             self._syntaxError(stop, self._ff.first("selector"))
- 
+
     # <IndexSelector> ::= [ <Expression> ]
     def _indexSelector(self, stop):
         self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
@@ -828,8 +839,7 @@ class SynAn:
                     self._exptypes.push(fieldlist.getAttr(self._lookahead.getValue(), "datatype"))
                     self._tokenstack.push(self._lookahead)
             else:
-                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
-                self._exptypes.push("NoName")                
+                self._exptypes.push("NoName")
         self._match(WrapTk.ID, stop)
 
     # <Constant> ::= numeral | id
