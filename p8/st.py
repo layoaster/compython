@@ -98,7 +98,7 @@ class SymbolTable:
             if self._blockstack[i].isIn(lex):
                 self._blockstack[i].setAttr(lex, attr)
 
-    def getAttr(self, lex, attr):
+    def getAttr(self, lex, attr, kind=None):
         """ Obtiene el atributo de un identificador en la tabla actual
             Parametros:
                 lex: identificador del que se desea añadir o redefinir un atributo
@@ -106,8 +106,11 @@ class SymbolTable:
         """
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
-                return self._blockstack[i].getAttr(lex, attr)
-
+                if kind == None:
+                    return self._blockstack[i].getAttr(lex, attr)
+                else:
+                    if self._blockstack[i].getAttr(lex, "kind") == kind:
+                        return self._blockstack[i].getAttr(lex, attr)
 
 
     def printTable(self):

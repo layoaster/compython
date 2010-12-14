@@ -793,13 +793,13 @@ class SynAn:
             # Si no es un record, se da un error de tipo
             if self._exptypes.top() != "NoName":
                 print "tipo1:", self._exptypes.top()
-                if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.RECORD_TYPE:
+                if self._st.getAttr(self._exptypes.top(), "kind", WrapCl.RECORD_TYPE) != WrapCl.RECORD_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
                     print "ERROR:", self._tokenstack.pop().getValue(), "is not an record type"
                 # Si es un record, se mete en la pila su tipo
                 else:
-                    self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist"))
+                    self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist", WrapCl.RECORD_TYPE))
                 print "tipo2:", self._exptypes.top()
             self._fieldSelector(stop)
         else:
@@ -809,7 +809,7 @@ class SynAn:
     def _indexSelector(self, stop):
         self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
         self._expression(stop.union([WrapTk.RIGHTBRACKET]))
-        if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.STANDARD_TYPE:
+        if self._st.getAttr(self._exptypes.pop(), "kind") != WrapCl.STANDARD_TYPE:
             print "ERROR: Illegal value in selector."
         self._match(WrapTk.RIGHTBRACKET, stop)
 

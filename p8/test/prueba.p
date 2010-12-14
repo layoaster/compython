@@ -14,7 +14,7 @@ type
             unarray : pepa;
             unrecord : pepe
           end;
-    otro = array[1..4] of cosa;
+   otro = array[1..4] of cosa;
 
 var
    x, y, z : pepa;
@@ -22,7 +22,7 @@ var
    w : paco;
    h : boolean;
 
-procedure prueba2(var prueba2, pepe, boolean : pepa; u : integer);
+procedure prueba2(var prueba2 : pepa; u : integer);
 var 
    a : integer;
    pepi : pepa;
@@ -30,13 +30,13 @@ var
    z : otro;
 begin
     {a := 3 + 3;}
-    z[2].unrecord.paco := true;
+    z[2].unrecord.pepe := true;
     v.unarray[11] := 6;
-    v.unrecord.pepe := false;
+    v.unrecord.paco := false;
 end;
 
 begin  
-    prueba2(x, y, z, v);
+    prueba2(x, v);
     w.a := 6;
     if  a < 6 then
         write(2);
