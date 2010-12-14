@@ -255,7 +255,7 @@ class SynAn:
                 lowerbound = Token(WrapTk.NUMERAL, self._st.getAttr(lowerbound.getValue(), "value"))
             # Comprobamos si el rango es valido. Si no, el menor toma el valor del mayor
             if upperbound.getValue() < lowerbound.getValue():
-                print "ArrayError: Invalid range."
+                print "ArrayError: Invalid range", self._scanner.getPos()
                 upperbound.setValue(lowerbound.getValue())
             # Devolvemos los indices a la pila
             self._tokenstack.push(lowerbound)
@@ -484,7 +484,7 @@ class SynAn:
             if (ltype != "NoName") and (rtype != "NoName"):
                 # Si los tipos son distintos damos el error
                 if ltype != rtype:
-                    print "Invalid datatype", self._scanner.getPos()
+                    print "Invalid datatype, got\"" + rtype + "\" and expected \"" + ltype + "\"", self._scanner.getPos()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
         # En este caso se llamo a un procedimiento sin parametros por lo que se ha de limpiar la pila para quitar el nombre de procedimiento
@@ -815,7 +815,7 @@ class SynAn:
                 if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.ARRAY_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
-                    print "ERROR:", self._tokenstack.top().getValue(), "is not an array type"
+                    print "ERROR:", self._tokenstack.top().getValue(), "is not an array type", self._scanner.getPos()
                 # Si es un array, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "datatype"))
@@ -826,7 +826,7 @@ class SynAn:
                 if self._st.getAttr(self._exptypes.top(), "kind", WrapCl.RECORD_TYPE) != WrapCl.RECORD_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
-                    print "ERROR:", self._tokenstack.pop().getValue(), "is not an record type"
+                    print "ERROR:", self._tokenstack.pop().getValue(), "is not an record type", self._scanner.getPos()
                 # Si es un record, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist", WrapCl.RECORD_TYPE))
@@ -860,6 +860,9 @@ class SynAn:
                     self._tokenstack.push(self._lookahead)
             else:
                 self._exptypes.push("NoName")
+        # En el caso que no se encuentre ningun id en el programa
+        else:
+            self._exptypes.push("NoName")
         self._match(WrapTk.ID, stop)
 
     # <Constant> ::= numeral | id

@@ -34,7 +34,7 @@ var x : T;
 	begin
    	YesName := true;
    	read(y.f[5]);
-   	{y.g := read(y.f[5])}
+   	y.g := read(y.f[5])
    	x[4] := YesName
 	end;
 
