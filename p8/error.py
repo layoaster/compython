@@ -116,20 +116,47 @@ class SemError(Error):
     """ Clase hija de errores sintacticos """
 
     # Constantes de errores semanticos
+    # Errores de ambito 
     UNDECLARED_TYPE  = 0
     REC_DEFINITION   = 1
     REDEFINED_ID     = 2
     UNDECLARED_ID    = 3
     MAX_LVL_ACHIEVED = 4
     WARN_UNUSED_ID   = 5
-
+    # Errores de tipo
+    INVALID_KIND     = 6
+    INVALID_RANGE    = 7
+    BAD_ASSIG_TYPES  = 8
+    BAD_PARAM_NUMBER = 9
+    BAD_PARAM_TYPE   = 10
+    READ_INT_EXPCT   = 11
+    WRITE_EXPR_EXPCT = 12
+    BOOL_EXPR_EXPCT  = 13
+    CONF_EXPR_TYPES  = 14
+    NOT_ARRAY_TYPE   = 15
+    NOT_RECORD_TYPE  = 16
+    ILLEGAL_INDEX    = 17
+    
     # Cadenas de texto que describen cada uno de los posibles errores semanticos encontrados
-    _errStrings = ("Error in type definition - Undeclared type", 
-                   "Error in type definition - Recursive array definition of type",
-                   "Error in type definition - Redefined identifier",
-                   "Error in type definition - Undeclared identifier",
-                   "Internal compiler error  - Maximum scope nesting level achieved",
-                   "Identifier declared but never used")
+    _errStrings = ("Undeclared type", 
+                   "Recursive array definition of type",
+                   "Redefined identifier",
+                   "Undeclared identifier",
+                   "Internal compiler error - Maximum scope nesting level reached",
+                   "Identifier declared but never used",
+                   
+                   "Invalid identifier kind",
+                   "Invalid array range",
+                   "Non-conformant assignment types",
+                   "Non-conformant number of parameters on call to",
+                   "Unexpected parameter type, got ",
+                   "Integer variable expected as parameter on call to 'read'",
+                   "Integer expression expected as parameter on call to 'write'",
+                   "Boolean expression expected, but got",
+                   "Conflicting types while evaluating expression",
+                   "Not an array type",
+                   "Not a record type"
+                   "Illegal indexing value")
 
     def __init__(self, errno, pos, found=None):
         super(SemError, self).__init__(errno, pos, found)

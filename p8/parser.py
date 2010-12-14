@@ -262,21 +262,18 @@ class SynAn:
         self._match(WrapTk.RECORD, stop.union([WrapTk.END], self._ff.first("fieldList")))
         self._fieldList(stop.union([WrapTk.END]))
         self._match(WrapTk.END, stop)
-        #Obtenemos la TS del record para luego asignarsela como atributo
-        fieldlist = self._st.top()
         self._st.reset()
-        # Asignamos al recordid el atributo que contiene la lista de campos declarados (LST actual)
-        self._st.setAttr(self._tokenstack.pop().getValue(), fieldlist=fieldlist)
 
     # <FieldList> ::= <RecordSection> {; <RecordSection>}
     def _fieldList(self, stop):
-        # Almacenamos el nombre del record pasado por pila para comprobaciones
-        recordid = self._tokenstack.top()
+        # Sacamos el nombre del record de la pila para comprobaciones
+        recordid = self._tokenstack.pop()
         self._recordSection(recordid, stop.union([WrapTk.SEMICOLON]))
         while self._lookahead == WrapTk.SEMICOLON:
             self._match(WrapTk.SEMICOLON, stop.union([WrapTk.SEMICOLON], self._ff.first("recordSection")))
             self._recordSection(recordid, stop.union([WrapTk.SEMICOLON]))
-
+        # Asignamos al recordid el atributo que contiene la lista de campos declarados (LST actual)
+        self._st.setAttr(recordid.getLexeme(), fieldlist=self._st.top())
 
     # <RecordSection> ::= id {, id} : id
     def _recordSection(self, recordid, stop):
@@ -289,7 +286,6 @@ class SynAn:
             self._tokenstack.push(self._lookahead)
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.FIELD, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
-                self._tokenstack.pop()
         else:
             self._st.insert("NoName", kind=WrapCl.FIELD)
             self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
@@ -318,7 +314,7 @@ class SynAn:
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores de campo declarados
-        while len(self._tokenstack) > 1:
+        while not self._tokenstack.isEmpty():
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
                 self._st.setAttr(self._tokenstack.pop().getLexeme(), datatype=idtype)
             else:
@@ -406,18 +402,14 @@ class SynAn:
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("formalParameterList"), self._ff.first("blockBody")))
             self._formalParameterList(stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("blockBody")))
-            # Esto es una lista con todos los parametros que recibe el procedimiento (puede estar vacia -> [])
-            paramlist = self._tokenstack.pop()
+            paramlist = self._tokenstack.pop()  # Esto es una lista con todos los parametros que recibe el procedimiento (puede estar vacia -> [])
+            if procid != "NoName":
+                # Si no paso nada extraño con el ID, le añadimos la lista de parametros como atributo del ID del procedimiento
+                self._st.setAttr(procid, paramlist=paramlist)
             self._match(WrapTk.RIGHTPARENTHESIS, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
         self._st.reset()
-        # La lista de parametros se asignan aqui y no justo despues de la llamada a formalParameterList
-        # para asignarselo al ambito de fuera del procedimiento,y asi estar seguros que se le asigna al id
-        # del procedimiento y no a un parametro que tenga mismo id que el del procedimiento
-        # Si no paso nada extraño con el ID, le añadimos la lista de parametros como atributo del ID del procedimiento
-        if procid != "NoName":
-            self._st.setAttr(procid, paramlist=paramlist)
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
     def _formalParameterList(self, stop):
@@ -469,10 +461,6 @@ class SynAn:
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
                 ltype = self._exptypes.top()
-            #vaciamos la pila de expresiones en cualquier caso
-            self._exptypes.pop()
-            #vaciamos pila de tokens del ultimo selector
-            self._tokenstack.pop()
             self._match(WrapTk.BECOMES, stop.union(self._ff.first("expression")))
             self._expression(stop)
             rtype = self._exptypes.pop()
@@ -533,7 +521,7 @@ class SynAn:
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:
                 self._tokenstack.push(self._lookahead)
-            self._match(WrapTk.ID, stop.union(self._ff.first([WrapTk.END])))
+            self._match(WrapTk.ID, stop.union([WrapTk.END]))
             idtype = None
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union((WrapTk.BECOMES, WrapTk.END), self._ff.first("selector"), self._ff.first("expression")))
@@ -751,19 +739,24 @@ class SynAn:
             self._exptypes.push("integer")
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
+            idtype = None
             if not self._st.lookup(self._lookahead.getLexeme()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
-                self._exptypes.push("NoName")
+                idtype = "NoName"
             else:
                 self._tokenstack.push(self._lookahead)
-                self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
-
             self._match(WrapTk.ID, stop.union(self._ff.first("selector")))
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union(self._ff.first("selector")))
-            #vaciamos pila de tokens del ultimo selector
-            self._tokenstack.pop()
+                idtype = self._exptypes.pop()
+            # Metemos el tipo resultante de la variable
+            #No se entro en selector por lo que hay que ver solo el tipo de la variable en la TS
+            if idtype == None:
+                idtype = self._st.getAttr(self._tokenstack.pop().getValue(), "datatype")
+            else:
+                self._tokenstack.pop()
+            self._exptypes.push(idtype)
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expression")))
             self._expression(stop.union([WrapTk.RIGHTPARENTHESIS]))
@@ -786,6 +779,7 @@ class SynAn:
         if self._lookahead == WrapTk.LEFTBRACKET:
             # Si no es un array, se da un error de tipo
             if self._exptypes.top() != "NoName":
+                print "tipo1:", self._exptypes.top()
                 if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.ARRAY_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
@@ -793,10 +787,12 @@ class SynAn:
                 # Si es un array, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "datatype"))
+                print "tipo2:", self._exptypes.top()
                 self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
             # Si no es un record, se da un error de tipo
             if self._exptypes.top() != "NoName":
+                print "tipo1:", self._exptypes.top()
                 if self._st.getAttr(self._exptypes.top(), "kind", WrapCl.RECORD_TYPE) != WrapCl.RECORD_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
@@ -804,12 +800,11 @@ class SynAn:
                 # Si es un record, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist", WrapCl.RECORD_TYPE))
-                    self._tokenstack.pop()
+                print "tipo2:", self._exptypes.top()
             self._fieldSelector(stop)
         else:
-            self._exptypes.push("NoName")
             self._syntaxError(stop, self._ff.first("selector"))
-
+ 
     # <IndexSelector> ::= [ <Expression> ]
     def _indexSelector(self, stop):
         self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
@@ -824,8 +819,8 @@ class SynAn:
         if self._lookahead == WrapTk.ID:
             fieldlist = self._exptypes.pop()
             if fieldlist != "NoName":
+                print "fieldlist:", fieldlist
                 if not fieldlist.isIn(self._lookahead.getValue()):
-                    print "Invalid field"
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                     self._exptypes.push("NoName")
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
@@ -833,7 +828,8 @@ class SynAn:
                     self._exptypes.push(fieldlist.getAttr(self._lookahead.getValue(), "datatype"))
                     self._tokenstack.push(self._lookahead)
             else:
-                self._exptypes.push("NoName")
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+                self._exptypes.push("NoName")                
         self._match(WrapTk.ID, stop)
 
     # <Constant> ::= numeral | id
