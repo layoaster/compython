@@ -566,7 +566,7 @@ class SynAn:
             self._tokenstack.pop()
             # Comprobamos el tipo del identificador
             if idtype != "NoName":
-                while self._st.getAttr(idtype, "kind") != WrapCl.STANDAR_TYPE:
+                while self._st.getAttr(idtype, "kind") != WrapCl.STANDARD_TYPE:
                     idtype = self._st.getAttr(idtype, "datatype")
                 if idtype != "integer":
                     print "Integer variable expected as parameter", self._scanner.getPos()
@@ -575,7 +575,7 @@ class SynAn:
             self._expression(stop.union([WrapTk.END]))
             exptype = self._exptypes.pop()
             if (exptype != "integer") and (exptype != "NoName"):
-                print "Integer variable expected as parameter", self._scanner.getPos()
+                print "Integer expression expected as parameter", self._scanner.getPos()
 
 
     # <IfStatement> ::= if <Expression> then <Statement> [else <Statement>]
