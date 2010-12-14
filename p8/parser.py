@@ -454,13 +454,13 @@ class SynAn:
             # Pasamos el tipo de id raiz a la funcion selector
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
                 self._exptypes.push(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"))
-            else
+            else:
                 self._exptypes.push("NoName")
             # En caso de que no se acceda a selector ya tenemos el tipo
             ltype = self._exptypes.top()
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
-                ltype = self._exptypes.pop()
+                ltype = self._exptypes.top()
             self._match(WrapTk.BECOMES, stop.union(self._ff.first("expression")))
             self._expression(stop)
             rtype = self._exptypes.pop()
@@ -777,17 +777,34 @@ class SynAn:
     # <Selector> ::= <IndexSelector> | <FieldSelector>
     def _selector(self, stop):
         if self._lookahead == WrapTk.LEFTBRACKET:
-            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"), "kind") != WrapCl.ARRAY_TYPE:
-                print "ERROR:", self._tokenstack.pop().getValue(), "is not an array datatype"
-                print "tipo de", self._tokenstack.top(), ":", self._st.getAttr(self._tokenstack.top().getValue(), "datatype")
-            self._indexSelector(stop)
+            # Si no es un array, se da un error de tipo
+            if self._exptypes.top() != "NoName":
+                print "tipo1:", self._exptypes.top()
+                if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.ARRAY_TYPE:
+                    self._exptypes.pop()
+                    self._exptypes.push("NoName")
+                    print "ERROR:", self._tokenstack.pop().getValue(), "is not an array type"
+                # Si es un array, se mete en la pila su tipo
+                else:
+                    self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "datatype"))
+                print "tipo2:", self._exptypes.top()
+                self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
-            if self._st.getAttr(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"), "kind") != WrapCl.RECORD_TYPE:
-                print "ERROR:", self._tokenstack.top().getValue(), "is not a record datatype"
+            # Si no es un record, se da un error de tipo
+            if self._exptypes.top() != "NoName":
+                print "tipo1:", self._exptypes.top()
+                if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.RECORD_TYPE:
+                    self._exptypes.pop()
+                    self._exptypes.push("NoName")
+                    print "ERROR:", self._tokenstack.pop().getValue(), "is not an record type"
+                # Si es un record, se mete en la pila su tipo
+                else:
+                    self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist"))
+                print "tipo2:", self._exptypes.top()
             self._fieldSelector(stop)
         else:
             self._syntaxError(stop, self._ff.first("selector"))
-
+ 
     # <IndexSelector> ::= [ <Expression> ]
     def _indexSelector(self, stop):
         self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
@@ -800,15 +817,13 @@ class SynAn:
     def _fieldSelector(self, stop):
         self._match(WrapTk.PERIOD, stop.union([WrapTk.ID]))
         if self._lookahead == WrapTk.ID:
-            recordtype = self._st.getAttr(self._tokenstack.top().getLexeme(), "datatype")
-            fieldlist = self._st.getAttr(recordtype, "fieldlist")
-            if not fieldlist.isIn(self._lookahead.getLexeme()):
+            fieldlist = self._exptypes.pop()
+            if not fieldlist.isIn(self._lookahead.getValue()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                 self._exptypes.push("NoName")
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:
-                print
-                self._exptypes.push(fieldlist.getAttr(self._lookahead.getLexeme(), "datatype"))
+                self._exptypes.push(fieldlist.getAttr(self._lookahead.getValue(), "datatype"))
                 self._tokenstack.push(self._lookahead)
         self._match(WrapTk.ID, stop)
 
