@@ -567,7 +567,10 @@ class SynAn:
             # Comprobamos el tipo del identificador
             if idtype != "NoName":
                 while self._st.getAttr(idtype, "kind") != WrapCl.STANDARD_TYPE:
-                    idtype = self._st.getAttr(idtype, "datatype")
+                    if self._st.getAttr(idtype, "kind") != WrapCl.RECORD_TYPE:
+                        idtype = self._st.getAttr(idtype, "datatype")
+                    else:
+                        idtype = "NoName"
                 if idtype != "integer":
                     SemError(SemError.READ_INT_EXPCT, self._scanner.getPos())
         # write
