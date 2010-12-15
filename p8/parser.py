@@ -504,7 +504,9 @@ class SynAn:
         if self._st.getAttr(procid, "kind") == WrapCl.PROCEDURE:
             self._expression(stop.union([WrapTk.COMMA]))
             # Creando lista de tipos de los parametros actuales
-            paramtypes = [self._exptypes.pop()]
+            paramtypes = []
+            if self._exptypes.top() != "NoName":
+                paramtypes = [self._exptypes.pop()]
             while self._lookahead == WrapTk.COMMA:
                 self._match(WrapTk.COMMA, stop.union([WrapTk.COMMA], self._ff.first("expression")))
                 self._expression(stop.union([WrapTk.COMMA]))
