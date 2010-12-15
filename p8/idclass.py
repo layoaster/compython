@@ -24,8 +24,7 @@ class WrapCl:
     VARIABLE        = 10
     UNDEFINED       = 11
 
-    ClassLexemes = ("array", "constant", "field", "procedure", "program name", "record", "standard type",
-                    "value parameter", "variable parameter", "variable", "undefined type")
+    ClassLexemes = ("array", "constant", "field", "procedure", "program name", "record", "standard procedure", "standard type", "value parameter", "variable parameter", "variable", "undefined type")
 
 class IdClass:
 

@@ -32,22 +32,32 @@ class Colors:
 
 class Error(object):
     """ Clase padre de errores """
-    __metaclass__ = ABCMeta
+    #__metaclass__ = ABCMeta
 
+    _lasterr = 0
     pos = ()
     errno = -1
     found = None
     expected = None
 
-    def __init__(self, errno, pos, found=None, expected=None):
+    def __init__(self, errno=None, pos=None, found=None, expected=None):
         self.errno = errno
         self.pos = pos
         self.found = found
         self.expected = expected
 
-    @abstractmethod
-    def printError(self):
-        pass
+    def canPrint(self, row):
+        if self._lasterr != row:
+            self._lasterr == row
+            return True
+        else:
+            return False
+    
+    #@abstractmethod
+    #def printError(self):
+    #    pass
+
+errormaster = Error()
 
 # --------------------
 
@@ -65,7 +75,8 @@ class LexError(Error):
 
     def __init__(self, errno, pos):
         super(LexError, self).__init__(errno, pos)
-        self.printError()
+        if errormaster.canPrint(pos[0]):
+            self.printError()
 
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
@@ -86,7 +97,8 @@ class SynError(Error):
 
     def __init__(self, errno, pos, found, expected=None):
         super(SynError, self).__init__(errno, pos, found, expected)
-        self.printError()
+        if errormaster.canPrint(pos[0]):
+            self.printError()
     
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
@@ -162,7 +174,8 @@ class SemError(Error):
 
     def __init__(self, errno, pos, found=None):
         super(SemError, self).__init__(errno, pos, found)
-        self.printError()
+        if errormaster.canPrint(pos[0]):
+            self.printError()
     
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
