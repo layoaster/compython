@@ -436,8 +436,11 @@ class SynAn:
     # <Statement> ::= id <StatementGroup> | <IfStatement> | <WhileStatement> | <CompoundStatement> | ~
     def _statement(self, stop):
         if self._lookahead == WrapTk.ID:
-            if (not self._st.lookup(self._lookahead.getValue())) or (self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.VARIABLE, WrapCl.PROCEDURE, WrapCl.STANDARD_PROC, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
+            if not self._st.lookup(self._lookahead.getValue()):
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
+            elif self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.CONSTANT, WrapCl.VARIABLE, WrapCl.PROCEDURE, WrapCl.STANDARD_PROC, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
+                print "ERROR:\"" + self._lookahead + "\" No a valid identifier", self._scanner.getPos()
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:
                 self._tokenstack.push(self._lookahead)
