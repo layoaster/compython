@@ -53,17 +53,20 @@ class SymbolTable:
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
 
-        # Desapilando y mostrando nombre de ambito reseteado
-        print
-        print str(Colors.OKBLUE + "Local Symbol Table for " + self._scopenames.pop() + " scope" + Colors.ENDC)
-        print
+        if self._verbose:
+            # Desapilando y mostrando nombre de ambito reseteado
+            print
+            print str(Colors.OKBLUE + "Local Symbol Table for " + self._scopenames.pop() + " scope" + Colors.ENDC)
+            print
 
-        #self._blockstack.top().printToWeb(self._scopenames.pop())
-        print self._blockstack.top()
-        print "_____________________________________________________________________________________________________________________"
-        print
-        if self._scopenames.top() != "standardblock":
-            print str(Colors.OKBLUE + "Error(s) found at " + self._scopenames.top() + " scope" + Colors.ENDC)
+            print self._blockstack.top()
+            print "_____________________________________________________________________________________________________________________"
+            print
+            if self._scopenames.top() != "standardblock":
+                print str(Colors.OKBLUE + "Error(s) found at " + self._scopenames.top() + " scope" + Colors.ENDC)
+        else:
+            self._scopenames.pop()
+
         # Procedicimientos de Reseteo
         self._blockstack.pop()
         self._blocklevel -= 1
