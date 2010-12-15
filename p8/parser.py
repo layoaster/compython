@@ -169,7 +169,6 @@ class SynAn:
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
                         SemError(SemError.INVALID_KIND, self._scanner.getPos(), rvalue)
                         self._st.setAttr(lvalue.getLexeme(), datatype="NoName")
-                        self._st.setAttr(lvalue.getValue(), datatype="NoName")
         self._match(WrapTk.SEMICOLON, stop)
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
@@ -464,8 +463,12 @@ class SynAn:
         if self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD, WrapTk.BECOMES]:
             # Pasamos el tipo de id raiz a la funcion selector
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
-
-                self._exptypes.push(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"))
+                #comprobamos que el id sea de la clase a la que se le pueden asignar variables
+                if self._st.getAttr(self._tokenstack.top().getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
+                    self._exptypes.push(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"))
+                else:
+                    print "supermegaerror", self._scanner.getPos()
+                    self._exptypes.push("NoName")
             else:
                 self._exptypes.push("NoName")
             # En caso de que no se acceda a selector ya tenemos el tipo
@@ -527,7 +530,7 @@ class SynAn:
                         formaltype = paramlist[i][1]
                         if paramtypes[i] not in ("NoName", formaltype):
                             # El parametro actual tiene un tipo distinto del parametro formal
-                            SemError(SemError.BAD_PARAM_TYPE, self._scanner.getPos(), paramtypes[i], " but expected \'" + formaltype + "\' on argument no. " + str(i + 1))
+                            SemError(SemError.BAD_PARAM_TYPE, self._scanner.getPos(), paramtypes[i], " but expected " + formaltype + " on argument no. " + str(i + 1))
                             break
         # sino se tratara de un procedimiento estandar
         elif self._st.getAttr(procid, "kind") == WrapCl.STANDARD_PROC:
@@ -858,7 +861,7 @@ class SynAn:
             fieldlist = self._exptypes.pop()
             if fieldlist != "NoName":
                 if not fieldlist.isIn(self._lookahead.getValue()):
-                    SemError(SemError.INVALID_FIELD, self._scanner.getPos(), self._lookahead)
+                    SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                     self._exptypes.push("NoName")
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                 else:
