@@ -312,7 +312,7 @@ class SynAn:
             if (self._lookahead != recordid) and (self._lookahead not in self._tokenstack):
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
-                elif self._st.getAttr(self._lookahead.getLexeme(), "kind") not in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):       
+                elif self._st.getAttr(self._lookahead.getLexeme(), "kind") not in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
                     # Comprobamos que el id del tipo sea de una clase valida
                     SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                 else:
@@ -394,6 +394,7 @@ class SynAn:
                 procid = "NoName"
             else:
                 procid = self._lookahead.getValue()
+                self._st.setAttr(procid, paramlist=[])
         else:
             procid = "NoName"
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
@@ -824,7 +825,7 @@ class SynAn:
                 if self._st.getAttr(self._exptypes.top(), "kind", WrapCl.RECORD_TYPE) != WrapCl.RECORD_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
-                    print "ERROR:", self._tokenstack.pop().getValue(), "is not an record type", self._scanner.getPos()
+                    print "ERROR:", self._tokenstack.top().getValue(), "is not an record type", self._scanner.getPos()
                 # Si es un record, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist", WrapCl.RECORD_TYPE))
