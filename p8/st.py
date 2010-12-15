@@ -52,15 +52,17 @@ class SymbolTable:
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
 
-        #print
-        #print "AMBITO:", self._scopenames.top()
-        #print "------"
+        print 
+        #print '<input type="text" name="table1" value="' + self._scopenames.top() + '">'
+        print "AMBITO:", self._scopenames.top()
+        print "------"
 
         # Desapilando nombre de ambito a borrar
         self._scopenames.pop()
 
-        #print self._blockstack.top()
-        #print
+        #self._blockstack.top().printToWeb(self._scopenames.pop())
+        print self._blockstack.top()
+        print
         # Procedicimientos de Reseteo
         self._blockstack.pop()
         self._blocklevel -= 1
@@ -206,12 +208,34 @@ class LocalSymbolTable:
         else:
             return self._table.keys()
 
+    def printToWeb(self, scope):
+        row = 0
+        for i in self._table:
+            string = '<input type="text" name="' + scope + str(row) + '" value="'
+            if self._table[i]["kind"] == WrapCl.ARRAY_TYPE:
+                string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["lowerbound"]).rjust(20) + str(self._table[i]["upperbound"]).rjust(20) + '">'
+            else:
+                try:
+                    string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["value"]).rjust(20) + '">'
+                except KeyError:
+                    try:
+                        string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + '">'
+                    except KeyError:
+                        string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + '">'
+            row += 1
+            print string
+
     def __str__(self):
         string = ""
-        identifiers = []
         for i in self._table:
-            try:
-                string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"] - 1].rjust(20) + str(self._table[i]["datatype"]).rjust(20) + "\n"
-            except KeyError:
-                string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"] - 1].rjust(20) + "\n"
+            if self._table[i]["kind"] == WrapCl.ARRAY_TYPE:
+                string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + "[".rjust(20) + str(self._table[i]["lowerbound"]) + ", " + str(self._table[i]["upperbound"]) + "]\n"
+            else:
+                try:
+                    string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["value"]).rjust(20) + "\n"
+                except KeyError:
+                    try:
+                        string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + "\n"
+                    except KeyError:
+                        string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + "\n"
         return string
