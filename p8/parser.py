@@ -167,7 +167,8 @@ class SynAn:
                         idvalue = self._st.getAttr(rvalue.getLexeme(), "value")
                         self._st.setAttr(lvalue.getLexeme(), datatype=idtype, value=idvalue)
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
-                        SemError(SemError.INVALID_KIND, self._scanner.getPos(), self._lookahead)
+                        SemError(SemError.INVALID_KIND, self._scanner.getPos(), rvalue)
+                        self._st.setAttr(lvalue.getLexeme(), datatype="NoName")
         self._match(WrapTk.SEMICOLON, stop)
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
@@ -230,7 +231,8 @@ class SynAn:
         if self._st.getAttr(arraytype, "kind") in (WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE, WrapCl.STANDARD_TYPE):
             self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.ARRAY_TYPE, lowerbound=lb, upperbound=ub, datatype=arraytype)
         else:
-            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.UNDEFINED, datatype=arraytype, lowerbound=lb, upperbound=ub)
+            SemError(SemError.INVALID_KIND, self._scanner.getPos(), self._lookahead)
+            self._st.setAttr(self._tokenstack.pop().getValue(), kind=WrapCl.ARRAY_TYPE, datatype="NoName", lowerbound=lb, upperbound=ub)
         self._match(WrapTk.ID, stop)
 
     # <IndexRange> ::= <Constant> .. <Constant>
