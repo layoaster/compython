@@ -169,6 +169,7 @@ class SynAn:
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
                         SemError(SemError.INVALID_KIND, self._scanner.getPos(), rvalue)
                         self._st.setAttr(lvalue.getLexeme(), datatype="NoName")
+                        self._st.setAttr(lvalue.getValue(), datatype="NoName")
         self._match(WrapTk.SEMICOLON, stop)
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
@@ -526,7 +527,7 @@ class SynAn:
                         formaltype = paramlist[i][1]
                         if paramtypes[i] not in ("NoName", formaltype):
                             # El parametro actual tiene un tipo distinto del parametro formal
-                            SemError(SemError.BAD_PARAM_TYPE, self._scanner.getPos(), paramtypes[i], " but expected " + formaltype + " on argument no. " + str(i + 1))
+                            SemError(SemError.BAD_PARAM_TYPE, self._scanner.getPos(), paramtypes[i], " but expected \'" + formaltype + "\' on argument no. " + str(i + 1))
                             break
         # sino se tratara de un procedimiento estandar
         elif self._st.getAttr(procid, "kind") == WrapCl.STANDARD_PROC:
@@ -857,7 +858,7 @@ class SynAn:
             fieldlist = self._exptypes.pop()
             if fieldlist != "NoName":
                 if not fieldlist.isIn(self._lookahead.getValue()):
-                    SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
+                    SemError(SemError.INVALID_FIELD, self._scanner.getPos(), self._lookahead)
                     self._exptypes.push("NoName")
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                 else:

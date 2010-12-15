@@ -165,3 +165,17 @@ class Token:
         """ Definicion del la representacion "oficial" del objeto en tipo string
         """
         return self.getLexeme()
+
+class Linerror:
+    line = 0
+
+    def __init__(self):
+        line = 0
+
+    def setLine(self, line):
+        self.line = line
+
+    def getLine(self):
+        return self.line
+
+linerror = Linerror()

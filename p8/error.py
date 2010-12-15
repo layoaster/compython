@@ -9,7 +9,7 @@ $Date$
 $Revision$
 """
 
-from token import Token
+from token import Token, linerror
 from abc import ABCMeta, abstractmethod
 
 class Colors:
@@ -73,7 +73,9 @@ class LexError(Error):
 
     def __init__(self, errno, pos):
         super(LexError, self).__init__(errno, pos)
-        self.printError()
+        if linerror.getLine() != pos[0]:
+            self.printError()
+            linerror.setLine(pos[0])
 
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
@@ -94,7 +96,9 @@ class SynError(Error):
 
     def __init__(self, errno, pos, found, expected=None):
         super(SynError, self).__init__(errno, pos, found, expected)
-        self.printError()
+        if linerror.getLine() != pos[0]:
+            self.printError()
+            linerror.setLine(pos[0])
     
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
@@ -145,6 +149,7 @@ class SemError(Error):
     NOT_RECORD_TYPE  = 16
     ILLEGAL_INDEX    = 17
     TYPE_NOT_ALLOWED = 18
+    INVALID_FIELD    = 19
     
     # Cadenas de texto que describen cada uno de los posibles errores semanticos encontrados
     _errStrings = ("Undeclared type", 
@@ -158,7 +163,7 @@ class SemError(Error):
                    "Invalid array range",
                    "Non-conformant assignment types",
                    "Non-conformant number of parameters on call to",
-                   "Unexpected parameter type, got ",
+                   "Unexpected parameter type, got",
                    "Integer variable expected as parameter on call to 'read'",
                    "Integer expression expected as parameter on call to 'write'",
                    "Boolean expression expected, but got",
@@ -166,11 +171,14 @@ class SemError(Error):
                    "Not an array type",
                    "Not a record type",
                    "Illegal indexing value",
-                   "Type identifier not allowed here")
+                   "Type identifier not allowed here",
+                   "Invalid field")
 
     def __init__(self, errno, pos, found=None, extra=None):
         super(SemError, self).__init__(errno, pos, found, extra)
-        self.printError()
+        if linerror.getLine() != pos[0]:
+            self.printError()
+            linerror.setLine(pos[0])
     
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
