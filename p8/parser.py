@@ -149,8 +149,6 @@ class SynAn:
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.CONSTANT, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            self._st.insert("NoName", kind=WrapCl.CONSTANT)
-            #SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
             self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
         self._match(WrapTk.ID, stop.union((WrapTk.EQUAL, WrapTk.SEMICOLON), self._ff.first("constant")))
         self._match(WrapTk.EQUAL, stop.union([WrapTk.SEMICOLON], self._ff.first("constant")))
@@ -296,7 +294,6 @@ class SynAn:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
                 self._tokenstack.pop()
         else:
-            self._st.insert("NoName", kind=WrapCl.FIELD)
             self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         while self._lookahead == WrapTk.COMMA:
@@ -307,7 +304,6 @@ class SynAn:
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.pop()
             else:
-                self._st.insert("NoName", kind=WrapCl.FIELD)
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
@@ -351,7 +347,6 @@ class SynAn:
             if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
-            self._st.insert("NoName", kind=kind)
             self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
 
         self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
@@ -363,7 +358,6 @@ class SynAn:
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.pop()
             else:
-                self._st.insert("NoName", kind=kind)
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             self._match(WrapTk.ID, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
         self._match(WrapTk.COLON, stop.union([WrapTk.ID]))
@@ -401,7 +395,6 @@ class SynAn:
             else:
                 procid = self._lookahead.getValue()
         else:
-            self._st.insert("NoName", kind=WrapCl.PROCEDURE)
             procid = "NoName"
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
         self._procedureBlock(procid, stop.union([WrapTk.SEMICOLON]))
@@ -529,8 +522,11 @@ class SynAn:
                                 print "Invalid datatype for argument no.", i + 1, "got", paramtypes[i], " but expected", formaltype, self._scanner.getPos()
                                 break
         # sino se tratara de un procedimiento estandar
-        else:
+        elif self._st.getAttr(procid, "kind") == WrapCl.STANDARD_PROC:
             self._ioStatement(procid, stop)
+        else:
+            while self._lookahead != WrapTk.RIGHTPARENTHESIS:
+                self._lookahead = self._scanner.yyLex()
 
     def _ioStatement(self, procid, stop):
         if procid == "read":
