@@ -52,17 +52,17 @@ class SymbolTable:
             if (not lst.getAttr(i, "ref")) and (lst.getAttr(i, "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER)):
                 SemError(SemError.WARN_UNUSED_ID, lst.getAttr(i, "pos"), i)
 
-        print 
-        #print '<input type="text" name="table1" value="' + self._scopenames.top() + '">'
-        print "AMBITO:", self._scopenames.top()
-        print "------"
-
-        # Desapilando nombre de ambito a borrar
-        self._scopenames.pop()
+        # Desapilando y mostrando nombre de ambito reseteado
+        print
+        print str(Colors.OKBLUE + "Local Symbol Table for " + self._scopenames.pop() + " scope" + Colors.ENDC)
+        print
 
         #self._blockstack.top().printToWeb(self._scopenames.pop())
         print self._blockstack.top()
+        print "_____________________________________________________________________________________________________________________"
         print
+        if self._scopenames.top() != "standardblock":
+            print str(Colors.OKBLUE + "Error(s) found at " + self._scopenames.top() + " scope" + Colors.ENDC)
         # Procedicimientos de Reseteo
         self._blockstack.pop()
         self._blocklevel -= 1
@@ -73,7 +73,7 @@ class SymbolTable:
         if self._blockstack.top().insert(lex, attr):
             self._index += 1
             # Seteando el nombre de procedimiento para poder apilarlo
-            if (attr["kind"] == WrapCl.PROCEDURE):
+            if attr["kind"] in (WrapCl.PROCEDURE, WrapCl.RECORD_TYPE):
                 self._procname = lex
             return True
         else:
@@ -102,6 +102,9 @@ class SymbolTable:
                 lex: identificador del que se desea añadir o redefinir un atributo
                 attr: atributos a añadir o redefinir
         """
+        if "kind" in attr.keys():
+            if attr["kind"] == WrapCl.RECORD_TYPE:
+                self._procname = lex
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
                 if "paramlist" not in attr.keys():
@@ -208,28 +211,13 @@ class LocalSymbolTable:
         else:
             return self._table.keys()
 
-    def printToWeb(self, scope):
-        row = 0
-        for i in self._table:
-            string = '<input type="text" name="' + scope + str(row) + '" value="'
-            if self._table[i]["kind"] == WrapCl.ARRAY_TYPE:
-                string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["lowerbound"]).rjust(20) + str(self._table[i]["upperbound"]).rjust(20) + '">'
-            else:
-                try:
-                    string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["value"]).rjust(20) + '">'
-                except KeyError:
-                    try:
-                        string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + '">'
-                    except KeyError:
-                        string = string + i + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + '">'
-            row += 1
-            print string
-
     def __str__(self):
         string = ""
+        string = string + "IDENTIFIER".rjust(20) + "KIND".rjust(20) + "TYPE".rjust(20) + "VALUE/RANGE".rjust(25) + "\n"
+        string = string + "==========".rjust(20) + "====".rjust(20) + "====".rjust(20) + "===========".rjust(25) + "\n"
         for i in self._table:
             if self._table[i]["kind"] == WrapCl.ARRAY_TYPE:
-                string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + "[".rjust(20) + str(self._table[i]["lowerbound"]) + ", " + str(self._table[i]["upperbound"]) + "]\n"
+                string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + "[".rjust(17) + str(self._table[i]["lowerbound"]) + ", " + str(self._table[i]["upperbound"]) + "]\n"
             else:
                 try:
                     string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["value"]).rjust(20) + "\n"
