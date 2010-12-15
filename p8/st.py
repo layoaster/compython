@@ -16,7 +16,8 @@ from idclass import WrapCl
 
 class SymbolTable:
 
-    def __init__(self):
+    def __init__(self, verbose=False):
+        self._verbose = verbose
         self._scopenames = Stack()
         self._procname = "standardblock"
         self._blockstack = Stack()

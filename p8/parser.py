@@ -19,7 +19,7 @@ class SynAn:
         Comprueba que la secuencia de tokens de entrada sea acorde con las
         especificaciones de la gramatica de Pascal-
     """
-    def __init__(self, stats = False):
+    def __init__(self, verbose = False):
         """ Constructor de la clase. Atributos:
             _lookahead = token o simbolo de preanalisis
             _scanner   = instancia de la clase analizador lexico
@@ -30,7 +30,7 @@ class SynAn:
         """
         # Tools
         self._scanner = None
-        self._st = SymbolTable()
+        self._st = SymbolTable(verbose)
         self._tokenstack = Stack()
         self._exptypes = Stack()
         # Data
