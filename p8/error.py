@@ -34,7 +34,7 @@ class Error(object):
     """ Clase padre de errores """
     #__metaclass__ = ABCMeta
 
-    _lasterr = 0
+    lasterr = 0
     pos = ()
     errno = -1
     found = None
@@ -47,8 +47,8 @@ class Error(object):
         self.expected = expected
 
     def canPrint(self, row):
-        if self._lasterr != row:
-            self._lasterr == row
+        if self.lasterr != row:
+            self.lasterr == row
             return True
         else:
             return False
@@ -172,8 +172,8 @@ class SemError(Error):
                    "Illegal indexing value",
                    "Type identifier not allowed here")
 
-    def __init__(self, errno, pos, found=None):
-        super(SemError, self).__init__(errno, pos, found)
+    def __init__(self, errno, pos, found=None, extra=None):
+        super(SemError, self).__init__(errno, pos, found, extra)
         if errormaster.canPrint(pos[0]):
             self.printError()
     
@@ -195,3 +195,6 @@ class SemError(Error):
                 print "'" + self.found + "'"
         else:
             print "\n",
+
+        if self.expected is not None:
+            print self.expected

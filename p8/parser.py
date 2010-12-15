@@ -167,7 +167,7 @@ class SynAn:
                         idvalue = self._st.getAttr(rvalue.getLexeme(), "value")
                         self._st.setAttr(lvalue.getLexeme(), datatype=idtype, value=idvalue)
                     elif self._st.getAttr(self._lookahead.getLexeme(), "kind") != WrapCl.UNDEFINED:
-                        print "Invalid identifier kind", self._scanner.getPos()
+                        SemError(SemError.INVALID_KIND, self._scanner.getPos(), self._lookahead)
         self._match(WrapTk.SEMICOLON, stop)
 
     # <TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
@@ -253,7 +253,7 @@ class SynAn:
                 lowerbound = Token(WrapTk.NUMERAL, self._st.getAttr(lowerbound.getValue(), "value"))
             # Comprobamos si el rango es valido. Si no, el menor toma el valor del mayor
             if upperbound.getValue() < lowerbound.getValue():
-                print "ArrayError: Invalid range", self._scanner.getPos()
+                SemError(SemError.INVALID_RANGE, self._scanner.getPos())
                 upperbound.setValue(lowerbound.getValue())
             # Devolvemos los indices a la pila
             self._tokenstack.push(lowerbound)
@@ -312,12 +312,11 @@ class SynAn:
             if (self._lookahead != recordid) and (self._lookahead not in self._tokenstack):
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
-                else:
+                elif self._st.getAttr(self._lookahead.getLexeme(), "kind") not in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):       
                     # Comprobamos que el id del tipo sea de una clase valida
-                    if self._st.getAttr(self._lookahead.getLexeme(), "kind") in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
-                        idtype = self._lookahead.getLexeme()
-                    else:
-                        print "ERROR: in type definition, \"" + self._lookahead.getLexeme() + "\" not allowed here", self._scanner.getPos()
+                    SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
+                else:
+                    idtype = self._lookahead.getLexeme()
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores de campo declarados
@@ -366,10 +365,11 @@ class SynAn:
             if self._lookahead not in self._tokenstack:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
-                else:
+                elif self._st.getAttr(self._lookahead.getLexeme(), "kind") not in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
                     # Comprobamos que el id del tipo sea de una clase valida
-                    if self._st.getAttr(self._lookahead.getLexeme(), "kind") in (WrapCl.STANDARD_TYPE, WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE):
-                        idtype = self._lookahead.getLexeme()
+                    SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
+                else:
+                    idtype = self._lookahead.getLexeme()
             else:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         # Añadiendo tipos a los identificadores declarados
@@ -440,7 +440,7 @@ class SynAn:
                 SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             elif self._st.getAttr(self._lookahead.getValue(), "kind") not in (WrapCl.CONSTANT, WrapCl.VARIABLE, WrapCl.PROCEDURE, WrapCl.STANDARD_PROC, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
-                print "ERROR:\"" + self._lookahead + "\" No a valid identifier", self._scanner.getPos()
+                SemError(SemError.INVALID_KIND, self._scanner.getPos(), self._lookahead)
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
             else:
                 self._tokenstack.push(self._lookahead)
@@ -480,7 +480,7 @@ class SynAn:
             if (ltype != "NoName") and (rtype != "NoName"):
                 # Si los tipos son distintos damos el error
                 if ltype != rtype:
-                    print "Invalid datatype, got\"" + rtype + "\" and expected \"" + ltype + "\"", self._scanner.getPos()
+                    SemError(SemError.BAD_ASSIG_TYPES, self._scanner.getPos())
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
         # En este caso se llamo a un procedimiento sin parametros por lo que se ha de limpiar la pila para quitar el nombre de procedimiento
@@ -514,16 +514,15 @@ class SynAn:
                 paramlist = self._st.getAttr(procid, "paramlist")
                 # Comprobamos que el numero de parametros coincida
                 if len(paramlist) != len(paramtypes):
-                    print "Invalid number of parameters specified for call to", procid, self._scanner.getPos()
+                    SemError(SemError.BAD_PARAM_NUMBER, self._scanner.getPos(), procid)
                 else:
                     # Comprobamos los tipos de los parametros
                     for i in range(0, len(paramlist)):
                         formaltype = paramlist[i][1]
-                        if paramtypes[i] != "NoName":
-                            # Su el parametro actual tiene un tipo distinto del parametro formal
-                            if paramtypes[i] != formaltype:
-                                print "Invalid datatype for argument no.", i + 1, "got", paramtypes[i], " but expected", formaltype, self._scanner.getPos()
-                                break
+                        if paramtypes[i] not in ("NoName", formaltype):
+                            # El parametro actual tiene un tipo distinto del parametro formal
+                            SemError(SemError.BAD_PARAM_TYPE, self._scanner.getPos(), paramtypes[i], " but expected " + formaltype + " on argument no. " + str(i + 1))
+                            break
         # sino se tratara de un procedimiento estandar
         elif self._st.getAttr(procid, "kind") == WrapCl.STANDARD_PROC:
             self._ioStatement(procid, stop)
@@ -535,7 +534,7 @@ class SynAn:
         if procid == "read":
             # Verificamos que se haya puesto un ID
             if self._lookahead != WrapTk.ID:
-                print "Integer variable expected as parameter", self._scanner.getPos()
+                SemError(SemError.READ_INT_EXPCT, self._scanner.getPos())
                 self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                 self._exptypes.push("NoName")
             else:
