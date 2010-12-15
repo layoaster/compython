@@ -467,7 +467,7 @@ class SynAn:
                 if self._st.getAttr(self._tokenstack.top().getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._tokenstack.top().getValue(), "datatype"))
                 else:
-                    print "supermegaerror", self._scanner.getPos()
+                    SemError(SemError.NON_VAR_ASSIGN, self._scanner.getPos(), self._tokenstack.top())
                     self._exptypes.push("NoName")
             else:
                 self._exptypes.push("NoName")
@@ -530,7 +530,7 @@ class SynAn:
                         formaltype = paramlist[i][1]
                         if paramtypes[i] not in ("NoName", formaltype):
                             # El parametro actual tiene un tipo distinto del parametro formal
-                            SemError(SemError.BAD_PARAM_TYPE, self._scanner.getPos(), paramtypes[i], " but expected " + formaltype + " on argument no. " + str(i + 1))
+                            SemError(SemError.BAD_PARAM_TYPE, self._scanner.getPos(), paramtypes[i], " but expected \'" + formaltype + "\' on argument no. " + str(i + 1))
                             break
         # sino se tratara de un procedimiento estandar
         elif self._st.getAttr(procid, "kind") == WrapCl.STANDARD_PROC:

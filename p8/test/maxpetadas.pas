@@ -41,7 +41,7 @@ var x : T;
 
 
 begin
-    funcion(w, x, do, b, prueba);
+    funcion(x, T, integer, a, prueba);
     x[9999] := false;
     m[4] := 45;
     i[4] := 45;

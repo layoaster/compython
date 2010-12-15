@@ -150,6 +150,7 @@ class SemError(Error):
     ILLEGAL_INDEX    = 17
     TYPE_NOT_ALLOWED = 18
     INVALID_FIELD    = 19
+    NON_VAR_ASSIGN   = 20
     
     # Cadenas de texto que describen cada uno de los posibles errores semanticos encontrados
     _errStrings = ("Undeclared type", 
@@ -172,7 +173,8 @@ class SemError(Error):
                    "Not a record type",
                    "Illegal indexing value",
                    "Type identifier not allowed here",
-                   "Invalid field")
+                   "Invalid field",
+                   "Trying to assign a non-variable identifier")
 
     def __init__(self, errno, pos, found=None, extra=None):
         super(SemError, self).__init__(errno, pos, found, extra)
