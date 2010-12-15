@@ -60,7 +60,7 @@ class SymbolTable:
             print
 
             print self._blockstack.top()
-            print "_____________________________________________________________________________________________________________________"
+            print "_____________________________________________________________________________________"
             print
             if self._scopenames.top() != "standardblock":
                 print str(Colors.OKBLUE + "Error(s) found at " + self._scopenames.top() + " scope" + Colors.ENDC)

@@ -32,7 +32,7 @@ class Colors:
 
 class Error(object):
     """ Clase padre de errores """
-    #__metaclass__ = ABCMeta
+    __metaclass__ = ABCMeta
 
     lasterr = 0
     pos = ()
@@ -53,11 +53,9 @@ class Error(object):
         else:
             return False
     
-    #@abstractmethod
-    #def printError(self):
-    #    pass
-
-errormaster = Error()
+    @abstractmethod
+    def printError(self):
+        pass
 
 # --------------------
 
@@ -75,8 +73,7 @@ class LexError(Error):
 
     def __init__(self, errno, pos):
         super(LexError, self).__init__(errno, pos)
-        if errormaster.canPrint(pos[0]):
-            self.printError()
+        self.printError()
 
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
@@ -97,8 +94,7 @@ class SynError(Error):
 
     def __init__(self, errno, pos, found, expected=None):
         super(SynError, self).__init__(errno, pos, found, expected)
-        if errormaster.canPrint(pos[0]):
-            self.printError()
+        self.printError()
     
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),
@@ -174,8 +170,7 @@ class SemError(Error):
 
     def __init__(self, errno, pos, found=None, extra=None):
         super(SemError, self).__init__(errno, pos, found, extra)
-        if errormaster.canPrint(pos[0]):
-            self.printError()
+        self.printError()
     
     def printError(self):
         print str(Colors.WARNING + str(self.pos[0]) + "L,").rjust(10),

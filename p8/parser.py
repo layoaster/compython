@@ -547,7 +547,7 @@ class SynAn:
                     if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                         self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
                     else:
-                        print "ERROR: Type identifier not allowed here", self._lookahead.getLexeme()," ", self._scanner.getPos()
+                        SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                         self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                         self._exptypes.push("NoName")
                 else:
@@ -569,13 +569,13 @@ class SynAn:
                 while self._st.getAttr(idtype, "kind") != WrapCl.STANDARD_TYPE:
                     idtype = self._st.getAttr(idtype, "datatype")
                 if idtype != "integer":
-                    print "Integer variable expected as parameter", self._scanner.getPos()
+                    SemError(SemError.READ_INT_EXPCT, self._scanner.getPos())
         # write
         else:
             self._expression(stop.union([WrapTk.END]))
             exptype = self._exptypes.pop()
-            if (exptype != "integer") and (exptype != "NoName"):
-                print "Integer expression expected as parameter", self._scanner.getPos()
+            if exptype not in ("integer", "NoName"):
+                SemError(SemError.WRITE_EXPR_EXPCT, self._scanner.getPos())
 
 
     # <IfStatement> ::= if <Expression> then <Statement> [else <Statement>]
@@ -584,7 +584,7 @@ class SynAn:
         self._expression(stop.union((WrapTk.THEN, WrapTk.ELSE), self._ff.first("statement")))
         exptype = self._exptypes.pop()
         if (exptype != "boolean"):# and (exptype != "NoName"):
-            print "Boolean expression expected, but got", exptype, self._scanner.getPos()
+            SemError(SemError.BOOL_EXPR_EXPCT, self._scanner.getPos(), exptype)
         self._match(WrapTk.THEN, stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._statement(stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._syntaxCheck(stop.union([WrapTk.ELSE]))
@@ -598,7 +598,7 @@ class SynAn:
         self._expression(stop.union([WrapTk.DO], self._ff.first("statement")))
         exptype = self._exptypes.pop()
         if (exptype != "boolean"):# and (exptype != "NoName"):
-            print "Boolean expression expected, but got", exptype, self._scanner.getPos()
+            SemError(SemError.BOOL_EXPR_EXPCT, self._scanner.getPos(), exptype)
         self._match(WrapTk.DO, stop.union(self._ff.first("statement")))
         self._statement(stop)
 
@@ -623,7 +623,7 @@ class SynAn:
             rtype = self._exptypes.pop()
             if (ltype != "NoName") and (rtype != "NoName"):
                 if ltype != rtype:
-                    print "Invalid datatype", self._scanner.getPos()
+                    SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                     ltype = "NoName"
                 # si todo va bien el tipo resultante sera un boolean
                 else:
@@ -662,7 +662,7 @@ class SynAn:
         ltype = self._exptypes.pop()
         if sign:
             if (ltype != "integer") and (ltype != "NoName"):
-                print "Invalid datatype", self._scanner.getPos()
+                SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                 ltype = "NoName"
         while self._lookahead in [WrapTk.PLUS, WrapTk.MINUS, WrapTk.OR]:
             self._additiveOperator(stop.union(self._ff.first("additiveOperator"), self._ff.first("term")))
@@ -677,11 +677,11 @@ class SynAn:
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #Si los 2 operandos tiene distinto tipo se produce un error
                     if ltype != rtype:
-                        print "Invalid datatype", self._scanner.getPos()
+                        SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                         ltype = "NoName"
                     # Sino se comprueba que sean del tipo esperado por el operador
                     elif ltype != expectedtype:
-                        print "Invalid datatype", self._scanner.getPos()
+                        SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                         ltype = "NoName"
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
@@ -734,11 +734,11 @@ class SynAn:
                 if (ltype != "NoName") and (rtype != "NoName"):
                     #Si los 2 operandos tiene distinto tipo se produce un error
                     if ltype != rtype:
-                        print "Invalid datatype", self._scanner.getPos()
+                        SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                         ltype = "NoName"
                     # Sino se comprueba que sean del tipo esperado por el operador
                     elif ltype != expectedtype:
-                        print "Invalid datatype", self._scanner.getPos()
+                        SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                         ltype = "NoName"
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
@@ -783,7 +783,7 @@ class SynAn:
                 if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
                 else:
-                    print "ERROR: Type identifier not allowed here", self._lookahead.getLexeme()," ", self._scanner.getPos()
+                    SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
                     self._exptypes.push("NoName")
             self._match(WrapTk.ID, stop.union(self._ff.first("selector")))
@@ -801,7 +801,7 @@ class SynAn:
             #Comprobamos que se reciba un tipo boolean
             if self._exptypes.top() != "NoName":
                 if self._exptypes.top() != "boolean":
-                    print "Invalid datatype", self._scanner.getPos()
+                    SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos())
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
         else:
@@ -816,7 +816,7 @@ class SynAn:
                 if self._st.getAttr(self._exptypes.top(), "kind") != WrapCl.ARRAY_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
-                    print "ERROR:", self._tokenstack.top().getValue(), "is not an array type", self._scanner.getPos()
+                    SemError(SemError.NOT_ARRAY_TYPE, self._scanner.getPos(), self._tokenstack.top())
                 # Si es un array, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "datatype"))
@@ -827,7 +827,7 @@ class SynAn:
                 if self._st.getAttr(self._exptypes.top(), "kind", WrapCl.RECORD_TYPE) != WrapCl.RECORD_TYPE:
                     self._exptypes.pop()
                     self._exptypes.push("NoName")
-                    print "ERROR:", self._tokenstack.top().getValue(), "is not an record type", self._scanner.getPos()
+                    SemError(SemError.NOT_RECORD_TYPE, self._scanner.getPos(), self._tokenstack.top())
                 # Si es un record, se mete en la pila su tipo
                 else:
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist", WrapCl.RECORD_TYPE))
@@ -842,7 +842,7 @@ class SynAn:
         self._match(WrapTk.LEFTBRACKET, stop.union([WrapTk.RIGHTBRACKET], self._ff.first("expression")))
         self._expression(stop.union([WrapTk.RIGHTBRACKET]))
         if self._st.getAttr(self._exptypes.pop(), "kind", WrapCl.STANDARD_TYPE) != WrapCl.STANDARD_TYPE:
-            print "ERROR: Illegal value in selector.", self._scanner.getPos()
+            SemError(SemError.ILLEGAL_INDEX, self._scanner.getPos())
         self._match(WrapTk.RIGHTBRACKET, stop)
 
     # <FieldSelector> ::= . id
@@ -852,7 +852,6 @@ class SynAn:
             fieldlist = self._exptypes.pop()
             if fieldlist != "NoName":
                 if not fieldlist.isIn(self._lookahead.getValue()):
-                    print "Invalid field"
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)
                     self._exptypes.push("NoName")
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
