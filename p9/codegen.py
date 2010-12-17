@@ -61,13 +61,18 @@ class CodeGenerator:
                 code.write(opcode + '\n')
                 for i in args:
                     code.write(i + '\n')
-                list.write(WrapOp.OpLexemes[opcode], args)
+                list.write(WrapOp.OpLexemes[opcode].rjust(6) + ':')
+                list.write(WrapOp.OpLexemes[opcode].rjust(12))
+                for i in args:
+                    list.write(i.rjust(6))
             self._address += len(args)
         else:
             temp.write(opcode + '\n')
             for i in args:
                 temp.write(i + '\n')
-            list.write(WrapOp.OpLexemes[opcode], args)
+            list.write(WrapOp.OpLexemes[opcode].rjust(12))
+            for i in args:
+                list.write(i.rjust(6))
 
     def setAsmBool(self):
         if not self._asmbool:
