@@ -52,8 +52,14 @@ class CodeGenerator:
         self._asmbool = False
         self._emitting = False
         temp = open("temp.$$$", "w")
-        code = open(self._fout + ".eje", "w")
         list = open(self._fout + ".inf", "w")
+
+    def __del__(self):
+        list.close()
+        if not temp.closed():
+            temp.close()
+        if not code.closed():
+            temp.close()
 
     def emit(opcode, *args):
         if self._asmbool:
@@ -77,8 +83,10 @@ class CodeGenerator:
     def setAsmBool(self):
         if not self._asmbool:
             self._asmbool = True
+            temp.close()
             list.close()
             list = open(self._fout + ".asm", "w")
+            code = open(self._fout + ".exe", "w")
 
     def resetAsmBool(self):
         if self._asmbool:

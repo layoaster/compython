@@ -8,11 +8,12 @@ Description: Analizador Sintáctico para Pascal-.
       $Date$
   $Revision$
 """
+from st import *
 from lexan import LexAn
 from token import *
 from error import *
 from ffsets import *
-from st import *
+from opcodes import *
 
 class SynAn:
     """ Clase Analizador Sintactico:
@@ -48,6 +49,7 @@ class SynAn:
             self._scanner.openFile(fin)
         except IOError:
             raise
+        self._code = CodeGenerator(fin)
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
 
