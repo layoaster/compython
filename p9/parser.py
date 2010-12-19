@@ -13,7 +13,7 @@ from lexan import LexAn
 from token import *
 from error import *
 from ffsets import *
-from opcodes import *
+from codegen import *
 
 class SynAn:
     """ Clase Analizador Sintactico:
@@ -69,6 +69,16 @@ class SynAn:
                 if self._st.getAttr(i.getValue(), "datatype") != idtype:
                     return False
             return True
+
+    def _typeLength(self, datatype):
+        """ Devuelve un entero con la longitud del tipo del identificador pasado por parametro
+        """
+        if self._st.getAttr(datatype, "kind") == WrapCl.STANDARD_TYPE:
+            return 1
+        elif self._st.getAttr(datatype, "kind") == WrapCl.ARRAY_TYPE:
+            return (self._st.getAttr(datatype, "upperbound") - self._st.getAttr(datatype, "lowerbound") + 1) * self._typeLength(self._st.getAttr(datatype, "datatype"))
+        else: # Llegados a este punto solo puede ser un record
+            pass # Continuar aqui
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
@@ -226,8 +236,8 @@ class SynAn:
                 SemError(SemError.REC_DEFINITION, self._scanner.getPos(), self._lookahead)
                 arraytype = self._lookahead.getValue()
         # Insertamos los datos del array en la tabla de simbolos
-        ub = self._tokenstack.pop()
-        lb = self._tokenstack.pop()
+        ub = self._tokenstack.pop().getValue()
+        lb = self._tokenstack.pop().getValue()
 
         #Comprobamos que el id de tipo
         if self._st.getAttr(arraytype, "kind") in (WrapCl.ARRAY_TYPE, WrapCl.RECORD_TYPE, WrapCl.STANDARD_TYPE):

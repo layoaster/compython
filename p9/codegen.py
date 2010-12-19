@@ -51,42 +51,42 @@ class CodeGenerator:
         self._address = 0
         self._asmbool = False
         self._emitting = False
-        temp = open("temp.$$$", "w")
-        list = open(self._fout + ".inf", "w")
+        self._temp = open("temp.$$$", "w")
+        self._list = open(self._fout + ".inf", "w")
 
     def __del__(self):
-        list.close()
-        if not temp.closed():
-            temp.close()
-        if not code.closed():
-            temp.close()
+        self._list.close()
+        if not self._temp.closed():
+            self._temp.close()
+        if not self._code.closed():
+            self._code.close()
 
     def emit(opcode, *args):
         if self._asmbool:
             if self._emitting:
-                code.write(opcode + '\n')
+                self._code.write(opcode + '\n')
                 for i in args:
-                    code.write(i + '\n')
-                list.write(WrapOp.OpLexemes[opcode].rjust(6) + ':')
-                list.write(WrapOp.OpLexemes[opcode].rjust(12))
+                    self._code.write(i + '\n')
+                self._list.write(WrapOp.OpLexemes[opcode].rjust(6) + ':')
+                self._list.write(WrapOp.OpLexemes[opcode].rjust(12))
                 for i in args:
-                    list.write(i.rjust(6))
+                    self._list.write(i.rjust(6))
             self._address += len(args)
         else:
-            temp.write(opcode + '\n')
+            self._temp.write(opcode + '\n')
             for i in args:
-                temp.write(i + '\n')
-            list.write(WrapOp.OpLexemes[opcode].rjust(12))
+                self._temp.write(i + '\n')
+            self._list.write(WrapOp.OpLexemes[opcode].rjust(12))
             for i in args:
-                list.write(i.rjust(6))
+                self._list.write(i.rjust(6))
 
     def setAsmBool(self):
         if not self._asmbool:
             self._asmbool = True
-            temp.close()
-            list.close()
-            list = open(self._fout + ".asm", "w")
-            code = open(self._fout + ".exe", "w")
+            self._temp.close()
+            self._list.close()
+            self._list = open(self._fout + ".asm", "w")
+            self._code = open(self._fout + ".exe", "w")
 
     def resetAsmBool(self):
         if self._asmbool:
