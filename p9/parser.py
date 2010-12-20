@@ -133,6 +133,7 @@ class SynAn:
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
         self._match(WrapTk.PERIOD, stop)
+        self._code.emit(WrapOp.ENDPROG)
         #self._match(WrapTk.ENDTEXT, stop)
         self._st.reset()
 
@@ -602,7 +603,8 @@ class SynAn:
             exptype = self._exptypes.pop()
             if exptype not in ("integer", "NoName"):
                 SemError(SemError.WRITE_EXPR_EXPCT, self._scanner.getPos())
-
+            else:
+                self._code.emit(WrapOp.WRITE)
 
     # <IfStatement> ::= if <Expression> then <Statement> [else <Statement>]
     def _ifStatement(self, stop):
