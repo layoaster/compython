@@ -485,6 +485,7 @@ class SynAn:
     # <StatementGroup> ::= {<Selector>} := <Expression> | <ProcedureStatement>
     def _statementGroup(self, stop):
         if self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD, WrapTk.BECOMES]:
+            self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.pop().getValue(), "displ"))
             # Pasamos el tipo de id raiz a la funcion selector
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
                 #comprobamos que el id sea de la clase a la que se le pueden asignar variables
@@ -500,7 +501,6 @@ class SynAn:
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
                 ltype = self._exptypes.top()
-            self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.pop().getValue(), "displ"))
             #vaciamos la pila de expresiones en cualquier caso
             self._exptypes.pop()
             #vaciamos pila de tokens del ultimo selector
