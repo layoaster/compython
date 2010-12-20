@@ -71,7 +71,10 @@ class SynAn:
             return True
 
     def _typeLength(self, datatype):
-        """ Devuelve un entero con la longitud del tipo del identificador pasado por parametro
+        """ Devuelve un entero con la longitud del tipo del identificador pasado por parametro:
+            - Tanto los enteros como los booleanos tienen longitud 1.
+            - La longitud de los arrays es la resta de sus extremos mas uno por la longitud del tipo que contenga (siempre sera 1)
+            - La longitud de los record es la suma de las longitudes de los campos que contenga
         """
         if self._st.getAttr(datatype, "kind") == WrapCl.STANDARD_TYPE:
             return 1

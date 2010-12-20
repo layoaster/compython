@@ -22,7 +22,7 @@ class SymbolTable:
         self._procname = "standardblock"
         self._blockstack = Stack()
         self._blocklevel = -1
-        self._index = 0
+        self._displ = 0
         self._standardBlock()
 
     def _standardBlock(self):
@@ -39,7 +39,7 @@ class SymbolTable:
         localst = LocalSymbolTable()
         self._blockstack.push(localst)
         self._blocklevel += 1
-        self._index = 3
+        self._displ = 3
 
         # Apilando nombre de ambito a crear
         if self._blocklevel == 1:
@@ -74,7 +74,7 @@ class SymbolTable:
 
     def insert(self, lex, **attr):
         attr["ref"] = False
-        attr["index"] = 0
+        attr["displ"] = 0
         if self._blockstack.top().insert(lex, attr):
             # Seteando el nombre de procedimiento para poder apilarlo
             if attr["kind"] in (WrapCl.PROCEDURE, WrapCl.RECORD_TYPE):
@@ -90,8 +90,8 @@ class SymbolTable:
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
                 if self._blockstack[i].getAttr(lex, "kind") == WrapCl.VARIABLE and self._blockstack[i].getAttr(lex, "ref") == False:
-                    self._blockstack[i].setAttr(lex, {"index" : self._index})
-                    self._index += 1
+                    self._blockstack[i].setAttr(lex, {"displ" : self._displ})
+                    self._displ += 1
                 self._blockstack[i].setAttr(lex, {"ref" : True })
                 return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
@@ -102,6 +102,11 @@ class SymbolTable:
             la tabla actual), necesario para asignarle a un record la lista (tabla) de sus campos
         """
         return self._blockstack.top()
+
+    def getBlockLevel(self):
+        """ Devuelve el nivel de anidamiento actual sin tener en cuenta el bloque estandar
+        """
+        return self._blocklevel - 1
 
     def setAttr(self, lex, **attr):
         """ Añade o redefine un atributo dado un valor
@@ -163,7 +168,7 @@ class LocalSymbolTable:
                 - lex: Lexema del identificador que hara de clave primaria
                 - attr: diccionario de atributos variable que acompañan al
                         identificador, los unicos atributos estaticos son el
-                        "index" y el "kind"
+                        "displ" y el "kind"
             Valor de retorno:
                 True : si se realizo la inercion
                 False: en caso contrario
@@ -224,10 +229,10 @@ class LocalSymbolTable:
         string = string + "==========".rjust(20) + "====".rjust(20) + "====".rjust(20) + "=====".rjust(25) + "\n"
         for i in self._table:
             if self._table[i]["kind"] == WrapCl.ARRAY_TYPE:
-                string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["index"]).rjust(17) + "\n"
+                string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["displ"]).rjust(17) + "\n"
             else:
                 try:
-                    string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["index"]).rjust(20) + "\n"
+                    string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["displ"]).rjust(20) + "\n"
                 except KeyError:
                     try:
                         string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + "\n"
