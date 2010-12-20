@@ -820,7 +820,8 @@ class SynAn:
                 #Comprobamos que sea del tipo variable o constante
                 if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
-                    self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.pop().getValue(), "displ"))
+                    print "Emitiendo variable..."
+                    self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.top().getValue(), "displ"))
                 else:
                     SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
