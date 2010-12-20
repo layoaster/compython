@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+        $Id$
+Description: Clase que contiene funciones y datos de la generacion de codigo intermedio para el compilador de Pascal-
+    $Author$ Lionel Aster Mena Garcia, Alejandro Samarin Perez, Sergio Armas Perez
+      $Date$
+  $Revision$
+"""
+
 class WrapOp:
 
     ADD        = 0
