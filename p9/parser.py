@@ -78,7 +78,10 @@ class SynAn:
         elif self._st.getAttr(datatype, "kind") == WrapCl.ARRAY_TYPE:
             return (self._st.getAttr(datatype, "upperbound") - self._st.getAttr(datatype, "lowerbound") + 1) * self._typeLength(self._st.getAttr(datatype, "datatype"))
         else: # Llegados a este punto solo puede ser un record
-            pass # Continuar aqui
+            recordlength = 0
+            for i in self._st.getAttr(datatype, "fieldlist").keys():
+                recordlength = recordlength + self._typeLength(self._st.getAttr(datatype, "fieldlist").getAttr(i, "datatype"))
+            return recordlength
 
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
