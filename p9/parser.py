@@ -795,6 +795,8 @@ class SynAn:
     def _factor(self, stop):
         if self._lookahead == WrapTk.NUMERAL:
             self._exptypes.push("integer")
+            print "Emitiendo constante..."
+            self._code.emit(WrapOp.CONSTANT, self._lookahead.getValue())
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
             if not self._st.lookup(self._lookahead.getLexeme()):
@@ -806,6 +808,7 @@ class SynAn:
                 #Comprobamos que sea del tipo variable o constante
                 if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
+
                 else:
                     SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))

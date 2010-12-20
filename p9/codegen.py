@@ -69,24 +69,24 @@ class CodeGenerator:
         if not self._code.closed():
             self._code.close()
 
-    def emit(opcode, *args):
+    def emit(self, opcode, *args):
         if self._asmbool:
             if self._emitting:
-                self._code.write(opcode + '\n')
+                self._code.write(str(opcode) + '\n')
                 for i in args:
-                    self._code.write(i + '\n')
+                    self._code.write(str(i) + '\n')
                 self._list.write(WrapOp.OpLexemes[opcode].rjust(6) + ':')
                 self._list.write(WrapOp.OpLexemes[opcode].rjust(12))
                 for i in args:
-                    self._list.write(i.rjust(6))
+                    self._list.write(str(i).rjust(6))
             self._address += len(args)
         else:
-            self._temp.write(opcode + '\n')
+            self._temp.write(str(opcode) + '\n')
             for i in args:
-                self._temp.write(i + '\n')
+                self._temp.write(str(i) + '\n')
             self._list.write(WrapOp.OpLexemes[opcode].rjust(12))
             for i in args:
-                self._list.write(i.rjust(6))
+                self._list.write(str(i).rjust(6))
 
     def setAsmBool(self):
         if not self._asmbool:
