@@ -121,6 +121,7 @@ class SynAn:
 
     # <Program> ::= program id ; <BlockBody> .
     def _program(self, stop):
+        self._code.emit(WrapOp.PROGRAM, 0, 0, 0, 0)
         self._st.set()
         self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("blockBody")))
         if self._lookahead == WrapTk.ID:
@@ -632,6 +633,7 @@ class SynAn:
 
     # <CompoundStatement> ::= begin <Statement> {; <Statement>} end
     def _compoundStatement(self, stop):
+        
         self._match(WrapTk.BEGIN, stop.union((WrapTk.SEMICOLON, WrapTk.END), self._ff.first("statement")))
         self._statement(stop.union((WrapTk.SEMICOLON, WrapTk.END)))
         while self._lookahead == WrapTk.SEMICOLON:
