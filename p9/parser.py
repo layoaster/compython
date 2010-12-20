@@ -71,10 +71,7 @@ class SynAn:
             return True
 
     def _typeLength(self, datatype):
-        """ Devuelve un entero con la longitud del tipo del identificador pasado por parametro:
-            - Tanto los enteros como los booleanos tienen longitud 1.
-            - La longitud de los arrays es la resta de sus extremos mas uno por la longitud del tipo que contenga (siempre sera 1)
-            - La longitud de los record es la suma de las longitudes de los campos que contenga
+        """ Devuelve un entero con la longitud del tipo del identificador pasado por parametro
         """
         if self._st.getAttr(datatype, "kind") == WrapCl.STANDARD_TYPE:
             return 1
@@ -812,7 +809,6 @@ class SynAn:
                 #Comprobamos que sea del tipo variable o constante
                 if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
-
                 else:
                     SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
@@ -821,6 +817,8 @@ class SynAn:
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union(self._ff.first("selector")))
             #vaciamos pila de tokens del ultimo selector
+            print "Emitiendo value..."
+            self._code.emit(WrapOp.VALUE, self._typeLength(self._exptypes.top()))
             self._tokenstack.pop()
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union([WrapTk.RIGHTPARENTHESIS], self._ff.first("expression")))
@@ -904,7 +902,6 @@ class SynAn:
             self._tokenstack.push(self._lookahead)
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
-
             if self._lookahead not in self._tokenstack:
                 if not self._st.lookup(self._lookahead.getLexeme()):
                     SemError(SemError.UNDECLARED_ID, self._scanner.getPos(), self._lookahead)

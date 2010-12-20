@@ -79,7 +79,7 @@ class CodeGenerator:
                 self._list.write(WrapOp.OpLexemes[opcode].rjust(12))
                 for i in args:
                     self._list.write(str(i).rjust(6))
-                self._code.write('\n')
+                self._list.write('\n')    
             self._address += len(args)
         else:
             self._temp.write(str(opcode) + '\n')
@@ -88,7 +88,7 @@ class CodeGenerator:
             self._list.write(WrapOp.OpLexemes[opcode].rjust(12))
             for i in args:
                 self._list.write(str(i).rjust(6))
-            self._list.write('\n')
+            self._list.write('\n')    
 
     def setAsmBool(self):
         if not self._asmbool:
