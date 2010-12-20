@@ -134,9 +134,11 @@ class SynAn:
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(stop)
         self._match(WrapTk.PERIOD, stop)
-        self._code.emit(WrapOp.ENDPROG)
         #self._match(WrapTk.ENDTEXT, stop)
         self._st.reset()
+        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.ENDPROG)
 
     # <BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>}
     # <CompoundStatement>
@@ -407,6 +409,8 @@ class SynAn:
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
+        self._code.emit(WrapOp.DEFADDR)
+        self._code.emit(WrapOp.PROCEDURE, 0, 0, 0, 0)
         if self._lookahead == WrapTk.ID:
             if not self._st.insert(self._lookahead.getValue(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
@@ -419,6 +423,9 @@ class SynAn:
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
         self._procedureBlock(procid, stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
+        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.ENDPROC, 0)
 
     # <ProcedureBlock> ::= [( <FormalParameterList> )] ; <BlockBody>
     def _procedureBlock(self, procid, stop):
@@ -633,7 +640,7 @@ class SynAn:
 
     # <CompoundStatement> ::= begin <Statement> {; <Statement>} end
     def _compoundStatement(self, stop):
-        
+        self._code.emit(WrapOp.DEFADDR)
         self._match(WrapTk.BEGIN, stop.union((WrapTk.SEMICOLON, WrapTk.END), self._ff.first("statement")))
         self._statement(stop.union((WrapTk.SEMICOLON, WrapTk.END)))
         while self._lookahead == WrapTk.SEMICOLON:
@@ -813,6 +820,7 @@ class SynAn:
                 #Comprobamos que sea del tipo variable o constante
                 if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
+                    self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.pop().getValue(), "displ"))
                 else:
                     SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
