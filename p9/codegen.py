@@ -13,7 +13,7 @@ class WrapOp:
 
     ADD        = 0
     AND        = 1
-    ASSING     = 2
+    ASSIGN     = 2
     CONSTANT   = 3
     DIVIDE     = 4
     ENDPROC    = 5
@@ -45,7 +45,7 @@ class WrapOp:
     DEFADDR    = 31
     DEFARG     = 32
 
-    OpLexemes = ("ADD", "AND", "ASSING", "CONSTANT", "DIVIDE", "END_PROC",
+    OpLexemes = ("ADD", "AND", "ASSIGN", "CONSTANT", "DIVIDE", "END_PROC",
                  "END_PROG", "EQUAL", "FIELD", "GO_FALSE", "GOTO", "GREATER",
                  "INDEX", "LESS", "MINUS", "MODULO", "MULTIPLY", "NOT",
                  "NOT_EQUAL", "NOT_GREATER", "NOT_LESS", "OR", "PROC_CALL",
