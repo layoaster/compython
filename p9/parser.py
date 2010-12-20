@@ -494,10 +494,11 @@ class SynAn:
             while self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD]:
                 self._selector(stop.union([WrapTk.BECOMES], self._ff.first("selector"), self._ff.first("expression")))
                 ltype = self._exptypes.top()
+            self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.pop().getValue(), "displ"))
             #vaciamos la pila de expresiones en cualquier caso
             self._exptypes.pop()
             #vaciamos pila de tokens del ultimo selector
-            self._tokenstack.pop()
+            #self._tokenstack.pop()
             self._match(WrapTk.BECOMES, stop.union(self._ff.first("expression")))
             self._expression(stop)
             rtype = self._exptypes.pop()
@@ -506,6 +507,7 @@ class SynAn:
                 # Si los tipos son distintos damos el error
                 if ltype != rtype:
                     SemError(SemError.BAD_ASSIG_TYPES, self._scanner.getPos())
+                self._code.emit(WrapOp.ASSIGN, self._typeLength(rtype))
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
         # En este caso se llamo a un procedimiento sin parametros por lo que se ha de limpiar la pila para quitar el nombre de procedimiento
@@ -798,7 +800,6 @@ class SynAn:
     def _factor(self, stop):
         if self._lookahead == WrapTk.NUMERAL:
             self._exptypes.push("integer")
-            print "Emitiendo constante..."
             self._code.emit(WrapOp.CONSTANT, self._lookahead.getValue())
             self._match(WrapTk.NUMERAL, stop)
         elif self._lookahead == WrapTk.ID:
