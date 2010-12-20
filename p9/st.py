@@ -74,6 +74,7 @@ class SymbolTable:
 
     def insert(self, lex, **attr):
         attr["ref"] = False
+        attr["index"] = 0
         if self._blockstack.top().insert(lex, attr):
             # Seteando el nombre de procedimiento para poder apilarlo
             if attr["kind"] in (WrapCl.PROCEDURE, WrapCl.RECORD_TYPE):
