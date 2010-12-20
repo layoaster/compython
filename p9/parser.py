@@ -79,7 +79,7 @@ class SynAn:
             return (self._st.getAttr(datatype, "upperbound") - self._st.getAttr(datatype, "lowerbound") + 1) * self._typeLength(self._st.getAttr(datatype, "datatype"))
         else: # Llegados a este punto solo puede ser un record
             recordlength = 0
-            for i in self._st.getAttr(datatype, "fieldlist").keys():
+            for i in self._st.getAttr(datatype, "fieldlist").getIdentifiers():
                 recordlength = recordlength + self._typeLength(self._st.getAttr(datatype, "fieldlist").getAttr(i, "datatype"))
             return recordlength
 
@@ -843,6 +843,7 @@ class SynAn:
                     SemError(SemError.NOT_ARRAY_TYPE, self._scanner.getPos(), self._tokenstack.top())
                 # Si es un array, se mete en la pila su tipo
                 else:
+                    print "tam del array:", self._typeLength(self._exptypes.top())
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "datatype"))
             self._indexSelector(stop)
         elif self._lookahead == WrapTk.PERIOD:
@@ -854,6 +855,7 @@ class SynAn:
                     SemError(SemError.NOT_RECORD_TYPE, self._scanner.getPos(), self._tokenstack.top())
                 # Si es un record, se mete en la pila su tipo
                 else:
+                    print "tam del record:", self._typeLength(self._exptypes.top())
                     self._exptypes.push(self._st.getAttr(self._exptypes.pop(), "fieldlist", WrapCl.RECORD_TYPE))
                     self._tokenstack.pop()
             self._fieldSelector(stop)

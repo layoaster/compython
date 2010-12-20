@@ -39,6 +39,7 @@ class SymbolTable:
         localst = LocalSymbolTable()
         self._blockstack.push(localst)
         self._blocklevel += 1
+        self._index = 3
 
         # Apilando nombre de ambito a crear
         if self._blocklevel == 1:
@@ -71,11 +72,9 @@ class SymbolTable:
         self._blockstack.pop()
         self._blocklevel -= 1
 
-
     def insert(self, lex, **attr):
-        attr["index"] = self._index
+        attr["ref"] = False
         if self._blockstack.top().insert(lex, attr):
-            self._index += 1
             # Seteando el nombre de procedimiento para poder apilarlo
             if attr["kind"] in (WrapCl.PROCEDURE, WrapCl.RECORD_TYPE):
                 self._procname = lex
@@ -89,6 +88,9 @@ class SymbolTable:
     def lookup(self, lex):
         for i in range(self._blocklevel, -1, -1):
             if self._blockstack[i].isIn(lex):
+                if self._blockstack[i].getAttr(lex, "kind") == WrapCl.VARIABLE and self._blockstack[i].getAttr(lex, "ref") == False:
+                    self._blockstack[i].setAttr(lex, {"index" : self._index})
+                    self._index += 1
                 self._blockstack[i].setAttr(lex, {"ref" : True })
                 return True
         self.insert(lex, kind=WrapCl.UNDEFINED)
@@ -217,14 +219,14 @@ class LocalSymbolTable:
 
     def __str__(self):
         string = ""
-        string = string + "IDENTIFIER".rjust(20) + "KIND".rjust(20) + "TYPE".rjust(20) + "VALUE/RANGE".rjust(25) + "\n"
-        string = string + "==========".rjust(20) + "====".rjust(20) + "====".rjust(20) + "===========".rjust(25) + "\n"
+        string = string + "IDENTIFIER".rjust(20) + "KIND".rjust(20) + "TYPE".rjust(20) + "INDEX".rjust(25) + "\n"
+        string = string + "==========".rjust(20) + "====".rjust(20) + "====".rjust(20) + "=====".rjust(25) + "\n"
         for i in self._table:
             if self._table[i]["kind"] == WrapCl.ARRAY_TYPE:
-                string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + "[".rjust(17) + str(self._table[i]["lowerbound"]) + ", " + str(self._table[i]["upperbound"]) + "]\n"
+                string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["index"]).rjust(17) + "\n"
             else:
                 try:
-                    string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["value"]).rjust(20) + "\n"
+                    string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + str(self._table[i]["index"]).rjust(20) + "\n"
                 except KeyError:
                     try:
                         string = string + i.rjust(20) + WrapCl.ClassLexemes[self._table[i]["kind"]].rjust(20) + self._table[i]["datatype"].rjust(20) + "\n"
