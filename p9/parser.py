@@ -20,6 +20,8 @@ class SynAn:
         Comprueba que la secuencia de tokens de entrada sea acorde con las
         especificaciones de la gramatica de Pascal-
     """
+    MAX_LABELS = 1000
+
     def __init__(self, verbose = False):
         """ Constructor de la clase. Atributos:
             _lookahead = token o simbolo de preanalisis
@@ -39,6 +41,7 @@ class SynAn:
         self._ff = FFSets()
         # Variables
         self._lookahead = None
+        self._labelcount = 0
         self._linerror = 0
 
     def start(self, fin):
@@ -53,6 +56,14 @@ class SynAn:
         self._code = CodeGenerator(fin)
         self._lookahead = self._scanner.yyLex()
         self._program(frozenset([WrapTk.ENDTEXT]))
+
+    def _newLabel(self):
+        if self._labelcount > self.MAX_LABELS:
+            print "FATAL ERROR: Program too large"
+            exit(1)
+        else:
+            self._labelcount += 1
+            return self._labelcount
 
     def _checkTypes(self, datatype, *idents):
         """ Comprueba que los identificadores tengan todos del mismo tipo (atributo datatype)
