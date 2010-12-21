@@ -43,6 +43,7 @@ class SynAn:
         self._lookahead = None
         self._labelcount = 0
         self._linerror = 0
+        self._labels = 0
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -95,6 +96,13 @@ class SynAn:
                 recordlength = recordlength + self._typeLength(self._st.getAttr(datatype, "fieldlist").getAttr(i, "datatype"))
             return recordlength
 
+    def _loadProcedureLabels(self):
+        proclabels = []
+        for i in range(0,3):
+            proclabels.append(self._labels)
+            self._labels += 1
+        return proclabels
+
     def _syntaxError(self, stop, expected=None):
         """ Administra los errores que se hayan podido producir durante esta etapa. Crea una excepcion que es
             capturada en el modulo 'pmc', con toda la informacion necesaria acerca del error
@@ -134,6 +142,7 @@ class SynAn:
     # <Program> ::= program id ; <BlockBody> .
     def _program(self, stop):
         self._code.emit(WrapOp.PROGRAM, 0, 0, 0, 0)
+        labels = self._loadProcedureLabels()
         self._st.set()
         self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("blockBody")))
         if self._lookahead == WrapTk.ID:
@@ -144,7 +153,7 @@ class SynAn:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         self._match(WrapTk.ID, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
-        self._blockBody(stop)
+        self._blockBody(labels, stop)
         self._match(WrapTk.PERIOD, stop)
         #self._match(WrapTk.ENDTEXT, stop)
         self._st.reset()
@@ -154,7 +163,7 @@ class SynAn:
 
     # <BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>}
     # <CompoundStatement>
-    def _blockBody(self, stop):
+    def _blockBody(self, labels, stop):
         if self._lookahead == WrapTk.CONST:
             self._constantDefinitionPart(stop.union(self._ff.first("typeDefinitionPart"), self._ff.first("variableDefinitionPart"), self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
         if self._lookahead == WrapTk.TYPE:
@@ -163,7 +172,7 @@ class SynAn:
             self._variableDefinitionPart(stop.union(self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
         while self._lookahead == WrapTk.PROCEDURE:
             self._procedureDefinition(stop.union(self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
-        self._compoundStatement(stop)
+        self._compoundStatement(labels[2], stop)
 
     # <ConstantDefinitionPart> ::= const <ConstantDefinition> {<ConstantDefinition>}
     def _constantDefinitionPart(self, stop):
@@ -421,8 +430,6 @@ class SynAn:
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
-        self._code.emit(WrapOp.DEFADDR)
-        self._code.emit(WrapOp.PROCEDURE, 0, 0, 0, 0)
         if self._lookahead == WrapTk.ID:
             if not self._st.insert(self._lookahead.getValue(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
@@ -435,13 +442,15 @@ class SynAn:
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
         self._procedureBlock(procid, stop.union([WrapTk.SEMICOLON]))
         self._match(WrapTk.SEMICOLON, stop)
-        self._code.emit(WrapOp.DEFARG, 0, 0)
-        self._code.emit(WrapOp.DEFARG, 0, 0)
-        self._code.emit(WrapOp.ENDPROC, 0)
 
     # <ProcedureBlock> ::= [( <FormalParameterList> )] ; <BlockBody>
     def _procedureBlock(self, procid, stop):
         self._st.set()
+        labels = self._loadProcedureLabels()
+        labels.append(self._scanner.getPos()[0])
+        self._code.emit(WrapOp.DEFADDR, self._labels)
+        self._labels += 1
+        self._code.emit(WrapOp.PROCEDURE, 0, 0, 0, 0)
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("formalParameterList"), self._ff.first("blockBody")))
             self._formalParameterList(stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("blockBody")))
@@ -451,8 +460,11 @@ class SynAn:
                 self._st.setAttr(procid, paramlist=paramlist)
             self._match(WrapTk.RIGHTPARENTHESIS, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
-        self._blockBody(stop)
+        self._blockBody(labels, stop)
         self._st.reset()
+        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.ENDPROC, 0)
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
     def _formalParameterList(self, stop):
@@ -651,8 +663,9 @@ class SynAn:
         self._statement(stop)
 
     # <CompoundStatement> ::= begin <Statement> {; <Statement>} end
-    def _compoundStatement(self, stop):
-        self._code.emit(WrapOp.DEFADDR)
+    def _compoundStatement(self, begin_label, stop):
+        self._code.emit(WrapOp.DEFADDR, begin_label)
+        print "emitiendo...         DEFADDR", begin_label
         self._match(WrapTk.BEGIN, stop.union((WrapTk.SEMICOLON, WrapTk.END), self._ff.first("statement")))
         self._statement(stop.union((WrapTk.SEMICOLON, WrapTk.END)))
         while self._lookahead == WrapTk.SEMICOLON:
