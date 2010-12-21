@@ -34,6 +34,7 @@ class SynAn:
         self._st = SymbolTable(verbose)
         self._tokenstack = Stack()
         self._exptypes = Stack()
+        self._opcodestack = Stack()
         # Data
         self._ff = FFSets()
         # Variables
@@ -777,6 +778,17 @@ class SynAn:
                     elif ltype != expectedtype:
                         SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                         ltype = "NoName"
+                    # Si todo va bien, podemos emitir
+                    else:
+                        # Las instrucciones de DIVIDE y MODULO imprimen tambien la linea
+                        if self._opcodestack.top() in (WrapOp.DIVIDE, WrapOp.MODULO):
+                            self._code.emit(self._opcodestack.pop(), self._scanner.getPos()[0])
+                        # Las demas (MULTIPLY y AND) no lo hacen
+                        elif self._opcodestack.top() is not None:
+                            self._code.emit(self._opcodestack.pop())
+                        # Si se produjo un error sintactico, nos limitamos a limpiar la pila
+                        else:
+                            self._opcodestack.pop()
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
                     ltype = "NoName"
@@ -791,18 +803,23 @@ class SynAn:
         if self._lookahead == WrapTk.ASTERISK:
             self._match(WrapTk.ASTERISK, stop)
             self._exptypes.push("integer")
+            self._opcodestack.push(WrapOp.MULTIPLY)
         elif self._lookahead == WrapTk.DIV:
             self._match(WrapTk.DIV, stop)
             self._exptypes.push("integer")
+            self._opcodestack.push(WrapOp.DIVIDE)
         elif self._lookahead == WrapTk.MOD:
             self._match(WrapTk.MOD, stop)
             self._exptypes.push("integer")
+            self._opcodestack.push(WrapOp.MODULO)
         elif self._lookahead == WrapTk.AND:
             self._match(WrapTk.AND, stop)
             self._exptypes.push("boolean")
+            self._opcodestack.push(WrapOp.AND)
         else:
             self._syntaxError(stop, self._ff.first("multiplyingOperator"))
             self._exptypes.push("NoName")
+            self._opcodestack.push(None)
 
     # <Factor> ::= numeral | id {<Selector>} | ( <Expression> ) | not <Factor>
     def _factor(self, stop):
