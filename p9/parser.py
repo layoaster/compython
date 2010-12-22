@@ -45,6 +45,7 @@ class SynAn:
         self._linerror = 0
         self._labels = []
         self._numlabels = -1
+        self._paramstack = Stack()
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -390,7 +391,7 @@ class SynAn:
     def _variableGroup(self, kind, stop):
         if self._lookahead == WrapTk.ID:
             self._tokenstack.push(self._lookahead)
-            if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
+            if not self._st.insert(self._lookahead.getLexeme(), kind=kind, level=self._st.getBlockLevel(),  pos=self._scanner.getPos()):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         else:
             self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
@@ -400,7 +401,7 @@ class SynAn:
             self._match(WrapTk.COMMA, stop.union((WrapTk.COMMA, WrapTk.ID, WrapTk.COLON)))
             if self._lookahead == WrapTk.ID:
                 self._tokenstack.push(self._lookahead)
-                if not self._st.insert(self._lookahead.getLexeme(), kind=kind, pos=self._scanner.getPos()):
+                if not self._st.insert(self._lookahead.getLexeme(), kind=kind, level=self._st.getBlockLevel(), pos=self._scanner.getPos()):
                     SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.pop()
             else:
@@ -899,7 +900,10 @@ class SynAn:
                 if self._st.getAttr(self._lookahead.getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT, WrapCl.VAR_PARAMETER, WrapCl.VALUE_PARAMETER):
                     self._exptypes.push(self._st.getAttr(self._lookahead.getValue(), "datatype"))
                     print "Emitiendo variable..."
-                    self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.top().getValue(), "displ"))
+                    if self._st.getAttr(self._tokenstack.top().getValue(), "kind") in (WrapCl.VARIABLE, WrapCl.CONSTANT):
+                        self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.top().getValue(), "displ"))
+                    else:
+                        self._code.emit(WrapOp.VARIABLE, self._st.getAttr(self._tokenstack.top().getValue(), "level"), -1)
                 else:
                     SemError(SemError.TYPE_NOT_ALLOWED, self._scanner.getPos(), self._lookahead)
                     self._tokenstack.push(Token(WrapTk.TOKEN_ERROR))
