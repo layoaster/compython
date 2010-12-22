@@ -141,9 +141,10 @@ class SynAn:
 
     # <Program> ::= program id ; <BlockBody> .
     def _program(self, stop):
-        self._code.emit(WrapOp.PROGRAM, 0, 0, 0, 0)
-        labels = self._loadProcedureLabels()
         self._st.set()
+        labels = self._loadProcedureLabels()
+        labels.append(3)
+        self._code.emit(WrapOp.PROGRAM, labels[0], labels[1], labels[2], labels[3])
         self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("blockBody")))
         if self._lookahead == WrapTk.ID:
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.PROGRAM_NAME, pos=self._scanner.getPos(),ref=True):
@@ -172,7 +173,7 @@ class SynAn:
             self._variableDefinitionPart(stop.union(self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
         while self._lookahead == WrapTk.PROCEDURE:
             self._procedureDefinition(stop.union(self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
-        self._compoundStatement(labels[2], stop)
+        self._compoundStatement(stop, labels[2])
 
     # <ConstantDefinitionPart> ::= const <ConstantDefinition> {<ConstantDefinition>}
     def _constantDefinitionPart(self, stop):
@@ -429,14 +430,16 @@ class SynAn:
 
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):
+        self._code.emit(WrapOp.DEFADDR, self._labels)
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
         if self._lookahead == WrapTk.ID:
-            if not self._st.insert(self._lookahead.getValue(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos()):
+            if not self._st.insert(self._lookahead.getValue(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos(), label=self._labels):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
                 procid = "NoName"
             else:
                 procid = self._lookahead.getValue()
                 self._st.setAttr(procid, paramlist=[])
+                self._labels += 1
         else:
             procid = "NoName"
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
@@ -448,9 +451,7 @@ class SynAn:
         self._st.set()
         labels = self._loadProcedureLabels()
         labels.append(self._scanner.getPos()[0])
-        self._code.emit(WrapOp.DEFADDR, self._labels)
-        self._labels += 1
-        self._code.emit(WrapOp.PROCEDURE, 0, 0, 0, 0)
+        self._code.emit(WrapOp.PROCEDURE, labels[0], labels[1], labels[2], labels[3])
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("formalParameterList"), self._ff.first("blockBody")))
             self._formalParameterList(stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("blockBody")))
@@ -540,8 +541,10 @@ class SynAn:
                 self._code.emit(WrapOp.ASSIGN, self._typeLength(rtype))
         elif self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._procedureStatement(stop)
+            #print "label del procedimiento:", self._st.getAttr(self._tokenstack.top(), "label")
         # En este caso se llamo a un procedimiento sin parametros por lo que se ha de limpiar la pila para quitar el nombre de procedimiento
         else:
+            self._code.emit(WrapOp.PROCCALL, 0, self._st.getAttr(self._tokenstack.top().getValue(), "label"))
             self._tokenstack.pop()
             self._syntaxCheck(stop)
 
@@ -663,9 +666,9 @@ class SynAn:
         self._statement(stop)
 
     # <CompoundStatement> ::= begin <Statement> {; <Statement>} end
-    def _compoundStatement(self, begin_label, stop):
-        self._code.emit(WrapOp.DEFADDR, begin_label)
-        print "emitiendo...         DEFADDR", begin_label
+    def _compoundStatement(self, stop, begin_label=None):
+        if begin_label is not None:
+            self._code.emit(WrapOp.DEFADDR, begin_label)
         self._match(WrapTk.BEGIN, stop.union((WrapTk.SEMICOLON, WrapTk.END), self._ff.first("statement")))
         self._statement(stop.union((WrapTk.SEMICOLON, WrapTk.END)))
         while self._lookahead == WrapTk.SEMICOLON:
