@@ -518,7 +518,10 @@ class SynAn:
     # <StatementGroup> ::= {<Selector>} := <Expression> | <ProcedureStatement>
     def _statementGroup(self, stop):
         if self._lookahead in [WrapTk.LEFTBRACKET, WrapTk.PERIOD, WrapTk.BECOMES]:
-            self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.top().getValue(), "displ"))
+            if self._st.getAttr(self._tokenstack.top().getValue(), "kind") == WrapCl.VARIABLE:
+                self._code.emit(WrapOp.VARIABLE, self._st.getBlockLevel(), self._st.getAttr(self._tokenstack.top().getValue(), "displ"))
+            else:
+                print "no es una variable normal"
             # Pasamos el tipo de id raiz a la funcion selector
             if self._tokenstack.top() != WrapTk.TOKEN_ERROR:
                 #comprobamos que el id sea de la clase a la que se le pueden asignar variables
