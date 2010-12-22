@@ -43,7 +43,8 @@ class SynAn:
         self._lookahead = None
         self._labelcount = 0
         self._linerror = 0
-        self._labels = -1
+        self._labels = []
+        self._numlabels = -1
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -59,12 +60,12 @@ class SynAn:
         self._program(frozenset([WrapTk.ENDTEXT]))
 
     def _newLabel(self):
-        if self._labels > self.MAX_LABELS:
+        if self._numlabels > self.MAX_LABELS:
             print "FATAL ERROR: Program too large"
             exit(1)
         else:
-            self._labels += 1
-            return self._labels
+            self._numlabels += 1
+            return self._numlabels
 
     def _checkTypes(self, datatype, *idents):
         """ Comprueba que los identificadores tengan todos del mismo tipo (atributo datatype)
@@ -99,8 +100,8 @@ class SynAn:
     def _loadProcedureLabels(self):
         proclabels = []
         for i in range(0,3):
-            self._labels += 1
-            proclabels.append(self._labels)
+            self._numlabels += 1
+            proclabels.append(self._numlabels)
         return proclabels
 
     def _syntaxError(self, stop, expected=None):
@@ -142,9 +143,9 @@ class SynAn:
     # <Program> ::= program id ; <BlockBody> .
     def _program(self, stop):
         self._st.set()
-        labels = self._loadProcedureLabels()
-        labels.append(3)
-        self._code.emit(WrapOp.PROGRAM, labels[0], labels[1], labels[2], labels[3])
+        self._labels.append(self._loadProcedureLabels())
+        self._labels[0].append(3)
+        self._code.emit(WrapOp.PROGRAM, self._labels[0][0], self._labels[0][1], self._labels[0][2], self._labels[0][3])
         self._match(WrapTk.PROGRAM, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("blockBody")))
         if self._lookahead == WrapTk.ID:
             if not self._st.insert(self._lookahead.getLexeme(), kind=WrapCl.PROGRAM_NAME, pos=self._scanner.getPos(),ref=True):
@@ -154,17 +155,17 @@ class SynAn:
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
         self._match(WrapTk.ID, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
-        self._blockBody(labels, stop)
+        self._blockBody(stop)
         self._match(WrapTk.PERIOD, stop)
         #self._match(WrapTk.ENDTEXT, stop)
         self._st.reset()
-        self._code.emit(WrapOp.DEFARG, labels[0], self._globalvarslength)
-        self._code.emit(WrapOp.DEFARG, labels[1], 0)
+        self._code.emit(WrapOp.DEFARG, self._labels[0][0], self._globalvarslength)
+        self._code.emit(WrapOp.DEFARG, self._labels[0][1], 0)
         self._code.emit(WrapOp.ENDPROG)
 
     # <BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>}
     # <CompoundStatement>
-    def _blockBody(self, labels, stop):
+    def _blockBody(self, stop):
         if self._lookahead == WrapTk.CONST:
             self._constantDefinitionPart(stop.union(self._ff.first("typeDefinitionPart"), self._ff.first("variableDefinitionPart"), self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
         if self._lookahead == WrapTk.TYPE:
@@ -173,7 +174,7 @@ class SynAn:
             self._variableDefinitionPart(stop.union(self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
         while self._lookahead == WrapTk.PROCEDURE:
             self._procedureDefinition(stop.union(self._ff.first("procedureDefinition"), self._ff.first("compoundStatement")))
-        self._compoundStatement(stop, labels[2])
+        self._compoundStatement(stop, self._labels[self._st.getBlockLevel()][2])
 
     # <ConstantDefinitionPart> ::= const <ConstantDefinition> {<ConstantDefinition>}
     def _constantDefinitionPart(self, stop):
@@ -434,11 +435,11 @@ class SynAn:
 
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):
-        self._labels += 1
-        self._code.emit(WrapOp.DEFADDR, self._labels)
+        self._numlabels += 1
+        self._code.emit(WrapOp.DEFADDR, self._numlabels)
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
         if self._lookahead == WrapTk.ID:
-            if not self._st.insert(self._lookahead.getValue(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos(), label=self._labels):
+            if not self._st.insert(self._lookahead.getValue(), kind=WrapCl.PROCEDURE, pos=self._scanner.getPos(), label=self._numlabels):
                 SemError(SemError.REDEFINED_ID, self._scanner.getPos(), self._lookahead)
                 procid = "NoName"
             else:
@@ -453,9 +454,9 @@ class SynAn:
     # <ProcedureBlock> ::= [( <FormalParameterList> )] ; <BlockBody>
     def _procedureBlock(self, procid, stop):
         self._st.set()
-        labels = self._loadProcedureLabels()
-        labels.append(self._scanner.getPos()[0])
-        self._code.emit(WrapOp.PROCEDURE, labels[0], labels[1], labels[2], labels[3])
+        self._labels.append(self._loadProcedureLabels())
+        self._labels[self._st.getBlockLevel()].append(self._scanner.getPos()[0])
+        self._code.emit(WrapOp.PROCEDURE, self._labels[self._st.getBlockLevel()][0], self._labels[self._st.getBlockLevel()][1], self._labels[self._st.getBlockLevel()][2], self._labels[self._st.getBlockLevel()][3])
         if self._lookahead == WrapTk.LEFTPARENTHESIS:
             self._match(WrapTk.LEFTPARENTHESIS, stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("formalParameterList"), self._ff.first("blockBody")))
             self._formalParameterList(stop.union((WrapTk.RIGHTPARENTHESIS, WrapTk.SEMICOLON), self._ff.first("blockBody")))
@@ -465,11 +466,14 @@ class SynAn:
                 self._st.setAttr(procid, paramlist=paramlist)
             self._match(WrapTk.RIGHTPARENTHESIS, stop.union([WrapTk.SEMICOLON], self._ff.first("blockBody")))
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
-        self._blockBody(labels, stop)
-        self._st.reset()
-        self._code.emit(WrapOp.DEFARG, labels[0], self._localvarslength)
-        self._code.emit(WrapOp.DEFARG, labels[1], 0)
+        self._blockBody(stop)
+        print "tam:", self._localvarslength
+        self._code.emit(WrapOp.DEFARG, self._labels[self._st.getBlockLevel()][0], self._localvarslength)
+        self._code.emit(WrapOp.DEFARG, self._labels[self._st.getBlockLevel()][1], 0)
         self._code.emit(WrapOp.ENDPROC, 0)
+        print self._labels.pop()
+        self._localvarslength = 0
+        self._st.reset()
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
     def _formalParameterList(self, stop):
