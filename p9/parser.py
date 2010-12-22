@@ -158,8 +158,8 @@ class SynAn:
         self._match(WrapTk.PERIOD, stop)
         #self._match(WrapTk.ENDTEXT, stop)
         self._st.reset()
-        self._code.emit(WrapOp.DEFARG, 0, 0)
-        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.DEFARG, labels[0], self._globalvarslength)
+        self._code.emit(WrapOp.DEFARG, labels[1], 0)
         self._code.emit(WrapOp.ENDPROG)
 
     # <BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>}
@@ -372,10 +372,13 @@ class SynAn:
 
     # <VariableDefinitionPart> ::= var <VariableDefinition> {<VariableDefinition>}
     def _variableDefinitionPart(self, stop):
+        self._localvarslength = 0
         self._match(WrapTk.VAR, stop.union(self._ff.first("variableDefinition")))
         self._variableDefinition(stop.union(self._ff.first("variableDefinition")))
         while self._lookahead == WrapTk.ID:
             self._variableDefinition(stop.union(self._ff.first("variableDefinition")))
+        if self._st.getBlockLevel() == 0:
+            self._globalvarslength = self._localvarslength
 
     # <VariableDefinition> ::= <VariableGroup> ;
     def _variableDefinition(self, stop):
@@ -422,6 +425,7 @@ class SynAn:
                 self._st.setAttr(self._tokenstack.top().getLexeme(), datatype=idtype)
                 # Se inserta en la lista una tupla con el lexema del parametro y su tipo
                 varlist.append((self._tokenstack.pop(), idtype))
+                self._localvarslength += self._typeLength(idtype)
             else:
                 self._tokenstack.pop()
         self._match(WrapTk.ID, stop)
@@ -463,8 +467,8 @@ class SynAn:
         self._match(WrapTk.SEMICOLON, stop.union(self._ff.first("blockBody")))
         self._blockBody(labels, stop)
         self._st.reset()
-        self._code.emit(WrapOp.DEFARG, 0, 0)
-        self._code.emit(WrapOp.DEFARG, 0, 0)
+        self._code.emit(WrapOp.DEFARG, labels[0], self._localvarslength)
+        self._code.emit(WrapOp.DEFARG, labels[1], 0)
         self._code.emit(WrapOp.ENDPROC, 0)
 
     # <FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
