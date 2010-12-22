@@ -706,9 +706,10 @@ class SynAn:
                 if ltype != rtype:
                     SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                     ltype = "NoName"
-                # si todo va bien el tipo resultante sera un boolean
+                # si todo va bien el tipo resultante sera un boolean, y ademas procedemos a emitir
                 else:
                     ltype = "boolean"
+                    self._code.emit(self._opcodestack.pop())
             else:
                 ltype = "NoName"
         # Devolvemos el tipo resultante de las expresion completa
@@ -718,16 +719,22 @@ class SynAn:
     def _relationalOperator(self, stop):
         if self._lookahead == WrapTk.LESS:
             self._match(WrapTk.LESS, stop)
+            self._opcodestack.push(WrapOp.LESS)
         elif self._lookahead == WrapTk.EQUAL:
             self._match(WrapTk.EQUAL, stop)
+            self._opcodestack.push(WrapOp.EQUAL)
         elif self._lookahead == WrapTk.GREATER:
             self._match(WrapTk.GREATER, stop)
+            self._opcodestack.push(WrapOp.GREATER)
         elif self._lookahead == WrapTk.NOTGREATER:
             self._match(WrapTk.NOTGREATER, stop)
+            self._opcodestack.push(WrapOp.NOTGREATER)
         elif self._lookahead == WrapTk.NOTEQUAL:
             self._match(WrapTk.NOTEQUAL, stop)
+            self._opcodestack.push(WrapOp.NOTEQUAL)
         elif self._lookahead == WrapTk.NOTLESS:
             self._match(WrapTk.NOTLESS, stop)
+            self._opcodestack.push(WrapOp.NOTLESS)
         else:
             self._syntaxError(stop, self._ff.first("relationalOperator"))
 
