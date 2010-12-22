@@ -36,7 +36,7 @@ class WrapOp:
     PROCCALL   = 22
     PROCEDURE  = 23
     PROGRAM    = 24
-    SUBTRACT   = 25
+    SUBSTRACT  = 25
     VALUE      = 26
     VARIABLE   = 27
     VARPARAM   = 28
@@ -49,7 +49,7 @@ class WrapOp:
                  "END_PROG", "EQUAL", "FIELD", "GO_FALSE", "GOTO", "GREATER",
                  "INDEX", "LESS", "MINUS", "MODULO", "MULTIPLY", "NOT",
                  "NOT_EQUAL", "NOT_GREATER", "NOT_LESS", "OR", "PROC_CALL",
-                 "PROCEDURE", "PROGRAM", "SUBTRACT", "VALUE", "VARIABLE",
+                 "PROCEDURE", "PROGRAM", "SUBSTRACT", "VALUE", "VARIABLE",
                  "VAR_PARAM", "READ", "WRITE", "DEF_ADDR", "DEF_ARG")
 
 class CodeGenerator:
@@ -75,7 +75,7 @@ class CodeGenerator:
                 self._code.write(str(opcode) + '\n')
                 for i in args:
                     self._code.write(str(i) + '\n')
-                self._list.write(WrapOp.OpLexemes[opcode].rjust(6) + ':')
+                self._list.write(str(self._address).rjust(6) + ':')
                 self._list.write(WrapOp.OpLexemes[opcode].rjust(12))
                 for i in args:
                     self._list.write(str(i).rjust(6))

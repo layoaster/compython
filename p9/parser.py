@@ -783,6 +783,9 @@ class SynAn:
                     elif ltype != expectedtype:
                         SemError(SemError.CONF_EXPR_TYPES, self._scanner.getPos())
                         ltype = "NoName"
+                    # Todo fue bien, emitimos
+                    else:
+                        self._code.emit(self._opcodestack.pop())
                 #Alguno de los tipos es NoName asi que seteamos el ltype para la siguiente subexpresion
                 else:
                     ltype = "NoName"
@@ -806,12 +809,15 @@ class SynAn:
         if self._lookahead == WrapTk.PLUS:
             self._match(WrapTk.PLUS, stop)
             self._exptypes.push("integer")
+            self._opcodestack.push(WrapOp.ADD)
         elif self._lookahead == WrapTk.MINUS:
             self._match(WrapTk.MINUS, stop)
             self._exptypes.push("integer")
+            self._opcodestack.push(WrapOp.SUBTRACT)
         elif self._lookahead == WrapTk.OR:
             self._match(WrapTk.OR, stop)
             self._exptypes.push("boolean")
+            self._opcodestack.push(WrapOp.OR)
         else:
             self._syntaxError(stop, self._ff.first("additiveOperator"))
             self._exptypes.push("NoName")
@@ -969,6 +975,11 @@ class SynAn:
         self._expression(stop.union([WrapTk.RIGHTBRACKET]))
         if self._st.getAttr(self._exptypes.pop(), "kind", WrapCl.STANDARD_TYPE) != WrapCl.STANDARD_TYPE:
             SemError(SemError.ILLEGAL_INDEX, self._scanner.getPos())
+        self._tokenstack.push(Token(WrapTk.ID, self._st.getAttr(self._tokenstack.pop().getValue(), "datatype")))
+        self._code.emit(WrapOp.INDEX, self._st.getAttr(self._tokenstack.top().getValue(), "lowerbound"), \
+                                      self._st.getAttr(self._tokenstack.top().getValue(), "upperbound"), \
+                                      self._typeLength(self._exptypes.top()), \
+                                      self._scanner.getPos()[0])
         self._match(WrapTk.RIGHTBRACKET, stop)
 
     # <FieldSelector> ::= . id
