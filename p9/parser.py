@@ -59,12 +59,12 @@ class SynAn:
         self._program(frozenset([WrapTk.ENDTEXT]))
 
     def _newLabel(self):
-        if self._labelcount > self.MAX_LABELS:
+        if self._labels > self.MAX_LABELS:
             print "FATAL ERROR: Program too large"
             exit(1)
         else:
-            self._labelcount += 1
-            return self._labelcount
+            self._labels += 1
+            return self._labels
 
     def _checkTypes(self, datatype, *idents):
         """ Comprueba que los identificadores tengan todos del mismo tipo (atributo datatype)
@@ -643,27 +643,43 @@ class SynAn:
 
     # <IfStatement> ::= if <Expression> then <Statement> [else <Statement>]
     def _ifStatement(self, stop):
+        labelrealend = 0
         self._match(WrapTk.IF, stop.union((WrapTk.THEN, WrapTk.ELSE), self._ff.first("expression"), self._ff.first("statement")))
         self._expression(stop.union((WrapTk.THEN, WrapTk.ELSE), self._ff.first("statement")))
         exptype = self._exptypes.pop()
         if (exptype != "boolean"):# and (exptype != "NoName"):
             SemError(SemError.BOOL_EXPR_EXPCT, self._scanner.getPos(), exptype)
         self._match(WrapTk.THEN, stop.union([WrapTk.ELSE], self._ff.first("statement")))
+        labelend = self._newLabel()
+        self._code.emit(WrapOp.GOFALSE, labelend)
         self._statement(stop.union([WrapTk.ELSE], self._ff.first("statement")))
         self._syntaxCheck(stop.union([WrapTk.ELSE]))
         if self._lookahead == WrapTk.ELSE:
+            labelrealend = self._newLabel()
+            self._code.emit(WrapOp.GOTO, labelrealend)
+            self._code.emit(WrapOp.DEFADDR, labelend)
             self._match(WrapTk.ELSE, stop.union(self._ff.first("statement")))
             self._statement(stop)
+        if labelrealend != 0:
+            self._code.emit(WrapOp.DEFADDR, labelrealend)
+        else:
+            self._code.emit(WrapOp.DEFADDR, labelend)
 
     # <WhileStatement> ::= while <Expression> do <Statement>
     def _whileStatement(self, stop):
+        labelstart = self._newLabel()
+        self._code.emit(WrapOp.DEFADDR, labelstart)
         self._match(WrapTk.WHILE, stop.union([WrapTk.DO], self._ff.first("expression"), self._ff.first("statement")))
         self._expression(stop.union([WrapTk.DO], self._ff.first("statement")))
         exptype = self._exptypes.pop()
         if (exptype != "boolean"):# and (exptype != "NoName"):
             SemError(SemError.BOOL_EXPR_EXPCT, self._scanner.getPos(), exptype)
         self._match(WrapTk.DO, stop.union(self._ff.first("statement")))
+        labelend = self._newLabel()
+        self._code.emit(WrapOp.GOFALSE, labelend)
         self._statement(stop)
+        self._code.emit(WrapOp.GOTO, labelstart)
+        self._code.emit(WrapOp.DEFADDR, labelend)
 
     # <CompoundStatement> ::= begin <Statement> {; <Statement>} end
     def _compoundStatement(self, stop, begin_label=None):
