@@ -43,7 +43,7 @@ class SynAn:
         self._lookahead = None
         self._labelcount = 0
         self._linerror = 0
-        self._labels = 0
+        self._labels = -1
 
     def start(self, fin):
         """ Comienzo del analizador sintactico. Se encarga de inicializar el lexico, ordenarle abrir el
@@ -99,8 +99,8 @@ class SynAn:
     def _loadProcedureLabels(self):
         proclabels = []
         for i in range(0,3):
-            proclabels.append(self._labels)
             self._labels += 1
+            proclabels.append(self._labels)
         return proclabels
 
     def _syntaxError(self, stop, expected=None):
@@ -430,6 +430,7 @@ class SynAn:
 
     # <ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
     def _procedureDefinition(self, stop):
+        self._labels += 1
         self._code.emit(WrapOp.DEFADDR, self._labels)
         self._match(WrapTk.PROCEDURE, stop.union((WrapTk.ID, WrapTk.SEMICOLON), self._ff.first("procedureBlock")))
         if self._lookahead == WrapTk.ID:
@@ -439,7 +440,6 @@ class SynAn:
             else:
                 procid = self._lookahead.getValue()
                 self._st.setAttr(procid, paramlist=[])
-                self._labels += 1
         else:
             procid = "NoName"
         self._match(WrapTk.ID, stop.union(self._ff.first("procedureBlock"), [WrapTk.SEMICOLON]))
