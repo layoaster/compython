@@ -1,0 +1,194 @@
+## EBNF Syntax ##
+
+```
+<Program> ::= program id ; <BlockBody> .
+
+<BlockBody> ::= [<ConstantDefinitionPart>] [<TypeDefinitionPart>] [<VariableDefinitionPart>] {<ProcedureDefinition>} <CompoundStatement>
+
+<ConstantDefinitionPart> ::= const <ConstantDefinition> {<ConstantDefinition>}
+
+<ConstantDefinition> ::= id = <Constant> ;
+
+<TypeDefinitionPart> ::= type <TypeDefinition> {<TypeDefinition>}
+
+<TypeDefinition> ::= id = <NewType> ;
+
+<NewType> ::= <NewArrayType> | <NewRecordType>
+
+<NewArrayType> ::= array "[" <IndexRange> "]" of id
+
+<IndexRange> ::= <Constant> .. <Constant>
+
+<NewRecordType> ::= record <FieldList> end
+
+<FieldList> ::= <RecordSection> {; <RecordSection>}
+
+<RecordSection> ::= id {, id} : id
+
+<VariableDefinitionPart> ::= var <VariableDefinition> {<VariableDefinition>}
+
+<VariableDefinition> ::= <VariableGroup> ;
+
+<VariableGroup> ::= id {, id} : id
+
+<ProcedureDefinition> ::= procedure id <ProcedureBlock> ;
+
+<ProcedureBlock> ::= [( <FormalParameterList> )]  ; <BlockBody>
+
+<FormalParameterList> ::= <ParameterDefinition> {; <ParameterDefinition>}
+
+<ParameterDefinition> ::= [var] <VariableGroup>
+
+<Statement> ::= id <StatementGroup> | <IfStatement> | <WhileStatement> | <CompoundStatement> | ε
+
+<StatementGroup> ::=  {<Selector>} := <Expression> | <ProcedureStatement>
+
+<ProcedureStatement> ::= ( <ActualParameterList> )
+
+<ActualParameterList> ::= <Expression> {, <Expression>}
+
+<IfStatement> ::= if <Expression> then <Statement> [else <Statement>]
+
+<WhileStatement> ::= while <Expression> do <Statement>
+
+<CompoundStatement> ::= begin <Statement> {; <Statement>} end
+
+<Expression> ::= <SimpleExpression> [<RelationalOperator> <SimpleExpression>]
+
+<RelationalOperator> ::= < | = | > | <= | <> | >=
+
+<SimpleExpression> ::= [<SignOperator>] <Term> {<AdditiveOperator> <Term>}
+
+<SignOperator> ::= + | -
+
+<AdditiveOperator> ::= + | - | or
+
+<Term> ::= <Factor> {<MultiplyingOperator> <Factor>}
+
+<MultiplyingOperator> ::= * | div | mod | and
+
+<Factor> ::= numeral | id {<Selector>} | ( <Expression> ) | not <Factor>
+
+<Selector> ::= <IndexSelector> | <FieldSelector>
+
+<IndexSelector> ::= "[" <Expression> "]"
+
+<FieldSelector> ::= . id
+
+<Constant> ::= numeral | id
+```
+
+---
+
+
+## BNF Syntax ##
+
+```
+<Program> ::= program id ; <BlockBody> .
+
+<BlockBody> ::= <ConstantDefinitionPart> <TypeDefinitionPart> <VariableDefinitionPart> <ProcedureDefinition> <CompoundStatement>
+
+<ConstantDefinitionPart> ::= const <ConstantDefinition> <ConstantDefinition2> | ε
+
+<ConstantDefinition> ::= id = <Constant> ;
+
+<ConstantDefinition2> ::= <ConstantDefinition> <ConstantDefinition2> | ε
+
+<TypeDefinitionPart> ::= type <TypeDefinition> <TypeDefinition2> | ε
+
+<TypeDefinition> ::= id = <NewType> ;
+
+<TypeDefinition2> ::= <TypeDefinition> <TypeDefinition2> | ε
+
+<NewType> ::= <NewArrayType> | <NewRecordType>
+
+<NewArrayType> ::= array [ <IndexRange> ] of id
+
+<IndexRange> ::= <Constant> .. <Constant>
+
+<NewRecordType> ::= record <FieldList> end
+
+<FieldList> ::= <RecordSection> <FieldList2>
+
+<FieldList2> ::= ; <RecordSection> <FieldList2> | ε
+
+<RecordSection> ::= id <RecordSection2> : id
+
+<RecordSection2> ::= , id <RecordSection2> | ε
+
+<VariableDefinitionPart> ::= var <VariableDefinition> <VariableDefinition2> | ε
+
+<VariableDefinition> ::= <VariableGroup> ;
+
+<VariableDefinition2> ::= <VariableDefinition> <VariableDefinition2> | ε
+
+<VariableGroup> ::= id <VariableGroup2> : id
+
+<VariableGroup2> ::= , id <VariableGroup2> | ε
+
+<ProcedureDefinition> ::= procedure id <ProcedureBlock> ; <ProcedureDefinition> | ε
+
+<ProcedureBlock> ::= <ProcedureBlock2> ; <BlockBody>
+
+<ProcedureBlock2> -> ( <FormalParameterList> ) | ε
+
+<FormalParameterList> ::= <ParameterDefinition> <ParameterDefinition2> | ε
+
+<ParameterDefinition> ::= var <VariableGroup> | <VariableGroup>
+
+<ParameterDefinition2> ::= ; <ParameterDefinition> <ParameterDefinition2> | ε
+
+<Statement> ::= id <StatementGroup> | <IfStatement> | <WhileStatement> | <CompoundStatement> | ε
+
+<StatementGroup> ::= <Factor2> := <Expression> | <ProcedureStatement>
+
+<ProcedureStatement> ::= ( <ActualParameterList> )  | ε
+
+<ActualParameterList> ::= <Expression> <Expression2>
+
+<Expression2> ::= , <Expression> <Expression2> | ε
+
+<IfStatement> ::= if <Expression> then <Statement> <IfStatement2>
+
+<IfStatement2> ::= else <Statement> | ε
+
+<WhileStatement> ::= while <Expression> do <Statement>
+
+<CompoundStatement> ::= begin <Statement> <Statement2> end
+
+<Statement2> ::= ; <Statement> <Statement2> | ε
+
+<Expression> ::= <SimpleExpression> <ExpressionGroup>
+
+<ExpressionGroup> ::= <RelationalOperator> <SimpleExpression> | ε
+
+<RelationalOperator> ::= < | = | > | <= | <> | >=
+
+<SimpleExpression> ::= <Sign> <Term> <SimpleExpressionGroup>
+
+<Sign> ::= <SignOperator> | ε
+
+<SimpleExpressionGroup> ::= <AdditiveOperator> <Term> <SimpleExpressionGroup> | ε
+
+<SignOperator> ::= + | -
+
+<AdditiveOperator> ::= + | - | or
+
+<Term> ::= <Factor> <Multiplying>
+
+<Multiplying> ::= <MultiplyingOperator> <Factor> <Multiplying> | ε
+
+<MultiplyingOperator> ::= * | div | mod | and
+
+<Factor> ::= numeral | id <Factor2> | ( <Expression> ) | not <Factor>
+
+<Factor2> ::= <Selector2> <Factor2> | ε
+
+<Selector> ::= <IndexSelector> | <FieldSelector>
+
+<IndexSelector> ::= [ <Expression> ]
+
+<FieldSelector> ::= . id
+
+<Constant> ::= numeral | id
+```
