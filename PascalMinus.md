@@ -1,3 +1,3 @@
 # Links #
 
-http://ag-kastens.upb.de/eli/examples/eli_pascalE.html
+http://eli-project.sourceforge.net/pascal_html/pascal-.html
